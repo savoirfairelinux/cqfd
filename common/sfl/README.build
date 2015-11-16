@@ -1,0 +1,25 @@
+REPRODUCTIBLE BUILD PROCEDURE
+=============================
+
+This document's aim is to present a build system and a procedure easy to
+reproduce.
+
+
+== Generating a Docker build container
+
+The project's Dockerfile is located in the +sfl/docker/+ directory. To
+generate the build container (this should be done once unless the
+build environment is modified), use the following command:
+
+ $ docker build -t client/reponame sfl/docker/.
+
+The container can then be invoked in several ways:
+
+* Using cqfd:
+
+ TODO: documenter
+
+* Using a manual docker invokation:
+
+ $ docker run -u $USER:$GROUPS -v "$PWD":/home/builder/src -ti \
+	client/reponame
