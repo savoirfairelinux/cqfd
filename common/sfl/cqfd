@@ -14,7 +14,7 @@ PROGNAME=`basename $0`
 ## usage() - print the usage in stdin
 usage() {
 cat << EOF
-Usage: ${PROGNAME} -g <GIT_BRANCH> [OPTIONS]
+Usage: ${PROGNAME} [OPTIONS]
 
 * If you have a .sflproject: ${PROGNAME}
 * If you want to build with a special command: ${PROGNAME} -b <"CMD">
@@ -27,10 +27,11 @@ Options are:
 					      or the recipe in yocto.
 	-b <build command>		    Specify a build command to pass to
 					      docker.
-	-g <git branch>			    The git branch you want to build.
-					      Default is master
+	-g <client_reponame>		    The name of the docker image
+					      Default is client_reponame
 	-j				    Make an archive out of release
 					      files
+	-i				    Initialize build container.
 EOF
 }
 
@@ -41,21 +42,32 @@ die() {
 	exit ${EERROR}
 }
 
-## docker_run() - run command in configured container
-docker_run() {
-	docker -D build -t "${GIT_BRANCH}" .
-	docker -D run --privileged -v "$PWD":/home/builder -v ~/.ssh:/home/builder/.ssh \
-	-v `dirname $SSH_AUTH_SOCK`:/home/builder/.sockets -it \
-		"${GIT_BRANCH}" /bin/bash -c "groupadd -og ${GROUPS} -f builders && \
-		                useradd -s /bin/bash -u ${UID} -g ${GROUPS} builder && \
-				su - builder -c \"$1\""
+#docker_build() - Initialize build container
+# $1 docker image name
+docker_build() {
+	docker build -t "${$1}" docker/.
 }
 
+## docker_run() - run command in configured container
+docker_run() {
+	if  [ "${BUILD_DOCKER}" = "1" ]; then
+		docker_build "${DOCKER_IMG_NAME}"
+	fi
+	docker run --privileged -v "${PROJECT_PATH}":/home/builder/src -v ~/.ssh:/home/builder/.ssh \
+	-v `dirname $SSH_AUTH_SOCK`:/home/builder/.sockets -it \
+		"${DOCKER_IMG_NAME}" /bin/bash -c "groupadd -og ${GROUPS} -f builders && \
+		                useradd -s /bin/bash -u ${UID} -g ${GROUPS} builder && \
+				su - builder -c \"cd src/ && $1\""
+}
+
+PROJECT_PATH="${PWD%%/sfl}"
+BUILD_DOCKER=0
 DISTRO_BUILD_PARAM=
-GIT_BRANCH="master"
+DOCKER_IMG_NAME=""
 BUILD_MODEL=
-DOCKER_FILE="Dockerfile"
-SFL_PROJECT=".sflproject"
+DOCKER_FILE_PATH="./docker/"
+DOCKER_FILE=${DOCKER_FILE_PATH}"Dockerfile"
+SFL_PROJECT="../.sflproject"
 BUILD_CMD=
 RELEASE_FILES=
 MAKE_ARCHIVE=0
@@ -76,8 +88,14 @@ if [ -n "${P_RELEASE_FILES}" ]; then
 	RELEASE_FILES=${P_RELEASE_FILES}
 fi
 
+if [ -n "${P_BUILD_CONTAINER}" ]; then
+	temp_path=${PWD%%/sfl}
+	DOCKER_IMG_NAME="${P_BUILD_CONTAINER}_${temp_path##*/}"
+else
+        die "No value for P_BUILD_CONTAINER in .sflproject, client name wanted"
+fi
 
-while getopts "jhp:m:b:g:" OPTION
+while getopts "ijhp:m:b:g:" OPTION
 do
 	case "${OPTION}" in
 		h)
@@ -90,9 +108,12 @@ do
 		b)
 			BUILD_CMD="${OPTARG}";;
 		g)
-			GIT_BRANCH="${OPTARG}";;
+			DOCKER_IMG_NAME="${OPTARG}";;
 		j)
 			MAKE_ARCHIVE=1;;
+		i)
+
+			BUILD_DOCKER=1;;
 		*)
 			die "Unknown parameter ${OPTION}";;
 
