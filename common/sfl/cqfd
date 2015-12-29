@@ -21,14 +21,11 @@ Usage: $PROGNAME [OPTIONS]
 * If you want default build command: $PROGNAME <OPTIONS>
 
 Options are:
-	-m <buildroot | yocto | openwrt>    Model of build system to use.
-	-p <build parameter>		    It can be the name of the
-                                              configuration file in buildroot
-					      or the recipe in yocto.
 	-b <build command>		    Specify a build command to pass to
 					      docker.
 	-g <client_reponame>		    The name of the docker image
-					      Default is client_reponame
+					      Default is client_reponame,
+					      Note: use before -i
 	-j				    Make an archive out of release
 					      files
 	-i				    Initialize build container.
@@ -75,21 +72,18 @@ die() {
 #docker_build() - Initialize build container
 # $1 docker image name
 docker_build() {
-	docker build -t "$1" docker/.
+	docker build -q -t "$1" `dirname $DOCKER_FILE`
 }
 
 ## docker_run() - run command in configured container
 docker_run() {
-	if  [ "$BUILD_DOCKER" = "1" ]; then
-		docker_build "$DOCKER_IMG_NAME"
-	fi
-
 	docker run --privileged -v "$PROJECT_PATH":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       -v `dirname $SSH_AUTH_SOCK`:/home/builder/.sockets \
 	       -it "$DOCKER_IMG_NAME" \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
+	       chown $UID:$GROUPS /home/builder && \
 	       su - builder -c \"cd src/ && $1\""
 }
 
@@ -122,33 +116,16 @@ if [ -f "$SFL_PROJECT" ]; then
 	RELEASE_FILES="$files"
 fi
 
-# Compatibility with P_BUILD_CMD or P_RELEASE_FILE
-if [ -n "$P_BUILD_CMD" ]; then
-	BUILD_CMD=$P_BUILD_CMD
-fi
-
-if [ -n "$P_RELEASE_FILES" ]; then
-	RELEASE_FILES=$P_RELEASE_FILES
-fi
-
-if [ -z "$CUST_CODENAME" -o -z "$CUST_PROJECT" ]; then
-        die "No customer codename/project found in .sflproject!"
-fi
-
 # This will look like fooinc_reponame
-DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
+if [ -n "$CUST_CODENAME" -a -n "$CUST_PROJECT" ]; then
+	DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
+fi
 
-while getopts "ijhp:m:b:g:" OPTION; do
+while getopts "ijhb:g:" OPTION; do
 	case "$OPTION" in
 	h)
 		usage
 		exit $ESUCCESS
-		;;
-	m)
-		BUILD_MODEL="$OPTARG"
-		;;
-	p)
-		DISTRO_BUILD_PARAM="$OPTARG"
 		;;
 	b)
 		BUILD_CMD="$OPTARG"
@@ -160,7 +137,11 @@ while getopts "ijhp:m:b:g:" OPTION; do
 		MAKE_ARCHIVE=1
 		;;
 	i)
-		BUILD_DOCKER=1
+		# We expect a Dockerfile is always present
+		[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
+		[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
+		docker_build $DOCKER_IMG_NAME
+		exit $?
 		;;
 	*)
 		die "Unknown parameter $OPTION"
@@ -168,52 +149,15 @@ while getopts "ijhp:m:b:g:" OPTION; do
 	esac
 done
 
-if [ ! -f "$DOCKER_FILE" ]; then
-	die " $DOCKER_FILE not found"
+if [ -z "$BUILD_CMD" ]; then
+	die "No build.command defined in .sflproject !"
 fi
 
-# BUILD_CMD can be taken from Dockerfile or you can choose your own
-# with -b
-if [ -n "$BUILD_CMD" ]; then
-	docker_run "$BUILD_CMD"
-else
-	if [ -z "$DISTRO_BUILD_PARAM" ]; then
-		die "build parameters not specified." \
-		    "Use -p to specify a build parameter"
-	fi
+# Run our build command inside the build container
+docker_run "$BUILD_CMD"
 
-	case "$BUILD_MODEL" in
-	buildroot)
-		BUILD_CMD="make clean && make $DISTRO_BUILD_PARAM && make"
-		;;
-
-	yocto)
-		BUILD_CMD="set -e && \
-			source oe-init-build-env build-$DISTRO_BUILD_PARAM && \
-			bitbake -f $DISTRO_BUILD_PARAM"
-		;;
-
-	openwrt)
-		BUILD_CMD="make clean && \
-			echo $DISTRO_BUILD_PARAM >.config && \
-			make defconfig && \
-			make"
-		;;
-	*)
-		die "build model not recognized"
-		;;
-	esac
-
-	docker_run "$BUILD_CMD"
-fi
-
-# Create Release package
+# Create a release package
 if [ "$MAKE_ARCHIVE" = "1" ]; then
-	if [ -z "$JOB_NAME" ]; then
-		JOB_NAME="local-build"
-		BUILD_ID="`date --rfc-3339='date'`"
-	fi
-
 	if [ -z "$RELEASE_FILES" ]; then
 		die "No files to archive, check release.files in $SFL_PROJECT"
 	fi
@@ -221,6 +165,11 @@ if [ "$MAKE_ARCHIVE" = "1" ]; then
 	for file in $RELEASE_FILES; do
 		[ -f $file ] || die "Cannot create release: missing $file"
 	done
+
+	if [ -z "$JOB_NAME" ]; then
+		JOB_NAME="local-build"
+		BUILD_ID="`date --rfc-3339='date'`"
+	fi
 
 	RELEASE_PACKAGE=${JOB_NAME}_${BUILD_ID}.tar.xz
 	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
