@@ -9,6 +9,7 @@ EERROR=1
 ESUCCESS=0
 
 PROGNAME=`basename $0`
+TOPDIR=`cd $(dirname $0)/..; pwd`
 
 ## usage() - print usage on stdin
 usage() {
@@ -32,6 +33,36 @@ Options are:
 					      files
 	-i				    Initialize build container.
 EOF
+}
+
+# cfg_parser() - parse ini-style config files
+# Will parse a ini-style config file, and evaluate it to a bash array.
+#   Ref: http://theoldschooldevops.com/2008/02/09/bash-ini-parser/
+# arg$1: path to ini file
+cfg_parser() {
+	# bash 4.3 and later break compatibility
+	if [ $BASH_VERSINFO -ge 4 -a ${BASH_VERSINFO[1]} -gt 2 ]; then
+		shopt -s compat42
+	fi
+
+	ini="$(<$1)"                # read the file
+	ini="${ini//[/\[}"          # escape [
+	ini="${ini//]/\]}"          # escape ]
+	IFS=$'\n' && ini=( ${ini} ) # convert to line-array
+	ini=( ${ini[*]//;*/} )      # remove comments with ;
+	ini=( ${ini[*]/\    =/=} )  # remove tabs before =
+	ini=( ${ini[*]/=\   /=} )   # remove tabs be =
+	ini=( ${ini[*]/\ =\ /=} )   # remove anything with a space around =
+	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} ) # set section prefix
+	ini=( ${ini[*]/%\\]/ \(} )  # convert text2function (1)
+	ini=( ${ini[*]/=/=\( } )    # convert item to array
+	ini=( ${ini[*]/%/ \)} )     # close array parenthesis
+	ini=( ${ini[*]/%\\ \)/ \\} ) # the multiline trick
+	ini=( ${ini[*]/%\( \)/\(\) \{} ) # convert text2function (2)
+	ini=( ${ini[*]/%\} \)/\}} ) # remove extra parenthesis
+	ini[0]="" # remove first element
+	ini[${#ini[*]} + 1]='}'    # add the last brace
+	eval "$(echo "${ini[*]}")" # eval the result
 }
 
 ## die() - exit when an error occured
@@ -67,9 +98,8 @@ BUILD_DOCKER=0
 DISTRO_BUILD_PARAM=
 DOCKER_IMG_NAME=""
 BUILD_MODEL=
-DOCKER_FILE_PATH="./docker/"
-DOCKER_FILE="$DOCKER_FILE_PATH/Dockerfile"
-SFL_PROJECT="../.sflproject"
+DOCKER_FILE="$TOPDIR/sfl/docker/Dockerfile"
+SFL_PROJECT="$TOPDIR/.sflproject"
 BUILD_CMD=
 RELEASE_FILES=
 MAKE_ARCHIVE=0
@@ -78,7 +108,18 @@ MAKE_ARCHIVE=0
 
 # The .sflproject file allows per-project customizations
 if [ -f "$SFL_PROJECT" ]; then
-	source "$SFL_PROJECT"
+	cfg_parser "$SFL_PROJECT"
+
+	# Load customer, build and release settings
+	cfg.section.customer
+	CUST_CODENAME="$codename"
+	CUST_PROJECT="$project"
+
+	cfg.section.build
+	BUILD_CMD="$command"
+
+	cfg.section.release
+	RELEASE_FILES="$files"
 fi
 
 # Compatibility with P_BUILD_CMD or P_RELEASE_FILE
@@ -90,12 +131,12 @@ if [ -n "$P_RELEASE_FILES" ]; then
 	RELEASE_FILES=$P_RELEASE_FILES
 fi
 
-if [ -n "$P_BUILD_CONTAINER" ]; then
-	temp_path=${PWD%%/sfl}
-	DOCKER_IMG_NAME="${P_BUILD_CONTAINER}_${temp_path##*/}"
-else
-        die "No value for P_BUILD_CONTAINER in .sflproject, client name wanted"
+if [ -z "$CUST_CODENAME" -o -z "$CUST_PROJECT" ]; then
+        die "No customer codename/project found in .sflproject!"
 fi
+
+# This will look like fooinc_reponame
+DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
 
 while getopts "ijhp:m:b:g:" OPTION; do
 	case "$OPTION" in
@@ -174,7 +215,7 @@ if [ "$MAKE_ARCHIVE" = "1" ]; then
 	fi
 
 	if [ -z "$RELEASE_FILES" ]; then
-		die "No files to archive, check RELEASE_FILE in $SFL_PROJECT"
+		die "No files to archive, check release.files in $SFL_PROJECT"
 	fi
 
 	for file in $RELEASE_FILES; do

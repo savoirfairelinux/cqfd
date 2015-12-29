@@ -1,2 +1,10 @@
-BUILD_CMD="asciidoc README.CLIENT"
-RELEASE_FILES="README.html"
+[customer]
+codename='fooinc'
+project='buildroot'
+
+[build]
+command='asciidoc README.FOOINC'
+
+[release]
+files='README.html'
+mailto='bob@fooinc.com fred@fooinc.com joe@savoirfairelinux.com'
