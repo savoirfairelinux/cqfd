@@ -1,0 +1,7 @@
+= ChangeLog for project-templates
+
+== Version v1
+
+* Initial release
+* Support for Ubuntu (trusty) build containers
+

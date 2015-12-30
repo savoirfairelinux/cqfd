@@ -13,7 +13,7 @@ TOPDIR=`cd $(dirname $0)/..; pwd`
 
 ## usage() - print usage on stdin
 usage() {
-cat << EOF
+cat <<EOF
 Usage: $PROGNAME [OPTIONS]
 
 * If you have a .sflproject: $PROGNAME
@@ -69,13 +69,27 @@ die() {
 	exit $EERROR
 }
 
-#docker_build() - Initialize build container
+# docker_build() - Initialize build container
 # $1 docker image name
 docker_build() {
 	docker build -q -t "$1" `dirname $DOCKER_FILE`
 }
 
-## docker_run() - run command in configured container
+# docker_run() - run command in configured container
+# A few implementation details:
+#
+# - The user executing the build commands inside the container is
+#   named 'builder', with the same uid/gid as your user to keep
+#   filesystem permissions in sync.
+#
+# - Your project's source directory is always mapped to ~builder/src/
+#
+# - Your ~/.ssh directory is mapped to ~builder/.ssh to provide access
+#   to the ssh keys (your build may pull authenticated git repos for
+#   example).
+#
+# arg$1: the command string to execute as builder
+#
 docker_run() {
 	docker run --privileged -v "$PROJECT_PATH":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
@@ -156,7 +170,11 @@ fi
 # Run our build command inside the build container
 docker_run "$BUILD_CMD"
 
-# Create a release package
+# Create a release package.
+# Note: the --transform option passed to tar allows to move all the
+# specified files at the root of the archive. Therefore, you shouldn't
+# include two files with the same name in the list of files to
+# archive.
 if [ "$MAKE_ARCHIVE" = "1" ]; then
 	if [ -z "$RELEASE_FILES" ]; then
 		die "No files to archive, check release.files in $SFL_PROJECT"
