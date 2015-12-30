@@ -91,9 +91,15 @@ docker_build() {
 # arg$1: the command string to execute as builder
 #
 docker_run() {
+	local opt
+
+	if [ -e "$SSH_AUTH_SOCK" ]; then
+		opt="-v `dirname $SSH_AUTH_SOCK`:/home/builder/.sockets"
+	fi
+
 	docker run --privileged -v "$PROJECT_PATH":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
-	       -v `dirname $SSH_AUTH_SOCK`:/home/builder/.sockets \
+	       $opt \
 	       -it "$DOCKER_IMG_NAME" \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
