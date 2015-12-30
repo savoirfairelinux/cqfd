@@ -11,24 +11,19 @@ ESUCCESS=0
 PROGNAME=`basename $0`
 TOPDIR=`cd $(dirname $0)/..; pwd`
 
-## usage() - print usage on stdin
+## usage() - print usage on stdout
 usage() {
 cat <<EOF
-Usage: $PROGNAME [OPTIONS]
+Usage: $PROGNAME [COMMAND] [ARGUMENTS]
 
-* If you have a .sflproject: $PROGNAME
-* If you want to build with a special command: $PROGNAME -b <"CMD">
-* If you want default build command: $PROGNAME <OPTIONS>
+Commands:
+    init     Initialize project build container
+    run      Run argument(s) inside build container
+    release  Run argument(s) and release software
+    help     Show this help text
 
-Options are:
-	-b <build command>		    Specify a build command to pass to
-					      docker.
-	-g <client_reponame>		    The name of the docker image
-					      Default is client_reponame,
-					      Note: use before -i
-	-j				    Make an archive out of release
-					      files
-	-i				    Initialize build container.
+    By default, run is assumed, and the run command is the one
+    configured in .sflproject.
 EOF
 }
 
@@ -141,33 +136,30 @@ if [ -n "$CUST_CODENAME" -a -n "$CUST_PROJECT" ]; then
 	DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
 fi
 
-while getopts "ijhb:g:" OPTION; do
-	case "$OPTION" in
-	h)
-		usage
-		exit $ESUCCESS
-		;;
-	b)
-		BUILD_CMD="$OPTARG"
-		;;
-	g)
-		DOCKER_IMG_NAME="$OPTARG"
-		;;
-	j)
-		MAKE_ARCHIVE=1
-		;;
-	i)
-		# We expect a Dockerfile is always present
-		[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
-		[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
-		docker_build $DOCKER_IMG_NAME
-		exit $?
-		;;
-	*)
-		die "Unknown parameter $OPTION"
-		;;
-	esac
-done
+case "$1" in
+help|-h|--help)
+	usage
+	exit $ESUCCESS
+	;;
+init)
+	# We expect a Dockerfile is always present
+	[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
+	[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
+	docker_build $DOCKER_IMG_NAME
+	exit $?
+	;;
+run|release)
+	[ "$1" = "release" ] && MAKE_ARCHIVE=1
+	shift
+	[ $# -ge 1 ] && BUILD_CMD="$@"
+	;;
+?*)
+	die "Unknown command: $1"
+	;;
+*)
+	# empty or no argument case
+	;;
+esac
 
 if [ -z "$BUILD_CMD" ]; then
 	die "No build.command defined in .sflproject !"

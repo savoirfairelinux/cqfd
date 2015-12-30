@@ -2,6 +2,7 @@
 
 == Untagged changes
 
+* Use action verbs in user interface
 * Do not have user depend on SSH_AUTH_SOCK
 
 == Version v1
