@@ -66,6 +66,18 @@ release.mailto::
 A space-separated list of e-mail addresses to be notified when a new
 release is made available on the server (not implemented yet).
 
+==== Environment variables
+
+The following environment variables are supported by +cqfd+ to provide
+the user with extra flexibility during his day-to-day development
+tasks:
+
+CQFD_EXTRA_VOLUMES::
++
+A space-separated list of additional volume mappings to be configured
+inside the started container. Format is the same as docker-run's -v
+option.
+
 === Initializing the build container
 
 Once the initial configuration has been done, the +cqfd+ helper script

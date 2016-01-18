@@ -96,8 +96,18 @@ docker_run() {
 		local SOCKDIR=`dirname $SSH_AUTH_SOCK`
 	fi
 
+	# The user may set the CQFD_EXTRA_VOLUMES environment variable
+	# to map custom volumes inside his development container.
+	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
+		local map EXTRAVOL
+		for map in $CQFD_EXTRA_VOLUMES; do
+			EXTRAVOL+="-v $map "
+		done
+	fi
+
 	docker run --privileged -v "$PROJECT_PATH":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
+	       $EXTRAVOL \
 	       ${NOJENKINS:+ -ti} \
 	       ${SOCKDIR:+ -v $SOCKDIR:/home/builder/.sockets} \
 	       $DOCKER_IMG_NAME \
