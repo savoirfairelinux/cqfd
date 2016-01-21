@@ -14,7 +14,10 @@ TOPDIR=`cd $(dirname $0)/..; pwd`
 ## usage() - print usage on stdout
 usage() {
 cat <<EOF
-Usage: $PROGNAME [COMMAND] [ARGUMENTS]
+Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
+
+Options:
+    -b <flavor_name>	Target a specific build flavor.
 
 Commands:
     init     Initialize project build container
@@ -117,11 +120,60 @@ docker_run() {
 	       su - builder -c \"cd src/ && $1\""
 }
 
+# update_build(): Change the build command according to user's choice.
+# So a generic build command would look like command='make foo' and another
+# flavor would be command='make bar'
+# $1: "flavor" of the build, is a suffix of command.
+update_build() {
+	local build_flavor
+	local p_flavor="$1"
+
+	cfg.section.build
+	for flavor in $flavors; do
+		if [ "$flavor" = "$p_flavor" ]; then
+			build_flavor="$p_flavor"
+			break
+		fi
+	done
+	if [ -z "$build_flavor" ]; then
+		die "no $p_flavor found in flavor list"
+	fi
+
+	cfg.section.flavor_$build_flavor
+	BUILD_CMD=$command
+	RELEASE_FILES=$files
+}
+
+# make_archive(): Create a release package.
+# Note: the --transform option passed to tar allows to move all the
+# specified files at the root of the archive. Therefore, you shouldn't
+# include two files with the same name in the list of files to
+# archive.
+make_archive() {
+	if [ -z "$RELEASE_FILES" ]; then
+		die "No files to archive, check release.files in $SFL_PROJECT"
+	fi
+
+	for file in $RELEASE_FILES; do
+		[ -f $file ] || die "Cannot create release: missing $file"
+	done
+
+	if [ -z "$JOB_NAME" ]; then
+		JOB_NAME="local-build"
+		BUILD_ID="`date --rfc-3339='date'`"
+	fi
+
+	RELEASE_PACKAGE=${JOB_NAME}_${BUILD_ID}.tar.xz
+	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
+		$RELEASE_PACKAGE $RELEASE_FILES
+}
+
+
 PROJECT_PATH="${PWD%%/sfl}"
 BUILD_DOCKER=0
 DISTRO_BUILD_PARAM=
 DOCKER_IMG_NAME=""
-BUILD_MODEL=
+BUILD_FLAVORS=
 DOCKER_FILE="$TOPDIR/sfl/docker/Dockerfile"
 SFL_PROJECT="$TOPDIR/.sflproject"
 BUILD_CMD=
@@ -141,6 +193,7 @@ if [ -f "$SFL_PROJECT" ]; then
 
 	cfg.section.build
 	BUILD_CMD="$command"
+	BUILD_FLAVORS="$flavors"
 
 	cfg.section.release
 	RELEASE_FILES="$files"
@@ -152,7 +205,7 @@ if [ -n "$CUST_CODENAME" -a -n "$CUST_PROJECT" ]; then
 fi
 
 case "$1" in
-help|-h|--help)
+help|-h|"--help")
 	usage
 	exit $ESUCCESS
 	;;
@@ -163,10 +216,21 @@ init)
 	docker_build $DOCKER_IMG_NAME
 	exit $?
 	;;
+-b)
+	shift
+	update_build "$1"
+	shift
+	;&
 run|release)
 	[ "$1" = "release" ] && MAKE_ARCHIVE=1
 	shift
-	[ $# -ge 1 ] && BUILD_CMD="$@"
+	if [ $# -ge 1 -a -n "$BUILD_CMD" ]; then
+		# A flavor has been selected but it is erased by the build
+		# command in the command line
+		echo "WARNING: build flavor ignored because of " \
+			"command line build command"
+		BUILD_CMD="$@"
+	fi
 	;;
 ?*)
 	die "Unknown command: $1"
@@ -175,36 +239,20 @@ run|release)
 	# empty or no argument case
 	;;
 esac
-
-if [ -z "$BUILD_CMD" ]; then
-	die "No build.command defined in .sflproject !"
+if [ -z "$BUILD_CMD" -a -z "$BUILD_FLAVORS" ]; then
+	die "No build.command nor build.flavors defined in .sflproject !"
 fi
 
 # Run our build command inside the build container
-docker_run "$BUILD_CMD"
-
-# Create a release package.
-# Note: the --transform option passed to tar allows to move all the
-# specified files at the root of the archive. Therefore, you shouldn't
-# include two files with the same name in the list of files to
-# archive.
-if [ "$MAKE_ARCHIVE" = "1" ]; then
-	if [ -z "$RELEASE_FILES" ]; then
-		die "No files to archive, check release.files in $SFL_PROJECT"
-	fi
-
-	for file in $RELEASE_FILES; do
-		[ -f $file ] || die "Cannot create release: missing $file"
+if [ -n "$BUILD_FLAVORS" -a -z "$BUILD_CMD" ]; then
+	for flavor in $BUILD_FLAVORS; do
+		update_build "$flavor"
+		docker_run "$BUILD_CMD"
+		[ "$MAKE_ARCHIVE" = "1" ] && make_archive
 	done
-
-	if [ -z "$JOB_NAME" ]; then
-		JOB_NAME="local-build"
-		BUILD_ID="`date --rfc-3339='date'`"
-	fi
-
-	RELEASE_PACKAGE=${JOB_NAME}_${BUILD_ID}.tar.xz
-	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
-		$RELEASE_PACKAGE $RELEASE_FILES
+else
+	docker_run "$BUILD_CMD"
+	[ "$MAKE_ARCHIVE" = "1" ] && make_archive
 fi
 
 exit $ESUCCESS
