@@ -1,12 +1,17 @@
 = ChangeLog for project-templates
 
-== Untagged changes
+== Version 3.0
 
-* Support build flavors
+* Support multiple build flavors
+* Support user-specified volume mappings ($CQFD_EXTRA_VOLUMES)
+
+== Version 2.0
+
+* Fix config parser issue on bash >4.1
 * Use action verbs in user interface
 * Do not have user depend on SSH_AUTH_SOCK
 
-== Version v1
+== Version 1.0
 
 * Initial release
 * Support for Ubuntu (trusty) build containers
