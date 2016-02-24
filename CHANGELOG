@@ -1,5 +1,7 @@
 = ChangeLog for project-templates
 
+* Preserve container environment into the build user's shell
+
 == Version 3.0
 
 * Support multiple build flavors

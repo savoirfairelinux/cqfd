@@ -117,7 +117,7 @@ docker_run() {
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
 	       chown $UID:$GROUPS /home/builder && \
-	       su - builder -c \"cd src/ && $1\" 2>&1"
+	       su builder -p -c \"cd ~builder/src/ && $1\" 2>&1"
 }
 
 # update_build(): Change the build command according to user's choice.
