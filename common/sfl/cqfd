@@ -5,6 +5,8 @@
 # Author: mathieu.audat@savoirfairelinux.com
 #
 
+set -e
+
 EERROR=1
 ESUCCESS=0
 
