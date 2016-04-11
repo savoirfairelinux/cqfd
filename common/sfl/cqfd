@@ -222,7 +222,7 @@ init)
 	shift
 	update_build "$1"
 	shift
-	;&
+	;;
 run|release)
 	[ "$1" = "release" ] && MAKE_ARCHIVE=1
 	shift

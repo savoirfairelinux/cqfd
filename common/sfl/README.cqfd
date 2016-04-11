@@ -159,3 +159,6 @@ You may also want to build a specific build flavor, for a regular build or a
 release. To do so use the -b option:
 
  $ sfl/cqfd -b <flavor_name> run|release
+
+When building with a flavor, as when building a regular project, the +run+
+option can be omitted.
