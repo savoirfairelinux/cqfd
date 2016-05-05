@@ -141,7 +141,7 @@ update_build() {
 		die "no $p_flavor found in flavor list"
 	fi
 
-	cfg.section.flavor_$build_flavor
+	cfg.section.$build_flavor
 	BUILD_CMD=$command
 	RELEASE_FILES=$files
 }

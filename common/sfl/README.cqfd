@@ -38,20 +38,20 @@ the build and release methods. This is made possible in cqfd with the build
 flavors feature.
 
 In the .sflproject file, flavors may be listed in the +build+ section,
-referencing sections prefixed with the +flavor_+ name.
+referencing sections with the flavor's name.
 
 [source,ini]
 ----
-[flavor_1]
-command='make foobar_flavor1_defconfig && make && asciidoc README.FOOINC'
-files='README.FOOINC output/images/sdcard_flavor1.img'
+[foo]
+command='make foobar_foo_defconfig && make && asciidoc README.FOOINC'
+files='README.FOOINC output/images/sdcard_foo.img'
 
-[flavor_2]
-command='make foobar_flavor2_defconfig && make && asciidoc README.FOOINC'
-files='README.FOOINC output/images/sdcard_flavor2.img'
+[bar]
+command='make foobar_bar_defconfig && make && asciidoc README.FOOINC'
+files='README.FOOINC output/images/sdcard_bar.img'
 
 [build]
-flavors='flavor_1 flavor_2'
+flavors='foo bar'
 ----
 
 ==== Section customer
