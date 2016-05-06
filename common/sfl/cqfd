@@ -206,55 +206,43 @@ if [ -n "$CUST_CODENAME" -a -n "$CUST_PROJECT" ]; then
 	DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
 fi
 
-case "$1" in
-help|-h|"--help")
-	usage
-	exit $ESUCCESS
-	;;
-init)
-	# We expect a Dockerfile is always present
-	[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
-	[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
-	docker_build $DOCKER_IMG_NAME
-	exit $?
-	;;
--b)
+while [ $# -gt 0 ]; do
+	case "$1" in
+	help|-h|"--help")
+		usage
+		exit $ESUCCESS
+		;;
+	init)
+		# We expect a Dockerfile is always present
+		[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
+		[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
+		docker_build $DOCKER_IMG_NAME
+		exit $?
+		;;
+	-b)
+		shift
+		update_build "$1"
+		;;
+	run|release)
+		[ "$1" = "release" ] && MAKE_ARCHIVE=1
+		if [ $# -gt 1 ]; then
+			shift
+			echo "WARNING: build flavor ignored because of command line build command"
+			BUILD_CMD="$@"
+		fi
+		;;
+	?*)
+		die "Unknown command: $1"
+		;;
+	*)
+		# empty or no argument case
+		;;
+	esac
 	shift
-	update_build "$1"
-	shift
-	;;
-run|release)
-	[ "$1" = "release" ] && MAKE_ARCHIVE=1
-	shift
-	if [ $# -ge 1 -a -n "$BUILD_CMD" ]; then
-		# A flavor has been selected but it is erased by the build
-		# command in the command line
-		echo "WARNING: build flavor ignored because of " \
-			"command line build command"
-		BUILD_CMD="$@"
-	fi
-	;;
-?*)
-	die "Unknown command: $1"
-	;;
-*)
-	# empty or no argument case
-	;;
-esac
-if [ -z "$BUILD_CMD" -a -z "$BUILD_FLAVORS" ]; then
-	die "No build.command nor build.flavors defined in .sflproject !"
-fi
+done
 
-# Run our build command inside the build container
-if [ -n "$BUILD_FLAVORS" -a -z "$BUILD_CMD" ]; then
-	for flavor in $BUILD_FLAVORS; do
-		update_build "$flavor"
-		docker_run "$BUILD_CMD"
-		[ "$MAKE_ARCHIVE" = "1" ] && make_archive
-	done
-else
-	docker_run "$BUILD_CMD"
-	[ "$MAKE_ARCHIVE" = "1" ] && make_archive
-fi
+[ -z "$BUILD_CMD" ] && die "No build.command defined in .sflproject !"
+docker_run "$BUILD_CMD"
+[ "$MAKE_ARCHIVE" = "1" ] && make_archive
 
 exit $ESUCCESS
