@@ -11,18 +11,18 @@ workstation:
 ** Your username is a member of the +docker+ group
 ** Restart your docker service if you needed to create the group.
 
-=== The .sflproject file
+=== The .cqfdrc file
 
-The .sflproject file at the root of your project contains all the
-required informations required to support project tooling.
+The .cqfdrc file at the root of your project contains the information
+required to support project tooling.
 
-Here is a sample .sflproject file:
+Here is a sample .cqfdrc file:
 
 [source,ini]
 ----
-[customer]
-codename='fooinc'
-project='buildroot'
+[project]
+org='fooinc'
+name='buildroot'
 
 [build]
 command='make foobar_defconfig && make && asciidoc README.FOOINC'
@@ -37,8 +37,8 @@ In some cases, it may be desirable to build the project using variations of
 the build and release methods. This is made possible in cqfd with the build
 flavors feature.
 
-In the .sflproject file, flavors may be listed in the +build+ section,
-referencing sections with the flavor's name.
+In the .cqfdrc file, flavors may be listed in the +build+ section,
+referencing sections prefixed with the flavor's name.
 
 [source,ini]
 ----
@@ -54,16 +54,16 @@ files='README.FOOINC output/images/sdcard_bar.img'
 flavors='foo bar'
 ----
 
-==== Section customer
+==== Section project
 
-customer.codename::
+project.org::
 +
-This is a short, lowercase codename for our customer, it should be
-decided once for every new customer. The codename will be used in
-gerrit to prefix the repository paths, in docker to prefix the image
-names, and in various other places.
+This is a short, lowercase name for the project's parent
+organization. This name will be used in gerrit to prefix the
+repository paths, in docker to prefix the image names, and in various
+other places.
 
-customer.project::
+project.name::
 +
 This is a short, lowercase name for the project, used in gerrit as the
 repository name, for example +buildroot+ or +linux+.
@@ -119,33 +119,34 @@ The following command creates the initial build container after
 entering your project's git repository:
 
  $ cd path/to/fooinc/buildroot/
- $ sfl/cqfd init
+ $ cqfd init
 
-+cqfd+ will use the provided Dockerfile to create a normalized runtime
-build environment for your project.
++cqfd+ will use the provided Dockerfile (which must be located in the
+.cqfd/docker/ directory of your project) to create a normalized
+runtime build environment for your project.
 
 === Using the build container
 
 ==== Regular builds
 
 To build your project from the configured build environment with the
-default build command as configured in .sflproject, use:
+default build command as configured in .cqfdrc, use:
 
- $ sfl/cqfd
+ $ cqfd
 
 Alternatively, you may want to specify a custom build command to be
 executed from inside the build container.
 
- $ sfl/cqfd run make clean
- $ sfl/cqfd run "make linux-dirclean && make foobar-dirclean"
+ $ cqfd run make clean
+ $ cqfd run "make linux-dirclean && make foobar-dirclean"
 
 ==== Release
 
 The release command behaves exactly like run, but creates a release
 tarball for your project additionally. The release files (as specified
-in your +.sflproject+) will be included inside the release archive.
+in your +.cqfdrc+) will be included inside the release archive.
 
- $ sfl/cqfd release
+ $ cqfd release
 
 The resulting release file is then called
 ${JOB_NAME}_${BUILD_ID}.tar.xz, where JOB_NAME is either your Jenkins
@@ -158,7 +159,7 @@ string, or the current date.
 You may also want to build a specific build flavor, for a regular build or a
 release. To do so use the -b option:
 
- $ sfl/cqfd -b <flavor_name> run|release
+ $ cqfd -b <flavor_name> run|release
 
 When building with a flavor, as when building a regular project, the +run+
 option can be omitted.

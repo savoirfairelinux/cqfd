@@ -28,7 +28,7 @@ Commands:
     help     Show this help text
 
     By default, run is assumed, and the run command is the one
-    configured in .sflproject.
+    configured in .cqfdrc.
 EOF
 }
 
@@ -153,7 +153,7 @@ update_build() {
 # archive.
 make_archive() {
 	if [ -z "$RELEASE_FILES" ]; then
-		die "No files to archive, check release.files in $SFL_PROJECT"
+		die "No files to archive, check release.files in $CQFDRC"
 	fi
 
 	for file in $RELEASE_FILES; do
@@ -171,27 +171,27 @@ make_archive() {
 }
 
 
-PROJECT_PATH="${PWD%%/sfl}"
+PROJECT_PATH="${PWD%%/.cqfd}"
 BUILD_DOCKER=0
 DISTRO_BUILD_PARAM=
 DOCKER_IMG_NAME=""
 BUILD_FLAVORS=
-DOCKER_FILE="$TOPDIR/sfl/docker/Dockerfile"
-SFL_PROJECT="$TOPDIR/.sflproject"
+DOCKER_FILE="$TOPDIR/.cqfd/docker/Dockerfile"
+CQFDRC="$TOPDIR/.cqfdrc"
 BUILD_CMD=
 RELEASE_FILES=
 MAKE_ARCHIVE=0
 
 ### main ###
 
-# The .sflproject file allows per-project customizations
-if [ -f "$SFL_PROJECT" ]; then
-	IFS="$IFS" cfg_parser "$SFL_PROJECT"
+# The .cqfdrc file allows per-project customizations
+if [ -f "$CQFDRC" ]; then
+	IFS="$IFS" cfg_parser "$CQFDRC"
 
-	# Load customer, build and release settings
-	cfg.section.customer
-	CUST_CODENAME="$codename"
-	CUST_PROJECT="$project"
+	# Load project, build and release settings
+	cfg.section.project
+	PROJECT_ORG="$org"
+	PROJECT_NAME="$name"
 
 	cfg.section.build
 	BUILD_CMD="$command"
@@ -202,8 +202,8 @@ if [ -f "$SFL_PROJECT" ]; then
 fi
 
 # This will look like fooinc_reponame
-if [ -n "$CUST_CODENAME" -a -n "$CUST_PROJECT" ]; then
-	DOCKER_IMG_NAME="${CUST_CODENAME}_${CUST_PROJECT}"
+if [ -n "$PROJECT_ORG" -a -n "$PROJECT_NAME" ]; then
+	DOCKER_IMG_NAME="${PROJECT_ORG}_${PROJECT_NAME}"
 fi
 
 while [ $# -gt 0 ]; do
@@ -215,7 +215,7 @@ while [ $# -gt 0 ]; do
 	init)
 		# We expect a Dockerfile is always present
 		[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
-		[ -n "$DOCKER_IMG_NAME" ] || die "No customer codename set"
+		[ -n "$DOCKER_IMG_NAME" ] || die "No project infos set!"
 		docker_build $DOCKER_IMG_NAME
 		exit $?
 		;;
@@ -242,7 +242,7 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-[ -z "$BUILD_CMD" ] && die "No build.command defined in .sflproject !"
+[ -z "$BUILD_CMD" ] && die "No build.command defined in .cqfdrc !"
 docker_run "$BUILD_CMD"
 [ "$MAKE_ARCHIVE" = "1" ] && make_archive
 
