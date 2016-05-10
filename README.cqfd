@@ -163,3 +163,10 @@ release. To do so use the -b option:
 
 When building with a flavor, as when building a regular project, the +run+
 option can be omitted.
+
+==== Other command-line options
+
+In some conditions you may want to use an alternate config file with
+cqfd. This is what the -f option is for:
+
+ $ cqfd -f .cqfdrc.test

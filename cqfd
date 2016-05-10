@@ -9,9 +9,9 @@ set -e
 
 EERROR=1
 ESUCCESS=0
-
 PROGNAME=`basename $0`
-TOPDIR=`cd $(dirname $0)/..; pwd`
+CQFDRC=".cqfdrc"
+DOCKER_FILE=".cqfd/docker/Dockerfile"
 
 ## usage() - print usage on stdout
 usage() {
@@ -19,7 +19,8 @@ cat <<EOF
 Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
 
 Options:
-    -b <flavor_name>	Target a specific build flavor.
+    -f <file>           Use file as config file (default .cqfdrc)
+    -b <flavor_name>    Target a specific build flavor.
 
 Commands:
     init     Initialize project build container
@@ -74,9 +75,9 @@ die() {
 }
 
 # docker_build() - Initialize build container
-# $1 docker image name
 docker_build() {
-	docker build -q -t "$1" `dirname $DOCKER_FILE`
+	config_load
+	docker build -q -t "$DOCKER_IMG_NAME" `dirname $DOCKER_FILE`
 }
 
 # docker_run() - run command in configured container
@@ -106,7 +107,7 @@ docker_run() {
 		done
 	fi
 
-	docker run --privileged -v "$PROJECT_PATH":/home/builder/src \
+	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       $EXTRAVOL \
 	       ${NOJENKINS:+ -ti} \
@@ -117,30 +118,6 @@ docker_run() {
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
 	       chown $UID:$GROUPS /home/builder && \
 	       su builder -p -c \"cd ~builder/src/ && $1\" 2>&1"
-}
-
-# update_build(): Change the build command according to user's choice.
-# So a generic build command would look like command='make foo' and another
-# flavor would be command='make bar'
-# $1: "flavor" of the build, is a suffix of command.
-update_build() {
-	local build_flavor
-	local p_flavor="$1"
-
-	cfg.section.build
-	for flavor in $flavors; do
-		if [ "$flavor" = "$p_flavor" ]; then
-			build_flavor="$p_flavor"
-			break
-		fi
-	done
-	if [ -z "$build_flavor" ]; then
-		die "no $p_flavor found in flavor list"
-	fi
-
-	cfg.section.$build_flavor
-	BUILD_CMD=$command
-	RELEASE_FILES=$files
 }
 
 # make_archive(): Create a release package.
@@ -167,41 +144,46 @@ make_archive() {
 		$RELEASE_PACKAGE $RELEASE_FILES
 }
 
-
-PROJECT_PATH="${PWD%%/.cqfd}"
-BUILD_DOCKER=0
-DISTRO_BUILD_PARAM=
-DOCKER_IMG_NAME=""
-BUILD_FLAVORS=
-DOCKER_FILE="$TOPDIR/.cqfd/docker/Dockerfile"
-CQFDRC="$TOPDIR/.cqfdrc"
-BUILD_CMD=
-RELEASE_FILES=
-MAKE_ARCHIVE=0
-
-### main ###
-
-# The .cqfdrc file allows per-project customizations
-if [ -f "$CQFDRC" ]; then
-	IFS="$IFS" cfg_parser "$CQFDRC"
+# config_load() - load build settings from cqfdrc
+# $1: optional "flavor" of the build, is a suffix of command.
+config_load() {
+	local p_flavor="$1"
 
 	# Load project, build and release settings
+	if [ ! -f "$CQFDRC" ]; then
+		die "No $CQFDRC file found, cannot continue."
+	fi
+
+	IFS="$IFS" cfg_parser "$CQFDRC"
+
 	cfg.section.project
 	PROJECT_ORG="$org"
 	PROJECT_NAME="$name"
 
 	cfg.section.build
+	if [ -n "$p_flavor" ]; then
+		local found=0
+		for flavor in $flavors; do
+			if [ "$flavor" = "$p_flavor" ]; then
+				cfg.section."$p_flavor"
+				found=1
+				break
+			fi
+		done
+		[ $found -eq 0 ] && die "no $p_flavor found in flavor list"
+	fi
 	BUILD_CMD="$command"
-	BUILD_FLAVORS="$flavors"
 
 	cfg.section.release
 	RELEASE_FILES="$files"
-fi
 
-# This will look like fooinc_reponame
-if [ -n "$PROJECT_ORG" -a -n "$PROJECT_NAME" ]; then
-	DOCKER_IMG_NAME="${PROJECT_ORG}_${PROJECT_NAME}"
-fi
+	# This will look like fooinc_reponame
+	if [ -n "$PROJECT_ORG" -a -n "$PROJECT_NAME" ]; then
+		DOCKER_IMG_NAME="${PROJECT_ORG}_${PROJECT_NAME}"
+	else
+		die "project.org and project.name not configured"
+	fi
+}
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -210,22 +192,24 @@ while [ $# -gt 0 ]; do
 		exit $ESUCCESS
 		;;
 	init)
-		# We expect a Dockerfile is always present
-		[ -f "$DOCKER_FILE" ] || die " $DOCKER_FILE not found"
-		[ -n "$DOCKER_IMG_NAME" ] || die "No project infos set!"
-		docker_build $DOCKER_IMG_NAME
+		docker_build
 		exit $?
 		;;
 	-b)
 		shift
-		update_build "$1"
+		FLAVOR="$1"
+		;;
+	-f)
+		shift
+		[ -f "$1" ] || die 'No file named "'$1'"'
+		CQFDRC="$1"
 		;;
 	run|release)
 		[ "$1" = "release" ] && MAKE_ARCHIVE=1
 		if [ $# -gt 1 ]; then
 			shift
-			echo "WARNING: build flavor ignored because of command line build command"
-			BUILD_CMD="$@"
+			echo "WARNING: build cmd ignored because of command line build command"
+			BUILD_CMD_ALT="$@"
 		fi
 		break
 		;;
@@ -239,7 +223,14 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-[ -z "$BUILD_CMD" ] && die "No build.command defined in .cqfdrc !"
+config_load $FLAVOR
+
+if [ -n "$BUILD_CMD_ALT" ]; then
+	BUILD_CMD=$BUILD_CMD_ALT
+elif [ -z "$BUILD_CMD" ]; then
+	die "No build.command defined in $CQFDRC !"
+fi
+
 docker_run "$BUILD_CMD"
 [ "$MAKE_ARCHIVE" = "1" ] && make_archive
 
