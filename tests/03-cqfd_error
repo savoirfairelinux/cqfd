@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+
+# Running cqfd with an unknown argument shall fail
+jtest_prepare "run a bad cqfd command-line shall fail"
+if $TDIR/.cqfd/cqfd thisshouldfail; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
+
+# Running cqfd without a .cqfdrc file in the current directory shall
+# fail
+jtest_prepare "run with no config file shall fail"
+mkdir -p $TDIR/.empty/dir
+cd $TDIR/.empty/dir
+if $TDIR/.cqfd/cqfd run "echo Hello cqfd"; then
+	jtest_result fail
+else
+	jtest_result pass
+fi

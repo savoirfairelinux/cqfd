@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+
+jtest_prepare "create a test skeleton in temporary directory"
+
+mkdir -p $TDIR/.cqfd/docker
+cp -a ../cqfd $TDIR/.cqfd/
+cp -a test_data/. $TDIR/.
+
+jtest_result pass

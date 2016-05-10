@@ -1,0 +1,10 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+
+jtest_prepare "run cqfd init"
+
+cd $TDIR/
+$TDIR/.cqfd/cqfd init
+
+jtest_result pass

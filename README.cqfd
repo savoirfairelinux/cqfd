@@ -11,6 +11,13 @@ workstation:
 ** Your username is a member of the +docker+ group
 ** Restart your docker service if you needed to create the group.
 
+=== Testing cqfd
+
+The codebase contains tests which can be invoked using the following
+command, if the above requirements are met on the system:
+
+ $ make tests
+
 === The .cqfdrc file
 
 The .cqfdrc file at the root of your project contains the information

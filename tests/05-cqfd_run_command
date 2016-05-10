@@ -1,0 +1,39 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+test_file="file.$RANDOM"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+# First pass: the command is a single argument
+# Second pass: the command is the rest of the arguments
+
+for i in 0 1; do
+	# Data set shall produce build.txt:
+
+	jtest_prepare "run cqfd hout additional argument, pass $i"
+
+	if [ -f "$test_file" ]; then
+		jtest_log fatal "$test_file already present before test"
+		jtest_result fail
+		rm -f $test_file
+		continue
+	fi
+
+	if [ "$i" = "0" ]; then
+		jtest_prepare "cqfd run \"touch somefile\" creates the file"
+		$cqfd run "touch $test_file"
+	else
+		jtest_prepare "cqfd run touch somefile (no quotes) creates the file"
+		$cqfd run touch $test_file
+	fi
+
+	if [ $? != 0 -o ! -f "$test_file" ]; then
+		jtest_log fatal "failed or test file not present after execution"
+		jtest_result fail
+	else
+		jtest_result pass
+	fi
+	rm -f $test_file
+done

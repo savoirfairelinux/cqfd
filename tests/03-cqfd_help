@@ -1,0 +1,30 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+
+jtest_prepare "cqfd help shall exit normally"
+TEST=`mktemp`
+
+if ! $TDIR/.cqfd/cqfd help >$TEST; then
+	jtest_result fail
+	rm -f $TEST
+fi
+
+jtest_prepare "cqfd help shall produce an help message"
+
+# Those words shall be present in the output
+for word in Usage Options Commands; do
+	if ! grep -q "^$word:" $TEST; then
+		jtest_log error "cannot find $word in help message"
+		rm -f $TEST
+		missing=1
+	fi
+done
+
+if [ "$missing" = "1" ]; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
+
+rm -f $TEST

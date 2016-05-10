@@ -1,0 +1,13 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+jtest_prepare "cqfd release"
+if $cqfd release; then
+	jtest_result pass
+else
+	jtest_result fail
+fi

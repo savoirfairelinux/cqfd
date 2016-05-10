@@ -1,0 +1,58 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+confdir=$TDIR/.config/dir
+flavor="foo"
+
+cd $TDIR/
+
+# First pass: run with non default config file
+# Second pass: run with non default config file and bash cmd
+# Third pass: run with non default config file and flavor
+# Fourth pass: run with flavor non default config file
+
+# cp the default conf and replace the original with a fake one
+mkdir -p $confdir
+mv .cqfdrc $confdir/mycqfdrc
+touch .cqfdrc
+
+for i in 0 1 2 3; do
+	jtest_prepare "run cqfd with a non default file: $confdir/mycqfdrc, pass $i"
+
+	case $i in
+		0)
+			test_file=build.txt
+			jtest_prepare "cqfd run with with this config file only"
+			$cqfd -f $confdir/mycqfdrc run
+			;;
+		1)
+			test_file="file.$RANDOM"
+			jtest_prepare "cqfd run and override with additionnal cmd"
+			$cqfd -f $confdir/mycqfdrc run touch $test_file
+			;;
+		2)
+			test_file=$flavor
+			jtest_prepare "cqfd run and build a given '$flavor' flavor"
+			$cqfd -f $confdir/mycqfdrc -b $flavor run touch $test_file
+			;;
+		3)
+			test_file=$flavor
+			jtest_prepare "cqfd run and build a given '$flavor' flavor (inverted args)"
+			$cqfd -b $flavor -f $confdir/mycqfdrc run touch $test_file
+			;;
+		*)
+			;;
+	esac
+
+	if [ $? != 0 -o ! -f "$test_file" ]; then
+		jtest_log fatal "failed or test file not present after execution"
+		jtest_result fail
+	else
+		jtest_result pass
+	fi
+	rm -f $test_file
+done
+
+# restore for further tests
+mv $confdir/mycqfdrc .cqfdrc

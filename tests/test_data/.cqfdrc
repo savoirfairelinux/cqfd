@@ -1,0 +1,16 @@
+[project]
+org='cqfd'
+name='test'
+
+[foo]
+command='make foo'
+
+[bar]
+command='make bar'
+
+[build]
+flavors='foo bar'
+command='make build'
+
+[release]
+files='build.txt'

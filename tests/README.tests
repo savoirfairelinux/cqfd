@@ -1,0 +1,4 @@
+In order to work, the tests have the following prerequisites:
+
+- A working docker environment
+- The requirements for running cqfd are met on the host
