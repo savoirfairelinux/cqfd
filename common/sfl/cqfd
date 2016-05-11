@@ -230,6 +230,7 @@ while [ $# -gt 0 ]; do
 			echo "WARNING: build flavor ignored because of command line build command"
 			BUILD_CMD="$@"
 		fi
+		break
 		;;
 	?*)
 		die "Unknown command: $1"
