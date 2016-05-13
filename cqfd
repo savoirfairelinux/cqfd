@@ -10,8 +10,8 @@ set -e
 EERROR=1
 ESUCCESS=0
 PROGNAME=`basename $0`
-CQFDRC=".cqfdrc"
 DOCKER_FILE=".cqfd/docker/Dockerfile"
+cqfdrc=".cqfdrc"
 
 ## usage() - print usage on stdout
 usage() {
@@ -77,7 +77,7 @@ die() {
 # docker_build() - Initialize build container
 docker_build() {
 	config_load
-	docker build -q -t "$DOCKER_IMG_NAME" `dirname $DOCKER_FILE`
+	docker build -q -t "$docker_img_name" `dirname $DOCKER_FILE`
 }
 
 # docker_run() - run command in configured container
@@ -96,24 +96,24 @@ docker_build() {
 # arg$1: the command string to execute as builder
 #
 docker_run() {
-	[ -z "$JENKINS_URL" ] && local NOJENKINS=1
+	[ -z "$JENKINS_URL" ] && local nojenkins=1
 
 	# The user may set the CQFD_EXTRA_VOLUMES environment variable
 	# to map custom volumes inside his development container.
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
-		local map EXTRAVOL
+		local map extravol
 		for map in $CQFD_EXTRA_VOLUMES; do
-			EXTRAVOL+="-v $map "
+			extravol+="-v $map "
 		done
 	fi
 
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
-	       $EXTRAVOL \
-	       ${NOJENKINS:+ -ti} \
+	       $extravol \
+	       ${nojenkins:+ -ti} \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
-	       $DOCKER_IMG_NAME \
+	       $docker_img_name \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
 	       chown $UID:$GROUPS /home/builder && \
@@ -126,11 +126,11 @@ docker_run() {
 # include two files with the same name in the list of files to
 # archive.
 make_archive() {
-	if [ -z "$RELEASE_FILES" ]; then
-		die "No files to archive, check release.files in $CQFDRC"
+	if [ -z "$release_files" ]; then
+		die "No files to archive, check release.files in $cqfdrc"
 	fi
 
-	for file in $RELEASE_FILES; do
+	for file in $release_files; do
 		[ -f $file ] || die "Cannot create release: missing $file"
 	done
 
@@ -139,9 +139,9 @@ make_archive() {
 		BUILD_ID="`date --rfc-3339='date'`"
 	fi
 
-	RELEASE_PACKAGE=${JOB_NAME}_${BUILD_ID}.tar.xz
+	release_package=${JOB_NAME}_${BUILD_ID}.tar.xz
 	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
-		$RELEASE_PACKAGE $RELEASE_FILES
+		$release_package $release_files
 }
 
 # config_load() - load build settings from cqfdrc
@@ -150,15 +150,15 @@ config_load() {
 	local p_flavor="$1"
 
 	# Load project, build and release settings
-	if [ ! -f "$CQFDRC" ]; then
-		die "No $CQFDRC file found, cannot continue."
+	if [ ! -f "$cqfdrc" ]; then
+		die "No $cqfdrc file found, cannot continue."
 	fi
 
-	IFS="$IFS" cfg_parser "$CQFDRC"
+	IFS="$IFS" cfg_parser "$cqfdrc"
 
 	cfg.section.project
-	PROJECT_ORG="$org"
-	PROJECT_NAME="$name"
+	project_org="$org"
+	project_name="$name"
 
 	cfg.section.build
 	if [ -n "$p_flavor" ]; then
@@ -172,14 +172,14 @@ config_load() {
 		done
 		[ $found -eq 0 ] && die "no $p_flavor found in flavor list"
 	fi
-	BUILD_CMD="$command"
+	build_cmd="$command"
 
 	cfg.section.release
-	RELEASE_FILES="$files"
+	release_files="$files"
 
 	# This will look like fooinc_reponame
-	if [ -n "$PROJECT_ORG" -a -n "$PROJECT_NAME" ]; then
-		DOCKER_IMG_NAME="${PROJECT_ORG}_${PROJECT_NAME}"
+	if [ -n "$project_org" -a -n "$project_name" ]; then
+		docker_img_name="${project_org}_${project_name}"
 	else
 		die "project.org and project.name not configured"
 	fi
@@ -197,19 +197,19 @@ while [ $# -gt 0 ]; do
 		;;
 	-b)
 		shift
-		FLAVOR="$1"
+		flavor="$1"
 		;;
 	-f)
 		shift
 		[ -f "$1" ] || die 'No file named "'$1'"'
-		CQFDRC="$1"
+		cqfdrc="$1"
 		;;
 	run|release)
-		[ "$1" = "release" ] && MAKE_ARCHIVE=1
+		[ "$1" = "release" ] && make_archive=1
 		if [ $# -gt 1 ]; then
 			shift
 			echo "WARNING: build cmd ignored because of command line build command"
-			BUILD_CMD_ALT="$@"
+			build_cmd_alt="$@"
 		fi
 		break
 		;;
@@ -223,15 +223,15 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-config_load $FLAVOR
+config_load $flavor
 
-if [ -n "$BUILD_CMD_ALT" ]; then
-	BUILD_CMD=$BUILD_CMD_ALT
-elif [ -z "$BUILD_CMD" ]; then
-	die "No build.command defined in $CQFDRC !"
+if [ -n "$build_cmd_alt" ]; then
+	build_cmd=$build_cmd_alt
+elif [ -z "$build_cmd" ]; then
+	die "No build.command defined in $cqfdrc !"
 fi
 
-docker_run "$BUILD_CMD"
-[ "$MAKE_ARCHIVE" = "1" ] && make_archive
+docker_run "$build_cmd"
+[ "$make_archive" = "1" ] && make_archive
 
 exit $ESUCCESS
