@@ -97,10 +97,6 @@ docker_build() {
 docker_run() {
 	[ -z "$JENKINS_URL" ] && local NOJENKINS=1
 
-	if [ -e "$SSH_AUTH_SOCK" ]; then
-		local SOCKDIR=`dirname $SSH_AUTH_SOCK`
-	fi
-
 	# The user may set the CQFD_EXTRA_VOLUMES environment variable
 	# to map custom volumes inside his development container.
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
@@ -114,7 +110,8 @@ docker_run() {
 	       -v ~/.ssh:/home/builder/.ssh \
 	       $EXTRAVOL \
 	       ${NOJENKINS:+ -ti} \
-	       ${SOCKDIR:+ -v $SOCKDIR:/home/builder/.sockets} \
+	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
 	       $DOCKER_IMG_NAME \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
