@@ -18,10 +18,13 @@ install:
 	install -m 0755 cqfd $(DESTDIR)/bin/cqfd
 	install -d $(DESTDIR)/share/doc/cqfd
 	install -m 0644 AUTHORS CHANGELOG LICENSE README.md $(DESTDIR)/share/doc/cqfd/
+	install -d $(DESTDIR)/share/cqfd/samples
+	install -m 0644 samples/* $(DESTDIR)/share/cqfd/samples
 
 uninstall:
 	rm -rf $(DESTDIR)/bin/cqfd \
-		$(DESTDIR)/share/doc/cqfd
+		$(DESTDIR)/share/doc/cqfd \
+		$(DESTDIR)/share/cqfd
 
 tests:
 	@make -C tests

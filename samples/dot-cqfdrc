@@ -1,0 +1,20 @@
+[project]
+org='fooinc'
+name='barproject'
+
+[hello]
+command="echo 'Hello World!'"
+
+[app]
+command='./configure && make'
+
+[debug]
+command='./configure --enable-debug && make DEBUG=all'
+
+[build]
+command='cp README.md README.FOOINC \
+         && asciidoc README.FOOINC'
+flavors='hello app debug'
+
+[release]
+files='README.html'

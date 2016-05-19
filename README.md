@@ -40,7 +40,7 @@ The .cqfdrc file
 ----------------
 
 The .cqfdrc file at the root of your project contains the information
-required to support project tooling.
+required to support project tooling. samples/dot-cqfdrc is an example.
 
 Here is a sample .cqfdrc file:
 
@@ -115,14 +115,19 @@ same as docker-run’s -v option.
 Initializing the build container
 --------------------------------
 
+Enter your project repository and grab the provided sample files:
+
+    $ cd path/to/fooinc/barproject/
+    $ cp <cqfd_source_dir>/samples/dot-cqfdrc ./.cqfdrc
+    $ mkdir -p ./.cqfd/docker
+    $ cp <cqfd_source_dir>/docker/Dockerfile ./.cqfd/docker/
+
 Once the initial configuration has been done, the ``cqfd`` helper script
 can be used to automate the generation of the build container, as well
 as executing your build commands inside the container.
 
-The following command creates the initial build container after entering
-your project’s git repository:
+The following command creates the initial build container:
 
-    $ cd path/to/fooinc/buildroot/
     $ cqfd init
 
 ``cqfd`` will use the provided Dockerfile (which must be located in the
