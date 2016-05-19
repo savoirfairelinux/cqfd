@@ -25,6 +25,17 @@ command, if the above requirements are met on the system:
 
     $ make tests
 
+Installing/removing cqfd
+------------------------
+
+The cqfd script can be installed system-wide.
+
+Install or remove the script and its resources:
+
+    $ make install
+    $ make DESTDIR=/usr install
+    $ make uninstall
+
 The .cqfdrc file
 ----------------
 
