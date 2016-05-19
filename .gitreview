@@ -1,6 +1,6 @@
 [gerrit]
 host=embedded.savoirfairelinux.com
 port=29419
-project=sfl/project-templates
+project=sfl/cqfd
 defaultbranch=master
 
