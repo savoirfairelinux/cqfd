@@ -120,7 +120,8 @@ Enter your project repository and grab the provided sample files:
     $ cd path/to/fooinc/barproject/
     $ cp <cqfd_source_dir>/samples/dot-cqfdrc ./.cqfdrc
     $ mkdir -p ./.cqfd/docker
-    $ cp <cqfd_source_dir>/docker/Dockerfile ./.cqfd/docker/
+    $ cp <cqfd_source_dir>/samples/Dockerfile.trusty.nodejs5x \
+          ./.cqfd/docker/Dockerfile
 
 Once the initial configuration has been done, the ``cqfd`` helper script
 can be used to automate the generation of the build container, as well

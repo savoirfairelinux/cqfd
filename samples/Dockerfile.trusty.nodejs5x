@@ -1,0 +1,18 @@
+FROM ubuntu:14.04
+
+ENV LANG en_US.utf8
+ENV LC_ALL en_US.utf8
+ENV HOME /home/builder
+
+VOLUME /home/builder/src
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	ca-certificates \
+	wget \
+	&& locale-gen $LANG $LC_ALL && update-locale $LANG $LC_ALL
+
+## NodeJS 5.x
+RUN wget -qO- https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+	apt-get update && apt-get install -y --no-install-recommends apt-transport-https && \
+	echo "deb https://deb.nodesource.com/node_5.x trusty main" >/etc/apt/sources.list.d/nodesource.list && \
+	apt-get update && apt-get install -y --no-install-recommends nodejs
