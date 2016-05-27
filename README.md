@@ -1,3 +1,12 @@
+What is cqfd ?
+==============
+
+cqfd provides a quick and convenient way to run commands in the current
+directory, but within a Docker container defined in a per-project config
+file. This becomes useful when building an application designed for
+another Linux system, e.g. building a RHEL7 app when your workstation
+runs on Ubuntu 16.04.
+
 Using cqfd
 ==========
 
@@ -86,7 +95,7 @@ gerrit as the repository name, for example ``buildroot`` or ``linux``.
 Section build
 
 build.command The command (or list of commands). This string will be
-passed as an argument to a classical ``bash -c "commands"``, inside the
+passed as an argument to a classical ``bash -c "commands"``, within the
 build container, to generate the build artefacts.
 
 build.flavors List of build flavors. Each flavor has its own command
@@ -151,6 +160,10 @@ executed from inside the build container.
     $ cqfd run make clean
     $ cqfd run "make linux-dirclean && make foobar-dirclean"
 
+When ``cqfd`` is running, the current directory is mounted by Docker as
+a volume. As a result, all the build artefacts generated inside the
+container are still accessible in this directory.
+
 Release
 
 The release command behaves exactly like run, but creates a release
@@ -179,3 +192,8 @@ In some conditions you may want to use an alternate config file with
 cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
+
+Trivia
+======
+
+CQFD stands for "Ce qu'il fallait Dockeriser".
