@@ -125,7 +125,7 @@ docker_run() {
 		done
 	fi
 
-	docker run --privileged -v "$PWD":/home/builder/src \
+	docker run --rm --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       $extravol \
 	       ${nojenkins:+ -ti} \
