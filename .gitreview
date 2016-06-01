@@ -1,6 +1,6 @@
 [gerrit]
-host=embedded.savoirfairelinux.com
-port=29419
-project=sfl/cqfd
+host=review.gerrithub.io
+port=29418
+project=savoirfairelinux/cqfd
 defaultbranch=master
 
