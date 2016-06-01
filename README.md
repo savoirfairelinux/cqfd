@@ -193,6 +193,19 @@ cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
 
+Contrib
+=======
+
+[GerritHub] (https://review.gerrithub.io) was chosen as a code review
+tool to overcome the limitations of GitHub. However, you have to sign in
+using your GitHub account. Then, there are 2 ways to submit patches:
+
+1. use regular pull requests which will be fowarded to GerritHub
+1. install and use [git review](https://www.mediawiki.org/wiki/gerrit/git-review)
+to directly push to GerritHub.
+
+Follow the guide to use [Gerrit UI](https://gerrit-documentation.storage.googleapis.com/documentation/2.12.2/user-review-ui.html)
+
 Trivia
 ======
 
