@@ -14,7 +14,7 @@ help:
 	@echo "   tests:     Run functional tests"
 
 install:
-	install -d 0755 $(DESTDIR)/bin
+	install -d $(DESTDIR)/bin
 	install -m 0755 cqfd $(DESTDIR)/bin/cqfd
 	install -d $(DESTDIR)/share/doc/cqfd
 	install -m 0644 AUTHORS CHANGELOG LICENSE README.md $(DESTDIR)/share/doc/cqfd/
