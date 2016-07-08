@@ -22,7 +22,7 @@ set -e
 EERROR=1
 ESUCCESS=0
 PROGNAME=`basename $0`
-DOCKER_FILE=".cqfd/docker/Dockerfile"
+dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 
 ## usage() - print usage on stdout
@@ -95,7 +95,10 @@ die() {
 # docker_build() - Initialize build container
 docker_build() {
 	config_load
-	docker build -q -t "$docker_img_name" `dirname $DOCKER_FILE`
+	if [ ! -f $dockerfile ]; then
+		die "no Dockerfile found at location $dockerfile"
+	fi
+	docker build -q -t "$docker_img_name" `dirname $dockerfile`
 }
 
 # docker_run() - run command in configured container
@@ -192,7 +195,9 @@ config_load() {
 		[ $found -eq 0 ] && die "no $p_flavor found in flavor list"
 	fi
 	build_cmd="$command"
-
+	if [ -n "$distro" ]; then
+		dockerfile=".cqfd/$distro/Dockerfile"
+	fi
 	cfg.section.release
 	release_files="$files"
 
