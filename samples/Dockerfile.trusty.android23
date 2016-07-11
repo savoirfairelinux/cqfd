@@ -5,15 +5,12 @@ ENV LC_ALL en_US.utf8
 ENV HOME /home/builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-	asciidoc \
 	openjdk-7-jdk \
 	lib32stdc++6 \
 	lib32z1 \
 	build-essential \
 	ca-certificates \
-	unzip \
 	wget \
-	zip \
 	&& locale-gen $LANG $LC_ALL && update-locale $LANG $LC_ALL
 
 ENV ANDROID_DEPS=platform-tools,\
