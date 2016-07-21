@@ -26,14 +26,6 @@ workstation:
 
 -  Restart your docker service if you needed to create the group.
 
-Testing cqfd
-------------
-
-The codebase contains tests which can be invoked using the following
-command, if the above requirements are met on the system:
-
-    $ make tests
-
 Installing/removing cqfd
 ------------------------
 
@@ -192,6 +184,14 @@ In some conditions you may want to use an alternate config file with
 cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
+
+Testing cqfd
+------------
+
+The codebase contains tests which can be invoked using the following
+command, if the above requirements are met on the system:
+
+    $ make tests
 
 Trivia
 ======
