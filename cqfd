@@ -79,7 +79,9 @@ cfg_parser() {
 	ini=( ${ini[*]/%\} \)/\}} ) # remove extra parenthesis
 	ini[0]="" # remove first element
 	ini[${#ini[*]} + 1]='}'    # add the last brace
-	eval "$(echo "${ini[*]}")" # eval the result
+	if ! eval "$(echo "${ini[*]}")" 2>/dev/null; then # eval the result
+		die "$1: Invalid ini-file!"
+	fi
 
 	# restore previous bash behaviour
 	[ "$compat" = "1" ] && shopt -u compat42
