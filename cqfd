@@ -60,7 +60,9 @@ cfg_parser() {
 		shopt -s compat42
 	fi
 
-	ini="$(<$1)"                # read the file
+	if ! ini="$(<$1)"; then           # read the file
+		die "$1: No such file!"
+	fi
 	ini="${ini//[/\[}"          # escape [
 	ini="${ini//]/\]}"          # escape ]
 	IFS=$'\n' && ini=( ${ini} ) # convert to line-array
@@ -193,11 +195,6 @@ make_archive() {
 config_load() {
 	local p_flavor="$1"
 
-	# Load project, build and release settings
-	if [ ! -f "$cqfdrc" ]; then
-		die "No $cqfdrc file found, cannot continue."
-	fi
-
 	IFS="$IFS" cfg_parser "$cqfdrc"
 
 	cfg.section.project # load the [project] section
@@ -255,7 +252,6 @@ while [ $# -gt 0 ]; do
 		;;
 	-f)
 		shift
-		[ -f "$1" ] || die 'No file named "'$1'"'
 		cqfdrc="$1"
 		;;
 	run|release)
