@@ -19,8 +19,6 @@
 
 set -e
 
-EERROR=1
-ESUCCESS=0
 PROGNAME=`basename $0`
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
@@ -91,7 +89,7 @@ cfg_parser() {
 # $@ messages and variables shown in the error message
 die() {
 	echo "cqfd: fatal: $@" 1>&2
-	exit $EERROR
+	exit 1
 }
 
 # docker_build() - Initialize build container
@@ -245,7 +243,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|"--help")
 		usage
-		exit $ESUCCESS
+		exit 0
 		;;
 	init)
 		docker_build
@@ -287,6 +285,7 @@ elif [ -z "$build_cmd" ]; then
 fi
 
 docker_run "$build_cmd"
-[ "$make_archive" = "1" ] && make_archive
 
-exit $ESUCCESS
+if [ "$make_archive" = "1" ]; then
+	make_archive
+fi
