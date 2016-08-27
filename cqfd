@@ -25,7 +25,7 @@ cqfdrc=".cqfdrc"
 
 ## usage() - print usage on stdout
 usage() {
-cat <<EOF
+	cat <<EOF
 Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
 
 Options:
