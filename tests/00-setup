@@ -8,4 +8,21 @@ mkdir -p $TDIR/.cqfd/docker
 cp -a ../cqfd $TDIR/.cqfd/
 cp -a test_data/. $TDIR/.
 
+cd $TDIR/
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result fail
+fi
+
+touch $TDIR/.cqfdrc
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result fail
+fi
+
+echo '[project]' >$TDIR/.cqfdrc
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result fail
+fi
+
+cat $TDIR/cqfdrc-test >$TDIR/.cqfdrc
+
 jtest_result pass
