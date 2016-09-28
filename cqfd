@@ -195,7 +195,10 @@ config_load() {
 	fi
 	build_cmd="$command"
 
-	cfg.section.release
+	# The release section is optionnal when using flavor
+	if [ -z "$files" ]; then
+		cfg.section.release
+	fi
 	release_files="$files"
 
 	# This will look like fooinc_reponame
