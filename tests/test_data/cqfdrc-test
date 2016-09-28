@@ -4,13 +4,14 @@ name='test'
 
 [foo]
 command='make foo'
+files=foo
+archive=cqfd-%Cf.tar.xz
 
 [bar]
 command='make bar'
+files=bar
+archive=cqfd-%Cf.tar.xz
 
 [build]
 flavors='foo bar'
 command='make build'
-
-[release]
-files='build.txt'

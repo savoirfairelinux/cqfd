@@ -211,7 +211,7 @@ config_load() {
 	if [ -n "$distro" ]; then
 		dockerfile=".cqfd/$distro/Dockerfile"
 	fi
-	cfg.section.release
+
 	release_files="$files"
 	release_archive="$archive"
 

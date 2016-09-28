@@ -1,5 +1,6 @@
 = ChangeLog for cqfd
 
+* Remove the release config section
 * Allow templating the release filename
 * Preserve container environment into the build user's shell
 

@@ -5,7 +5,21 @@ cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
 
-jtest_prepare "cqfd release"
+# The first invocation has no 'files' parameter defined,
+# hence it should fail
+jtest_prepare "cqfd release fails without files parameter"
+if ! $cqfd release; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+# Adding a files section should help
+echo "files=build.txt" >>.cqfdrc
+
+jtest_prepare "cqfd release now with a files parameter"
+$cqfd release
+
 if $cqfd release; then
 	jtest_result pass
 else
@@ -21,9 +35,9 @@ else
 fi
 rm -f cqfd-undefined.tar.xz
 
-jtest_prepare "release.archive templating"
+# Now test adding an archive filename template to the config
+jtest_prepare "build.archive filename templating"
 
-# append this to the [release] section
 export CTEST=foobar
 d3=`date --rfc-3339='date'`
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
@@ -36,3 +50,17 @@ else
 	jtest_result fail
 fi
 rm -f cqfd-$gh-foobar.tar.xz
+
+# Now test releasing a flavor
+for flav in foo bar; do
+	filename=cqfd-$flav.tar.xz
+	jtest_prepare "release for flavor $flav creates $filename"
+
+	$cqfd -b $flav release
+	if tar tf $filename >/dev/null 2>&1; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
+	rm -f $filename
+done

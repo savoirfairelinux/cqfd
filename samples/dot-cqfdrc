@@ -14,8 +14,6 @@ command='./configure --enable-debug && make DEBUG=all'
 [build]
 command='cp README.md README.FOOINC \
          && asciidoc README.FOOINC'
-flavors='hello app debug'
-
-[release]
 files='README.html'
 archive='cqfd_${BUILD_ID}_%Gh.tar.xz'
+flavors='hello app debug'
