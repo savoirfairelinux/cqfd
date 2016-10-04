@@ -158,14 +158,25 @@ make_archive() {
 		[ -f $file ] || die "Cannot create release: missing $file"
 	done
 
-	if [ -z "$JOB_NAME" ]; then
-		JOB_NAME="local-build"
-		BUILD_ID="`date --rfc-3339='date'`"
-	fi
+	# template the generated archive's filename
+	local git_short=`git rev-parse --short HEAD 2>/dev/null`
+	local git_long=`git rev-parse HEAD 2>/dev/null`
+	local date_rfc3339=`date --rfc-3339='date'`
+	local outfile='cqfd-undefined.tar.xz'
 
-	release_package=${JOB_NAME}_${BUILD_ID}.tar.xz
+	release_archive=`echo $release_archive |
+		sed -e 's!%%!%!g;
+			s!%Gh!'$git_short'!g;
+			s!%GH!'$git_long'!g;
+			s!%D3!'$date_rfc3339'!g;
+			s!%Cf!'$flavor'!g;'`
+
+	# also replace variable names - beware with eval
+	eval release_archive=`echo $release_archive`
+
+	[ -n "$release_archive" ] && outfile=$release_archive
 	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
-		$release_package $release_files
+		"$outfile" $release_files
 }
 
 # config_load() - load build settings from cqfdrc
@@ -202,6 +213,7 @@ config_load() {
 	fi
 	cfg.section.release
 	release_files="$files"
+	release_archive="$archive"
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then

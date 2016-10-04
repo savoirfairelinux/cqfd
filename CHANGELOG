@@ -1,5 +1,6 @@
-= ChangeLog for project-templates
+= ChangeLog for cqfd
 
+* Allow templating the release filename
 * Preserve container environment into the build user's shell
 
 == Version 3.0

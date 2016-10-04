@@ -11,3 +11,28 @@ if $cqfd release; then
 else
 	jtest_result fail
 fi
+
+jtest_prepare "cqfd-undefined.tar.xz was generated"
+
+if tar tf cqfd-undefined.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-undefined.tar.xz
+
+jtest_prepare "release.archive templating"
+
+# append this to the [release] section
+export CTEST=foobar
+d3=`date --rfc-3339='date'`
+echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
+
+$cqfd release
+
+if tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-$gh-foobar.tar.xz

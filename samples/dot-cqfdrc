@@ -18,3 +18,4 @@ flavors='hello app debug'
 
 [release]
 files='README.html'
+archive='cqfd_${BUILD_ID}_%Gh.tar.xz'
