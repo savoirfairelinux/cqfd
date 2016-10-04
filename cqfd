@@ -169,6 +169,8 @@ make_archive() {
 			s!%Gh!'$git_short'!g;
 			s!%GH!'$git_long'!g;
 			s!%D3!'$date_rfc3339'!g;
+			s!%Po!'$project_org'!g;
+			s!%Pn!'$project_name'!g;
 			s!%Cf!'$flavor'!g;'`
 
 	# also replace variable names - beware with eval
