@@ -246,7 +246,6 @@ while [ $# -gt 0 ]; do
 		[ "$1" = "release" ] && make_archive=1
 		if [ $# -gt 1 ]; then
 			shift
-			echo "WARNING: build cmd ignored because of command line build command"
 			build_cmd_alt="$@"
 		fi
 		break
