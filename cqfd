@@ -90,7 +90,7 @@ cfg_parser() {
 ## die() - exit when an error occured
 # $@ messages and variables shown in the error message
 die() {
-	echo "Fatal: $@" 1>&2
+	echo "cqfd: fatal: $@" 1>&2
 	exit $EERROR
 }
 
