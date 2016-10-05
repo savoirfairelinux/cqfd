@@ -193,22 +193,29 @@ config_load() {
 
 	IFS="$IFS" cfg_parser "$cqfdrc"
 
-	cfg.section.project
+	cfg.section.project # load the [project] section
 	project_org="$org"
 	project_name="$name"
 
-	cfg.section.build
+	cfg.section.build # load the [build] section
+
+	# build parameters may be overriden by a flavor defined in the
+	# build section's 'flavors' parameter.
 	if [ -n "$p_flavor" ]; then
-		local found=0
 		for flavor in $flavors; do
 			if [ "$flavor" = "$p_flavor" ]; then
-				cfg.section."$p_flavor"
-				found=1
+				local _found=1
 				break
 			fi
 		done
-		[ $found -eq 0 ] && die "no $p_flavor found in flavor list"
+
+		if [ -n "$_found" ]; then
+			cfg.section."$p_flavor" # load the [$p_flavor] section
+		else
+			die "flavor \"$p_flavor\" not found in flavors list"
+		fi
 	fi
+
 	build_cmd="$command"
 	if [ -n "$distro" ]; then
 		dockerfile=".cqfd/$distro/Dockerfile"
