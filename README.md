@@ -157,6 +157,17 @@ cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
 
+### SSH Handling ###
+
+The local ~/.ssh directory is mapped to the corresponding directory on
+the builder i.e. ~builder/.ssh.  This effectively enables SSH agent
+forwarding so a build can, for example, pull authenticated git repos.
+
+Note that it may be helpful to specify the local user name in the
+.ssh/config file as this isn't the default on the builder e.g.
+
+	$ echo "User $USER" >> ~/.ssh/config
+
 ## Requirements ##
 
 To use cqfd, ensure the following requirements are satisfied on your
