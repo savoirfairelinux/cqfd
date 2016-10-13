@@ -157,10 +157,17 @@ cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
 
+## Build Container Environment ##
+
+When cqfd runs, a docker container is launched as the environment in
+which to run the *command*.  Within this environment, commands are
+run as the 'builder' user.  So that this user has access to local
+files, the current working directory is mapped to ~builder/src/.
+
 ### SSH Handling ###
 
-The local ~/.ssh directory is mapped to the corresponding directory on
-the builder i.e. ~builder/.ssh.  This effectively enables SSH agent
+The local ~/.ssh directory is mapped to the corresponding directory in
+the build container i.e. ~builder/.ssh.  This effectively enables SSH agent
 forwarding so a build can, for example, pull authenticated git repos.
 
 Note that it may be helpful to specify the local user name in the
