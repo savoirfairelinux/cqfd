@@ -26,14 +26,14 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "cqfd-undefined.tar.xz was generated"
+jtest_prepare "default archive is generated"
 
-if tar tf cqfd-undefined.tar.xz >/dev/null 2>&1; then
+if tar tf cqfd-test.tar.xz >/dev/null 2>&1; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
-rm -f cqfd-undefined.tar.xz
+rm -f cqfd-test.tar.xz
 
 # Now test adding an archive filename template to the config
 jtest_prepare "build.archive filename templating"

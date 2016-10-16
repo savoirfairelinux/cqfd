@@ -162,7 +162,9 @@ make_archive() {
 	local git_short=`git rev-parse --short HEAD 2>/dev/null`
 	local git_long=`git rev-parse HEAD 2>/dev/null`
 	local date_rfc3339=`date --rfc-3339='date'`
-	local outfile='cqfd-undefined.tar.xz'
+
+	# default name for the archive if not set
+	[ -z "$release_archive" ] && release_archive="%Po-%Pn.tar.xz"
 
 	release_archive=`echo $release_archive |
 		sed -e 's!%%!%!g;
@@ -176,9 +178,8 @@ make_archive() {
 	# also replace variable names - beware with eval
 	eval release_archive=`echo $release_archive`
 
-	[ -n "$release_archive" ] && outfile=$release_archive
 	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
-		"$outfile" $release_files
+		"$release_archive" $release_files
 }
 
 # config_load() - load build settings from cqfdrc

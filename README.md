@@ -113,7 +113,8 @@ following template marks:
 * ``%%`` - a litteral '%' sign
 
 By default, cqfd will generate a release tarball named
-cqfd-undefined.tar.xz.
+org-name.tar.xz, where 'org' and 'name' come from the project's
+configuration keys.
 
 flavors: the list of build flavors (see below). Each flavor has its
 own command just like build.command.

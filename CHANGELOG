@@ -1,5 +1,7 @@
 = ChangeLog for cqfd
 
+* Default archive filename is now named after the project's
+  configuration.
 * Remove the release config section
 * Allow templating the release filename
 * Preserve container environment into the build user's shell
