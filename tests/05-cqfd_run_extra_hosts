@@ -1,0 +1,34 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+getent_cmd="getent hosts 1.2.3.4"
+
+cd $TDIR
+
+# First pass: no cqfd_extra_hosts
+# Second pass: cqfd_extra_hosts defined
+
+for i in 0 1; do
+    if [ "$i" = "0" ]; then
+        jtest_prepare "run cqfd without extra hosts, pass $i"
+        output=$($cqfd run $getent_cmd ; exit 0)
+
+        if [ "$output" = "" ]; then
+            jtest_result pass
+        else
+            jtest_result fail
+        fi
+    fi
+
+    if [ "$i" = "1" ]; then
+        jtest_prepare "run cqfd with extra hosts, pass $i"
+        output=$(CQFD_EXTRA_HOSTS="testhost:1.2.3.4" $cqfd run $getent_cmd ; exit 0)
+
+        if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
+            jtest_result pass
+        else
+            jtest_result fail
+        fi
+    fi
+done
