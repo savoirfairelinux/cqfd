@@ -130,10 +130,18 @@ docker_run() {
 		done
 	fi
 
+	if [ -n "$CQFD_EXTRA_HOSTS" ]; then
+		local map extrahosts
+		for map in $CQFD_EXTRA_HOSTS; do
+			extrahosts+="--add-host $map "
+		done
+	fi
+
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
 	       $extravol \
+	       $extrahosts \
 	       ${nojenkins:+ -ti} \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
