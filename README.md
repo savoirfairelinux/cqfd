@@ -151,6 +151,10 @@ tasks:
 mappings to be configured inside the started container. Format is the
 same as (and passed to) docker-run’s -v option.
 
+``CQFD_EXTRA_HOSTS``: A space-separated list of additional host
+mappings to be configured inside the started container. Format is the
+same as (and passed to) docker-run’s --add-host option.
+
 ### Other command-line options ###
 
 In some conditions you may want to use an alternate config file with
