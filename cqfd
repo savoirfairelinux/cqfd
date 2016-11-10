@@ -95,8 +95,12 @@ die() {
 }
 
 # docker_build() - Initialize build container
+#
+# arg$1: flavor that could have a specific distro
+#
 docker_build() {
-	config_load
+	local flavor="$1"
+	config_load "$flavor"
 	if [ ! -f $dockerfile ]; then
 		die "no Dockerfile found at location $dockerfile"
 	fi
@@ -248,7 +252,7 @@ while [ $# -gt 0 ]; do
 		exit $ESUCCESS
 		;;
 	init)
-		docker_build
+		docker_build "$flavor"
 		exit $?
 		;;
 	-b)
