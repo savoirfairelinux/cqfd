@@ -19,15 +19,13 @@
 
 set -e
 
-EERROR=1
-ESUCCESS=0
 PROGNAME=`basename $0`
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 
 ## usage() - print usage on stdout
 usage() {
-cat <<EOF
+	cat <<EOF
 Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
 
 Options:
@@ -62,7 +60,9 @@ cfg_parser() {
 		shopt -s compat42
 	fi
 
-	ini="$(<$1)"                # read the file
+	if ! ini="$(<$1)"; then           # read the file
+		die "$1: No such file!"
+	fi
 	ini="${ini//[/\[}"          # escape [
 	ini="${ini//]/\]}"          # escape ]
 	IFS=$'\n' && ini=( ${ini} ) # convert to line-array
@@ -91,7 +91,7 @@ cfg_parser() {
 # $@ messages and variables shown in the error message
 die() {
 	echo "cqfd: fatal: $@" 1>&2
-	exit $EERROR
+	exit 1
 }
 
 # docker_build() - Initialize build container
@@ -159,7 +159,7 @@ docker_run() {
 # archive.
 make_archive() {
 	if [ -z "$release_files" ]; then
-		die "No files to archive, check release.files in $cqfdrc"
+		die "No files to archive, check files in $cqfdrc"
 	fi
 
 	for file in $release_files; do
@@ -194,11 +194,6 @@ make_archive() {
 # $1: optional "flavor" of the build, is a suffix of command.
 config_load() {
 	local p_flavor="$1"
-
-	# Load project, build and release settings
-	if [ ! -f "$cqfdrc" ]; then
-		die "No $cqfdrc file found, cannot continue."
-	fi
 
 	IFS="$IFS" cfg_parser "$cqfdrc"
 
@@ -245,7 +240,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|"--help")
 		usage
-		exit $ESUCCESS
+		exit 0
 		;;
 	init)
 		docker_build
@@ -257,7 +252,6 @@ while [ $# -gt 0 ]; do
 		;;
 	-f)
 		shift
-		[ -f "$1" ] || die 'No file named "'$1'"'
 		cqfdrc="$1"
 		;;
 	run|release)
@@ -287,6 +281,7 @@ elif [ -z "$build_cmd" ]; then
 fi
 
 docker_run "$build_cmd"
-[ "$make_archive" = "1" ] && make_archive
 
-exit $ESUCCESS
+if [ "$make_archive" = "1" ]; then
+	make_archive
+fi

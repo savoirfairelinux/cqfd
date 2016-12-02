@@ -117,7 +117,7 @@ if [ ! -d "$TDIR" ]; then
 	exit 1
 fi
 
-# we want to trap ast much errors as possible
+# we want to trap as much errors as possible
 trap _jtest_trap_error ERR
 trap _jtest_trap_exit EXIT
 
