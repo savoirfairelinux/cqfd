@@ -159,7 +159,7 @@ docker_run() {
 # archive.
 make_archive() {
 	if [ -z "$release_files" ]; then
-		die "No files to archive, check release.files in $cqfdrc"
+		die "No files to archive, check files in $cqfdrc"
 	fi
 
 	for file in $release_files; do
