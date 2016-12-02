@@ -230,7 +230,7 @@ config_load() {
 		dockerfile=".cqfd/$distro/Dockerfile"
 	fi
 
-	release_files="$files"
+	release_files="`eval echo $files`"
 	release_archive="$archive"
 
 	# This will look like fooinc_reponame
