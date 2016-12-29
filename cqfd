@@ -137,11 +137,20 @@ docker_run() {
 		done
 	fi
 
+	# CQFD_EXTRA_ENV is a space-separated list like VAR=value
+	if [ -n "$CQFD_EXTRA_ENV" ]; then
+		local map extraenv
+		for map in $CQFD_EXTRA_ENV; do
+			extraenv+="-e $map "
+		done
+	fi
+
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
 	       $extravol \
 	       $extrahosts \
+	       $extraenv \
 	       ${nojenkins:+ -ti} \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \

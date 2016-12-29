@@ -155,6 +155,10 @@ same as (and passed to) docker-run’s -v option.
 mappings to be configured inside the started container. Format is the
 same as (and passed to) docker-run’s --add-host option.
 
+``CQFD_EXTRA_ENV``: A space-separated list of additional environment
+variables to be passed to the started container. Format is the
+same as (and passed to) docker-run’s -e option.
+
 ### Other command-line options ###
 
 In some conditions you may want to use an alternate config file with
