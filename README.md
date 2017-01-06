@@ -165,6 +165,12 @@ In some conditions you may want to use an alternate config file with
 cqfd. This is what the -f option is for:
 
     $ cqfd -f .cqfdrc.test
+    
+It is also possible to run additional optional command using -e option:
+
+    $ cqfd -e
+
+Note that this require **extra_command="dummy extra command"** in the cqfdrc file.
 
 ## Build Container Environment ##
 

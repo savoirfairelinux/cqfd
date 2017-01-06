@@ -230,6 +230,9 @@ config_load() {
 	fi
 
 	build_cmd="$command"
+
+	extra_cmd="$extra_command"
+
 	if [ -n "$distro" ]; then
 		dockerfile=".cqfd/$distro/Dockerfile"
 	fi
@@ -255,6 +258,9 @@ while [ $# -gt 0 ]; do
 		docker_build
 		exit $?
 		;;
+	-e)
+	    b_extra_cmd=true
+	    ;;
 	-b)
 		shift
 		flavor="$1"
@@ -287,6 +293,14 @@ if [ -n "$build_cmd_alt" ]; then
 	build_cmd=$build_cmd_alt
 elif [ -z "$build_cmd" ]; then
 	die "No build.command defined in $cqfdrc !"
+fi
+
+if [ "$b_extra_cmd" == "true" ]; then
+    if [ -n "$extra_cmd" ]; then
+        build_cmd="$build_cmd && $extra_cmd"
+    else
+        die "No build.extra_command defined in $cqfdrc !"
+    fi
 fi
 
 docker_run "$build_cmd"
