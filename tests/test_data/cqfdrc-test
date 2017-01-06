@@ -15,3 +15,4 @@ archive=cqfd-%Cf.tar.xz
 [build]
 flavors='foo bar'
 command='make build'
+extra_command='touch extra_command.txt'
