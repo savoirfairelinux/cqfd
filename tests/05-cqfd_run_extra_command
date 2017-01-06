@@ -1,0 +1,64 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+test_file="extra_command.txt"
+cqfd="$TDIR/.cqfd/cqfd"
+confdir=$TDIR/.config/dir
+
+
+cd $TDIR/
+
+mkdir -p $confdir
+cp .cqfdrc $confdir/mycqfdrc
+sed -i 's/extra_command.*//g' $confdir/mycqfdrc
+
+for i in 0 1 2; do
+	# Data set shall produce build.txt:
+
+	jtest_prepare "run cqfd with additional argument -e, pass $i"
+
+	if [ -f "$test_file" ]; then
+		jtest_log fatal "$test_file already present before test"
+		jtest_result fail
+		rm -f $test_file
+		continue
+	fi
+
+	if [ "$i" = "0" ]; then
+		jtest_prepare "cqfd run does not creates the file"
+		$cqfd 
+
+        if [ $? != 0 -o -f "$test_file" ]; then
+            jtest_log fatal "failed or test file is present after execution"
+            jtest_result fail
+        else
+            jtest_result pass
+        fi
+    elif [ "$i" = "1" ]
+    then
+		jtest_prepare "cqfd run create file using extra command" 
+		$cqfd -e 
+
+        if [ $? != 0 -o ! -f "$test_file" ]; then
+            jtest_log fatal "failed or test file not present after execution"
+            jtest_result fail
+        else
+            jtest_result pass
+        fi
+    else
+		jtest_prepare "cqfd does not create file when extra command is not \
+                       present and return error"
+		$cqfd -e -f $confdir/mycqfdrc
+
+        if [ $? != 0 -a ! -f "$test_file" ]; then
+            jtest_result pass
+        else
+            jtest_log fatal "did not failed or test file is present after execution"
+            jtest_result fail
+        fi
+	fi
+
+
+
+	rm -f $test_file
+done
