@@ -116,7 +116,7 @@ By default, cqfd will generate a release tarball named
 org-name.tar.xz, where 'org' and 'name' come from the project's
 configuration keys.
 
-flavors: the list of build flavors (see below). Each flavor has its
+``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like build.command.
 
 ### Using build flavors ###
