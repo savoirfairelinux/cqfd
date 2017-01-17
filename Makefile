@@ -2,22 +2,34 @@
 
 PREFIX?=/usr/local
 
-.PHONY: all help install uninstall test tests check
+.PHONY: all help doc install uninstall test tests check
 
 all:	help
 
 help:
 	@echo "Available make targets:"
 	@echo "   help:      This help message"
+	@echo "   doc:       Generate documentation"
 	@echo "   install:   Install script, doc and resources"
 	@echo "   uninstall: Remove script, doc and resources"
 	@echo "   tests:     Run functional tests"
+	@echo "   clean:     Clean temporary files"
+
+doc: cqfd.1.gz cqfdrc.5.gz
 
 install:
 	install -d $(DESTDIR)$(PREFIX)/bin/
 	install -m 0755 cqfd $(DESTDIR)$(PREFIX)/bin/
 	install -d $(DESTDIR)$(PREFIX)/share/doc/cqfd/
 	install -m 0644 AUTHORS CHANGELOG.md LICENSE README.md $(DESTDIR)$(PREFIX)/share/doc/cqfd/
+	if [ -e cqfd.1.gz ]; then \
+		install -d $(DESTDIR)$(PREFIX)/share/man/man1/; \
+		install -m 644 cqfd.1.gz $(DESTDIR)$(PREFIX)/share/man/man1/; \
+	fi
+	if [ -e cqfdrc.5.gz ]; then \
+		install -d $(DESTDIR)$(PREFIX)/share/man/man5/; \
+		install -m 644 cqfdrc.5.gz $(DESTDIR)$(PREFIX)/share/man/man5/; \
+	fi
 	install -d $(DESTDIR)$(PREFIX)/share/cqfd/samples/
 	install -m 0644 samples/* $(DESTDIR)$(PREFIX)/share/cqfd/samples/
 	completionsdir=$${COMPLETIONSDIR:-$$(pkg-config --define-variable=prefix=$(PREFIX) \
@@ -31,6 +43,8 @@ install:
 
 uninstall:
 	rm -rf $(DESTDIR)$(PREFIX)/bin/cqfd \
+		$(DESTDIR)$(PREFIX)/share/man/man1/cqfd.1.gz \
+		$(DESTDIR)$(PREFIX)/share/man/man5/cqfdrc.5.gz \
 		$(DESTDIR)$(PREFIX)/share/doc/cqfd \
 		$(DESTDIR)$(PREFIX)/share/cqfd
 	completionsdir=$${COMPLETIONSDIR:-$$(pkg-config --define-variable=prefix=$(PREFIX) \
@@ -51,3 +65,18 @@ test tests:
 check:
 	shellcheck cqfd
 	@$(MAKE) -C tests check
+
+clean:
+	rm -f cqfd.1.gz cqfdrc.5.gz
+
+%.1: %.1.adoc
+	asciidoctor -b manpage -o $@ $<
+
+%.5: %.5.adoc
+	asciidoctor -b manpage -o $@ $<
+
+%.gz: %
+	gzip -c $^ >$@
+
+%.tar.gz:
+	git archive --prefix $*/ --format tar.gz --output $@ HEAD
