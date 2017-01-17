@@ -1,0 +1,247 @@
+= cqfd(1)
+:doctype: manpage
+:author: Jérôme Oufella
+:email: jerome.oufella@savoirfairelinux.com
+:lang: en
+:man manual: C.Q.F.D. Manual
+:man source: C.Q.F.D. Project 5.7.0
+
+== NAME
+
+cqfd - a tool to wrap commands in controlled Docker containers using docker.
+
+== SYNOPSIS
+
+*cqfd* [OPTIONS] [COMMAND] [COMMAND_OPTIONS] [COMMAND_ARGUMENTS]
+
+== DESCRIPTION
+
+*cqfd(1)* provides a quick and convenient way to run commands in the current
+directory, but within a Docker container defined in a per-project config file.
+
+This becomes useful when building an application designed for another Linux
+system, e.g. building an old embedded firmware that only works in an older
+Linux distribution.
+
+== COMMANDS
+
+*init*::
+	Initialize project build container.
+
+*exec cmd [args]*::
+	Run argument(s) inside build container.
+
+*flavors*::
+	List flavors from config file to stdout.
+
+*run [command_string]*::
+	Run argument(s) inside build container.
+
+*release [command_string]*::
+	Run argument(s) and release software.
+
+*shell [sh_arguments]*::
+	Run shell command inside build container.
+
+*help*::
+	Show this help text.
+
+By default, the _run_ command is assumed, with the default command string
+configured in your _.cqfdrc_ (see build.command).
+
+Command options for run:
+
+*-c <command_arguments>*::
+	Append command arguments to the default command string.
+
+== OPTIONS
+
+*-f FILE*::
+	Use file as config file (default _.cqfdrc_).
+
+*-d DIR*::
+	Use directory as cqfd directory (default _.cqfd_).
+
+*-C DIR*::
+	Use the specified working directory.
+
+*-b STRING*::
+	Target a specific build flavor.
+
+*-q*::
+	Turn on quiet mode.
+
+*-v* or *--version*::
+	Show version.
+
+*-h* or *--help*::
+	Show this help text.
+
+== EXAMPLES
+
+=== REGULAR BUILD
+
+To build your project from the configured build environment with the default
+build command as configured in *cqfdrc(5)*, use:
+
+	$ cqfd
+
+Alternatively, you may want to specify a custom command to be executed from
+inside the build container.
+
+	$ cqfd run make clean
+	$ cqfd run "make linux-dirclean && make foobar-dirclean"
+
+The _run_ command is broken in some situations, and it is then recommended to
+use _exec_ for a single command, _shell -c_ for a command composed with shell
+grammar, or _shell_ to run a shell script with or without arguments:
+
+	$ cqfd exec make clean
+	$ cqfd shell -c "make linux-dirclean && make foobar-dirclean"
+	$ cqfd shell ./build.sh debug
+
+When *cqfd(1)* is running, the current directory is mounted by Docker as a
+volume. As a result, all the build artefacts generated inside the container are
+still accessible in this directory after the container has been stopped and
+removed.
+
+=== RELEASE
+
+The _release_ command behaves exactly like _run_, but creates a release tarball
+for your project additionally. The release files (as specified in your
+*cqfdrc(5)*) will be included inside the release archive.
+
+	$ cqfd release
+
+The resulting release file is then called according to the archive template,
+which defaults to _%Po-%Pn.tar.xz_.
+
+=== FLAVORS
+
+Flavors are used to create alternate build scenarios. For example, to use
+another container or another build command.
+
+== ENVIRONMENT VARIABLES
+
+*CQFD_DOCKER*::
+	Program used to invoke _docker_ client.
+
+*CQFD_EXTRA_RUN_ARGS*::
+	A space-separated list of additional docker-run options to be append to
+	the starting container. Format is the same as (and passed to)
+	docker-run’s options. See 'docker run --help'.
+
+*CQFD_EXTRA_BUILD_ARGS*::
+	A space-separated list of additional docker-build options to be append
+	to the building image. Format is the same as (and passed to)
+	docker-build’s options. See 'docker build --help'.
+
+*CQFD_NO_SSH_CONFIG*::
+	Set to _true_ to disable forwarding the global _/etc/ssh_
+	configurations to the container. This may be required if the host's
+	_ssh_ configuration is not compatible with the _ssh_ version within the
+	container.
+
+*CQFD_NO_USER_SSH_CONFIG*::
+	Set to _true_ to disable forwarding the user's _~/.ssh_ configuration
+	to the container.
+
+*CQFD_NO_USER_GIT_CONFIG*::
+	Set to _true_ to disable forwarding the user's _~/.gitconfig_
+	configuration to the container.
+
+*CQFD_NO_SSH_AUTH_SOCK*::
+	Set to _true_ to disable forwarding the SSH authentication socket to
+	the container.
+
+*CQFD_BIND_DOCKER_SOCK*::
+	Set to _true_ to enable forwarding the docker socket to the container.
+
+*CQFD_DOCKER_GID*::
+	The gid of the docker group in host to map to the cqfd group in the
+	container.
+
+*CQFD_SHELL*::
+	The shell to be launched, by default _/bin/sh_.
+
+== FILES
+
+*.cqfdrc*::
+	Project information config file (See *cqfdrc(5)*).
+
+*.cqfd*::
+	Project data directory.
+
+*.cqfd/docker/Dockerfile*::
+	Default docker config file (See *Dockerfile(5)*).
+
+== EXAMPLES
+
+=== APPENDING TO THE BUILD COMMAND
+
+The _-c_ option set immediately after the command run allows appending the
+command of a cqfd run for temporary developments.
+
+	$ cqfd -b centos7 run -c "clean"
+	$ cqfd -b centos7 run -c "TRACING=1"
+
+=== RUNNING A SHELL IN THE CONTAINER
+
+You can use the _shell_ command to quickly pop a shell in your defined
+container. The shell to be launched (default _/bin/sh_) can be customized using
+the _CQFD_SHELL_ environment variable.
+
+	fred@host:~/project$ cqfd shell
+	fred@container:~/project$
+
+=== USE CQFD AS AN INTERPRETER FOR SHELL SCRIPT
+
+You can use the _shell_ command to write a shell script and run it in your
+defined container.
+
+	fred@host:~/project$ cat get-container-pretty-name.sh
+	#!/usr/bin/env -S cqfd shell
+	if ! test -e /.dockerenv; then
+		exit 1
+	fi
+	source /etc/os-release
+	echo "$PRETTY_NAME"
+	fred@host:~/projet$ ./get-container-pretty-name.sh
+	Debian GNU/Linux 12 (bookworm)
+
+=== USE CQFD AS A STANDARD SHELL FOR BINARIES
+
+You can even use the _shell_ command to use it as a standard _$SHELL_ so
+binaries honoring that variable run shell commands in your defined container.
+
+	fred@host:~/project$ make SHELL="cqfd shell"
+	Available make targets:
+	   help:      This help message
+	   install:   Install script, doc and resources
+	   uninstall: Remove script, doc and resources
+	   tests:     Run functional tests
+
+== PATCHES
+
+Submit patches at *https://github.com/savoirfairelinux/cqfd/pulls*
+
+== BUGS
+
+Report bugs at *https://github.com/savoirfairelinux/cqfd/issues*
+
+== COPYRIGHT
+
+Copyright (C) 2015-2025 Savoir-faire Linux, Inc.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, version 3.
+
+== TRIVIA
+
+CQFD stands for "ce qu'il fallait Dockeriser", French for "what needed to be
+Dockerized".
+
+== SEE ALSO
+
+*docker-build(1)*, *docker-run(1)*, *Dockerfile(5)*, *cqfdrc(5)*
