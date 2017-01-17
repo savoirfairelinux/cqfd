@@ -1,6 +1,6 @@
 # Makefile for cqfd
 
-DESTDIR=/usr/local
+PREFIX?=/usr/local
 
 .PHONY: all help install uninstall tests
 
@@ -14,17 +14,17 @@ help:
 	@echo "   tests:     Run functional tests"
 
 install:
-	install -d $(DESTDIR)/bin
-	install -m 0755 cqfd $(DESTDIR)/bin/cqfd
-	install -d $(DESTDIR)/share/doc/cqfd
-	install -m 0644 AUTHORS CHANGELOG LICENSE README.md $(DESTDIR)/share/doc/cqfd/
-	install -d $(DESTDIR)/share/cqfd/samples
-	install -m 0644 samples/* $(DESTDIR)/share/cqfd/samples
+	install -d $(DESTDIR)$(PREFIX)/bin/
+	install -m 0755 cqfd $(DESTDIR)$(PREFIX)/bin/
+	install -d $(DESTDIR)$(PREFIX)/share/doc/cqfd/
+	install -m 0644 AUTHORS CHANGELOG LICENSE README.md $(DESTDIR)$(PREFIX)/share/doc/cqfd/
+	install -d $(DESTDIR)$(PREFIX)/share/cqfd/samples/
+	install -m 0644 samples/* $(DESTDIR)$(PREFIX)/share/cqfd/samples/
 
 uninstall:
-	rm -rf $(DESTDIR)/bin/cqfd \
-		$(DESTDIR)/share/doc/cqfd \
-		$(DESTDIR)/share/cqfd
+	rm -rf $(DESTDIR)$(PREFIX)/bin/cqfd \
+		$(DESTDIR)$(PREFIX)/share/doc/cqfd \
+		$(DESTDIR)$(PREFIX)/share/cqfd
 
 tests:
 	@make -C tests
