@@ -31,6 +31,7 @@ Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
 Options:
     -f <file>           Use file as config file (default .cqfdrc).
     -b <flavor_name>    Target a specific build flavor.
+    -q                  Turn on quiet mode
     -h or --help        Show this help text.
 
 Commands:
@@ -101,7 +102,7 @@ docker_build() {
 	if [ ! -f $dockerfile ]; then
 		die "no Dockerfile found at location $dockerfile"
 	fi
-	docker build -q -t "$docker_img_name" `dirname $dockerfile`
+	docker build ${quiet:+-q} -t "$docker_img_name" `dirname $dockerfile`
 }
 
 # docker_run() - run command in configured container
@@ -265,6 +266,9 @@ while [ $# -gt 0 ]; do
 	-f)
 		shift
 		cqfdrc="$1"
+		;;
+	-q)
+		quiet=true
 		;;
 	run|release)
 		[ "$1" = "release" ] && make_archive=1
