@@ -97,7 +97,6 @@ die() {
 
 # docker_build() - Initialize build container
 docker_build() {
-	config_load
 	if [ ! -f $dockerfile ]; then
 		die "no Dockerfile found at location $dockerfile"
 	fi
@@ -255,6 +254,7 @@ while [ $# -gt 0 ]; do
 		exit 0
 		;;
 	init)
+		config_load $flavor
 		docker_build
 		exit $?
 		;;
