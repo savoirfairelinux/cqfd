@@ -28,6 +28,9 @@ Linux distribution.
 *init*::
 	Initialize project build container.
 
+*deinit*::
+	Deinitialize project build container.
+
 *exec cmd [args]*::
 	Run argument(s) inside build container.
 
@@ -135,6 +138,11 @@ another container or another build command.
 	A space-separated list of additional docker-build options to be append
 	to the building image. Format is the same as (and passed to)
 	docker-build’s options. See 'docker build --help'.
+
+*CQFD_EXTRA_RMI_ARGS*::
+	A space-separated list of additional docker-rmi options to be append
+	to the removed image. Format is the same as (and passed to)
+	docker-rmi’s options. See 'docker rmi --help'.
 
 *CQFD_NO_SSH_CONFIG*::
 	Set to _true_ to disable forwarding the global _/etc/ssh_
