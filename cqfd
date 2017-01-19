@@ -243,6 +243,11 @@ config_load() {
 	else
 		die "project.org and project.name not configured"
 	fi
+
+	# Append the distribution name if distro is set
+	if [ -n "$distro" ]; then
+		docker_img_name+="_$distro"
+	fi
 }
 
 while [ $# -gt 0 ]; do
