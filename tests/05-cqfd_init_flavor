@@ -1,0 +1,30 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+flavor="foo"
+
+cd $TDIR/
+
+temp_dir=".cqfd/`mktemp -d`"
+cqfdrc_old=`mktemp`
+cp .cqfdrc $cqfdrc_old
+sed -i -e "s/\[foo\]/\[foo\]\ndistro='centos'/" .cqfdrc
+
+jtest_prepare "cqfd init using '$flavor' flavor"
+if $cqfd -b $flavor init &&
+   $cqfd -b $flavor run "grep '^NAME=' /etc/*release" | grep 'NAME="CentOS Linux"'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+mv $cqfdrc_old .cqfdrc
+
+jtest_prepare "cqfd init without flavor"
+if $cqfd init &&
+   $cqfd run "grep '^NAME=' /etc/*release" | grep 'NAME="Ubuntu"'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
