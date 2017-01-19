@@ -92,6 +92,9 @@ _cqfd_$username_$org_$name_$hash_, using the following variables:
 *docker_run_args (optional)*::
 	Arguments used to invoke _docker run_.
 
+*docker_rmi_args (optional)*::
+	Arguments used to invoke _docker rmi_.
+
 ==== CQFD RELEASE
 
 *files*::
