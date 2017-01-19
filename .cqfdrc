@@ -1,0 +1,16 @@
+[project]
+org='savoirfairelinux'
+name='cqfd'
+
+[build]
+command='make doc'
+files='CHANGELOG.md \
+       AUTHORS \
+       LICENSE \
+       README.md \
+       samples/Dockerfile.trusty.nodejs5x \
+       samples/dot-cqfdrc \
+       samples/Dockerfile.trusty.android23 \
+       cqfdrc.5.gz \
+       cqfd.1.gz \
+       cqfd'
