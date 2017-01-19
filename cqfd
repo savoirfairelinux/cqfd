@@ -231,10 +231,6 @@ config_load() {
 	fi
 
 	build_cmd="$command"
-	if [ -n "$distro" ]; then
-		dockerfile=".cqfd/$distro/Dockerfile"
-	fi
-
 	release_files="`eval echo $files`"
 	release_archive="$archive"
 
@@ -243,6 +239,12 @@ config_load() {
 		docker_img_name="${project_org}_${project_name}"
 	else
 		die "project.org and project.name not configured"
+	fi
+
+	# Adapt things for a specific container
+	if [ -n "$distro" ]; then
+		dockerfile=".cqfd/$distro/Dockerfile"
+		docker_img_name+="_$distro"
 	fi
 }
 
