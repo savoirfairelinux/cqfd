@@ -49,6 +49,7 @@ Options:
 
 Commands:
     init                 Initialize project build container.
+    deinit               Deinitialize project build container.
     exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
@@ -113,6 +114,14 @@ debug() {
 	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
+## image_is_running() - checks if image is running
+# $1: the image name to check if running
+image_is_running() {
+	local ids
+	mapfile -t ids < <("$cqfd_docker" ps --filter "ancestor=$1" --filter status=running --quiet)
+	test "${#ids[@]}" -gt 0
+}
+
 ## docker_build() - initialize build container
 docker_build() {
 	local args=()
@@ -157,6 +166,40 @@ docker_build() {
 # $1: the image name to check
 image_exists_locally() {
 	"$cqfd_docker" image inspect "$1" &>/dev/null
+}
+
+## docker_rmi() - remove build container
+docker_rmi() {
+	local args
+	args=()
+
+	# Check if image is running
+	if image_is_running "$docker_img_name"; then
+		die "$docker_img_name: Image busy"
+	fi
+
+	# Append extra args from the .cqfdrc [build] section
+	if [ "$build_docker_rmi_args" ]; then
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$build_docker_rmi_args"
+		args+=("${array[@]}")
+	fi
+
+	# Append extra args from $CQFD_EXTRA_RMI_ARGS
+	if [ "$CQFD_EXTRA_RMI_ARGS" ]; then
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$CQFD_EXTRA_RMI_ARGS"
+		args+=("${array[@]}")
+	fi
+
+	# Set the image to remove
+	args+=("$docker_img_name")
+
+	# Run command
+	debug executing: "$cqfd_docker" rmi "${args[@]}"
+	"$cqfd_docker" rmi "${args[@]}"
 }
 
 ## docker_run() - run command in configured container
@@ -644,6 +687,11 @@ while [ $# -gt 0 ]; do
 	init)
 		load_config "$flavor"
 		docker_build
+		exit
+		;;
+	deinit)
+		load_config "$flavor"
+		docker_rmi
 		exit
 		;;
 	flavors)

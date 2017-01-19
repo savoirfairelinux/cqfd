@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of deinit command
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd "$TDIR/" || exit 1
+
+################################################################################
+# 'cqfd deinit' with a proper .cqfdrc should pass
+################################################################################
+jtest_prepare "run cqfd deinit"
+if "$cqfd" deinit; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd deinit' with a nonexistent Dockerfile should fail
+################################################################################
+jtest_prepare "deinit with a nonexisting dockerfile shall fail"
+cp -f .cqfdrc .cqfdrc.orig
+sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
+if ! "$cqfd" deinit; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd deinit' with a proper Dockerfile should fail
+################################################################################
+jtest_prepare "run cqfd deinit with an other Dockerfile"
+sed -i -e "s/thisshouldfail/centos/" .cqfdrc
+if "$cqfd" init && "$cqfd" deinit; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+# restore cqfdrc
+mv -f .cqfdrc.orig .cqfdrc
+
+################################################################################
+# 'cqfd deinit' with an already deinit'ed image should fail
+################################################################################
+jtest_prepare "deinit an already deinit'ed image shall fail"
+if ! "$cqfd" deinit; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd deinit' with CQFD_EXTRA_RMI_ARGS should succeed
+################################################################################
+jtest_prepare "deinit using CQFD_EXTRA_RMI_ARGS"
+if CQFD_EXTRA_RMI_ARGS="--force" "$cqfd" deinit; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
