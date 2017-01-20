@@ -239,7 +239,7 @@ config_load() {
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then
-		docker_img_name="${project_org}_${project_name}"
+		docker_img_name="cqfd_${project_org}_${project_name}"
 	else
 		die "project.org and project.name not configured"
 	fi
