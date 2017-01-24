@@ -11,23 +11,38 @@ jtest_result pass
 
 temp_dir=".cqfd/`mktemp -d`"
 cqfdrc_old=`mktemp`
+flavor=foo
 jtest_prepare "init with a nonexisting dockerfile shall fail"
 cp .cqfdrc $cqfdrc_old
 sed -i -e "s/\[build\]/\[build\]\ndistro='thisshouldfail'/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
-	jtest_result fail
-else
-	jtest_result pass
-fi
-
+sed -i -e "s/\[foo\]/\[foo\]\ndistro='thisshouldfail'/" .cqfdrc
+opt_flav=""
+for i in 0 1; do
+        if [ "$i" == "1" ]; then
+	    jtest_prepare "init with a given flavor with a nonexisting dockerfile shall fail"
+	    opt_flav="-b $flavor"
+	fi
+	if $TDIR/.cqfd/cqfd $opt_flav init; then
+	    jtest_result fail
+	else
+	    jtest_result pass
+	fi
+done
 
 jtest_prepare "run cqfd init with an other Dockerfile"
 sed -i -e "s/thisshouldfail/centos/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
-	jtest_result pass
-else
-	jtest_result fail
-fi
+opt_flav=""
+for i in 0 1; do
+        if [ "$i" == "1" ]; then
+	    jtest_prepare "run cqfd init with a given flavor with an other Dockerfile"
+	    opt_flav="-b $flavor"
+	fi
+	if $TDIR/.cqfd/cqfd $opt_flav init; then
+	    jtest_result pass
+	else
+	    jtest_result fail
+	fi
+done
 #restore cqfdrc
 mv $cqfdrc_old .cqfdrc
 
