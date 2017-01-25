@@ -2,6 +2,8 @@
 #
 # validate the .cqfdrc syntax
 
+set -o pipefail
+
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
@@ -12,8 +14,59 @@ cp -f .cqfdrc "$cqfdrc_old"
 
 echo -n "" >.cqfdrc
 
-jtest_prepare "cqfdrc fails file is empty"
-if ! "$cqfd" run true; then
+jtest_prepare "cqfdrc fails if no project section"
+if "$cqfd" run true 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing project section!";
+   test "${PIPESTATUS[0]}" -eq 1 && test "${PIPESTATUS[0]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+echo "[project]" >>.cqfdrc
+
+jtest_prepare "cqfdrc fails if no name property set in project section"
+if "$cqfd" run true 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing project.org or project.name properties";
+   test "${PIPESTATUS[0]}" -eq 1 && test "${PIPESTATUS[0]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+echo "name=test" >>.cqfdrc
+
+jtest_prepare "cqfdrc fails if no org property set in project section"
+if "$cqfd" run true 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing project.org or project.name properties";
+   test "${PIPESTATUS[0]}" -eq 1 && test "${PIPESTATUS[0]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+echo "org=test" >>.cqfdrc
+
+jtest_prepare "cqfdrc fails if no build section"
+if "$cqfd" run true 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing build section!";
+   test "${PIPESTATUS[0]}" -eq 1 && test "${PIPESTATUS[0]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+echo "[build]" >>.cqfdrc
+cat .cqfdrc
+
+jtest_prepare "cqfdrc fails if no command property set in build section"
+if "$cqfd" run true 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing build.command property";
+   test "${PIPESTATUS[0]}" -eq 1 && test "${PIPESTATUS[0]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+echo "command=true" >>.cqfdrc
+
+jtest_prepare "cqfdrc fails if no build section"
+if "$cqfd" init && "$cqfd" run true 2>&1; then
 	jtest_result pass
 else
 	jtest_result fail
