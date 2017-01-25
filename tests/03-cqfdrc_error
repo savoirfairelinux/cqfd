@@ -9,6 +9,17 @@ cd "$TDIR/" || exit 1
 
 cqfdrc_old=$(mktemp)
 cp -f .cqfdrc "$cqfdrc_old"
+
+echo -n "" >.cqfdrc
+
+jtest_prepare "cqfdrc fails file is empty"
+if ! "$cqfd" run true; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+cp -f "$cqfdrc_old" .cqfdrc
 echo "foo	=bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with tabulation before should pass"
