@@ -88,13 +88,13 @@ parse_ini_config_file() {
 	ini=( "${ini[@]/=$'\t'/=}" )                 # remove tabs after =
 	ini=( "${ini[@]/\ =/=}" )                    # remove space before =
 	ini=( "${ini[@]/=\ /=}" )                    # remove space after =
-	ini=( "${ini[@]/#\\[/\}$'\n'cfg.section.}" ) # set section prefix
+	ini=( "${ini[@]/#\\[/$':\n}\ncfg.section.'}" ) # set section prefix
 	ini=( "${ini[@]/%\\]/(}" )                   # convert text2function (1)
 	ini=( "${ini[@]/%(/()}" )                    # close array parenthesis
 	ini=( "${ini[@]/%\)/) {}" )                  # the multiline trick
 	ini=( "${ini[@]/%\( \)/\(\) \{}" )           # convert text2function (2)
 	ini=( "${ini[@]/%\} \)/\}}" )                # remove extra parenthesis
-	ini+=( "}" )                                 # add the last brace
+	ini+=( $':\n}' )                             # add the last brace
 	ini[0]="${ini[0]/\}/}"                       # remove the first brace
 	ini=("$(printf "%s\n" "${ini[@]}")")         # reconvert to line-array
 	if ! eval "${ini[*]}"; then                  # eval the result
