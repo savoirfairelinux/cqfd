@@ -12,7 +12,7 @@ jtest_result pass
 cqfdrc_old=`mktemp`
 jtest_prepare "init with a nonexisting dockerfile shall fail"
 cp -f .cqfdrc $cqfdrc_old
-sed -i -e "s/\[build\]/\[build\]\ndistro='thisshouldfail'/" .cqfdrc
+sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
 else
