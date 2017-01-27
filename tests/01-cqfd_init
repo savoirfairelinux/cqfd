@@ -9,7 +9,6 @@ $TDIR/.cqfd/cqfd init
 
 jtest_result pass
 
-temp_dir=".cqfd/`mktemp -d`"
 cqfdrc_old=`mktemp`
 jtest_prepare "init with a nonexisting dockerfile shall fail"
 cp .cqfdrc $cqfdrc_old
