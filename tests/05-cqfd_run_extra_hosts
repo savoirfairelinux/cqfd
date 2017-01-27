@@ -4,7 +4,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 getent_cmd="getent hosts 1.2.3.4"
 
-cd $TDIR
+cd $TDIR/
 
 # First pass: no cqfd_extra_hosts
 # Second pass: cqfd_extra_hosts defined

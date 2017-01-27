@@ -3,7 +3,7 @@
 . `dirname $0`/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd $TDIR
+cd $TDIR/
 
 jtest_prepare "run cqfd with extra environment variables"
 

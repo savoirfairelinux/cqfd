@@ -4,7 +4,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="build.txt"
 
-cd $TDIR
+cd $TDIR/
 
 # Here we test cqfd run, which is also invoked without any argument
 for i in 0 1; do
