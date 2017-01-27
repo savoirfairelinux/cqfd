@@ -2,12 +2,15 @@
 
 . `dirname $0`/jtest.inc "$1"
 
-jtest_prepare "run cqfd init"
-
 cd $TDIR/
-$TDIR/.cqfd/cqfd init
 
-jtest_result pass
+jtest_prepare "run cqfd init"
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
 
 cqfdrc_old=`mktemp`
 jtest_prepare "init with a nonexisting dockerfile shall fail"

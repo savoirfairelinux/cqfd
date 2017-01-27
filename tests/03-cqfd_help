@@ -8,6 +8,8 @@ TEST=`mktemp`
 if ! $TDIR/.cqfd/cqfd help >$TEST; then
 	jtest_result fail
 	rm -f $TEST
+else
+	jtest_result pass
 fi
 
 jtest_prepare "cqfd help shall produce an help message"

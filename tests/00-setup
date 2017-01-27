@@ -11,6 +11,8 @@ cp -a test_data/. $TDIR/.
 cd $TDIR/
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
+else
+	jtest_result pass
 fi
 
 jtest_prepare "create an empty cqfdrc"
@@ -18,6 +20,8 @@ jtest_prepare "create an empty cqfdrc"
 touch $TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
+else
+	jtest_result pass
 fi
 
 jtest_prepare "create an incomplete cqfdrc"
@@ -25,8 +29,8 @@ jtest_prepare "create an incomplete cqfdrc"
 echo '[project]' >$TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
+else
+	jtest_result pass
 fi
-
-jtest_result pass
 
 cat $TDIR/cqfdrc-test >$TDIR/.cqfdrc

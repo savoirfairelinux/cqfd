@@ -10,7 +10,7 @@ cd $TDIR/
 # Second pass: override flavor build with an additional command
 
 for i in 0 1; do
-	jtest_prepare "run cqfd with a given '$flavor' flavor, pass $i"
+	jtest_log info "run cqfd with a given '$flavor' flavor, pass $i"
 
 	if [ "$i" = "0" ]; then
 		test_file=$flavor
