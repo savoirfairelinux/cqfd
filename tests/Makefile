@@ -1,8 +1,8 @@
 .PHONY: tests
 
 tests:
-	$(eval TDIR=$(shell mktemp -d))
-	for f in [0-9][0-9]*; do \
+	@$(eval TDIR=$(shell mktemp -d))
+	@for f in [0-9][0-9]*; do \
 		if [ -x "$$f" ]; then \
 			./$$f $(TDIR) || failed=1; \
 		fi; \
