@@ -73,8 +73,7 @@ cfg_parser() {
 	ini=( ${ini[*]/\ =\ /=} )   # remove anything with a space around =
 	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} ) # set section prefix
 	ini=( ${ini[*]/%\\]/ \(} )  # convert text2function (1)
-	ini=( ${ini[*]/=/=\( } )    # convert item to array
-	ini=( ${ini[*]/%/ \)} )     # close array parenthesis
+	ini=( ${ini[*]/%\(/ \( \)} ) # close array parenthesis
 	ini=( ${ini[*]/%\\ \)/ \\} ) # the multiline trick
 	ini=( ${ini[*]/%\( \)/\(\) \{} ) # convert text2function (2)
 	ini=( ${ini[*]/%\} \)/\}} ) # remove extra parenthesis
