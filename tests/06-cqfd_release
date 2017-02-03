@@ -18,8 +18,6 @@ fi
 echo "files=build.txt" >>.cqfdrc
 
 jtest_prepare "cqfd release now with a files parameter"
-$cqfd release
-
 if $cqfd release; then
 	jtest_result pass
 else

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 . `dirname $0`/jtest.inc "$1"
-test_file="file.$RANDOM"
 cqfd="$TDIR/.cqfd/cqfd"
+test_file="file.$RANDOM"
 
 cd $TDIR/
 
@@ -12,11 +12,10 @@ cd $TDIR/
 for i in 0 1; do
 	# Data set shall produce build.txt:
 
-	jtest_prepare "run cqfd hout additional argument, pass $i"
+	jtest_log info "run cqfd hout additional argument, pass $i"
 
 	if [ -f "$test_file" ]; then
 		jtest_log fatal "$test_file already present before test"
-		jtest_result fail
 		rm -f $test_file
 		continue
 	fi

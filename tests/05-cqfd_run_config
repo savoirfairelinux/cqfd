@@ -18,7 +18,7 @@ mv .cqfdrc $confdir/mycqfdrc
 touch .cqfdrc
 
 for i in 0 1 2 3; do
-	jtest_prepare "run cqfd with a non default file: $confdir/mycqfdrc, pass $i"
+	jtest_log info "run cqfd with a non default file: $confdir/mycqfdrc, pass $i"
 
 	case $i in
 		0)

@@ -2,18 +2,20 @@
 
 . `dirname $0`/jtest.inc "$1"
 
-jtest_prepare "run cqfd init"
-
 cd $TDIR/
-$TDIR/.cqfd/cqfd init
 
-jtest_result pass
+jtest_prepare "run cqfd init"
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
 
-temp_dir=".cqfd/`mktemp -d`"
+
 cqfdrc_old=`mktemp`
 jtest_prepare "init with a nonexisting dockerfile shall fail"
-cp .cqfdrc $cqfdrc_old
-sed -i -e "s/\[build\]/\[build\]\ndistro='thisshouldfail'/" .cqfdrc
+cp -f .cqfdrc $cqfdrc_old
+sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
 else
@@ -29,7 +31,7 @@ else
 	jtest_result fail
 fi
 #restore cqfdrc
-mv $cqfdrc_old .cqfdrc
+mv -f $cqfdrc_old .cqfdrc
 
 #restore docker image to run on
 $TDIR/.cqfd/cqfd init
