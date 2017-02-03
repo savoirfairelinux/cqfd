@@ -1,0 +1,14 @@
+[project]
+org='fooinc'
+name='barproject'
+
+[flavor]
+command="echo 'Hello flavor!'"
+
+[build]
+command='cp README.md README.FOOINC \
+         && asciidoc README.FOOINC'
+flavors='flavor'
+
+[release]
+files='README.html'
