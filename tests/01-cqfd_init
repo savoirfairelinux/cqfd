@@ -34,6 +34,18 @@ fi
 mv -f $cqfdrc_old .cqfdrc
 
 
+jtest_prepare "add dummy user and dummy group with same uid/gid"
+cat <<EOF >>.cqfd/docker/Dockerfile
+RUN groupadd -og $GROUPS -f dummy && \
+    useradd -s /bin/bash -ou $UID -g $GROUPS dummy
+EOF
+if $TDIR/.cqfd/cqfd init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+
 jtest_prepare "run cqfd init with original Dockerfile in quiet mode"
 if ! $TDIR/.cqfd/cqfd -q init | grep -E "^sha256:"; then
 	jtest_result fail
