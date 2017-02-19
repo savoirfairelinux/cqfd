@@ -20,11 +20,20 @@ install:
 	install -m 0644 AUTHORS CHANGELOG LICENSE README.md $(DESTDIR)$(PREFIX)/share/doc/cqfd/
 	install -d $(DESTDIR)$(PREFIX)/share/cqfd/samples/
 	install -m 0644 samples/* $(DESTDIR)$(PREFIX)/share/cqfd/samples/
+	completionsdir=$$(pkg-config --variable=completionsdir bash-completion); \
+	if [ -n "$$completionsdir" ]; then \
+		install -d $(DESTDIR)$$completionsdir/; \
+		install -m 644 bash-completion $(DESTDIR)$$completionsdir/cqfd; \
+	fi
 
 uninstall:
 	rm -rf $(DESTDIR)$(PREFIX)/bin/cqfd \
 		$(DESTDIR)$(PREFIX)/share/doc/cqfd \
 		$(DESTDIR)$(PREFIX)/share/cqfd
+	completionsdir=$$(pkg-config --variable=completionsdir bash-completion); \
+	if [ -n "$$completionsdir" ]; then \
+		rm -rf $(DESTDIR)$$completionsdir/cqfd; \
+	fi
 
 tests:
 	@make -C tests
