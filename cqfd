@@ -36,6 +36,7 @@ Options:
 
 Commands:
     init     Initialize project build container
+    flavors  List flavors from config file to stdout
     run      Run argument(s) inside build container
     release  Run argument(s) and release software
     help     Show this help text
@@ -257,6 +258,11 @@ while [ $# -gt 0 ]; do
 		config_load $flavor
 		docker_build
 		exit $?
+		;;
+	flavors)
+		config_load
+		echo $flavors
+		exit 0
 		;;
 	-b)
 		shift
