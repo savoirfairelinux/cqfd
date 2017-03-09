@@ -141,6 +141,8 @@ flavor's name.
 A flavor will typically redefine the keys of the build section:
 command, files, archive.
 
+Flavors from a `.cqfdrc` file can be listed using the `flavors` argument.
+
 ### Environment variables ###
 
 The following environment variables are supported by cqfd to provide
