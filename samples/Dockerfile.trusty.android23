@@ -1,7 +1,6 @@
 FROM ubuntu:14.04
 
-ENV LANG en_US.utf8
-ENV LC_ALL en_US.utf8
+ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /home/builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -10,8 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	lib32z1 \
 	build-essential \
 	ca-certificates \
-	wget \
-	&& locale-gen $LANG $LC_ALL && update-locale $LANG $LC_ALL
+	wget
 
 ENV ANDROID_DEPS=platform-tools,\
 android-23,\
