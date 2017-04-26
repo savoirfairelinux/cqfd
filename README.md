@@ -2,9 +2,11 @@
 
 cqfd provides a quick and convenient way to run commands in the current
 directory, but within a Docker container defined in a per-project config
-file. This becomes useful when building an application designed for
-another Linux system, e.g. building a RHEL7 app when your workstation
-runs on Ubuntu 16.04.
+file.
+
+This becomes useful when building an application designed for another
+Linux system, e.g. building an old embedded firmware that only works
+in an older Linux distribution.
 
 # Using cqfd #
 
