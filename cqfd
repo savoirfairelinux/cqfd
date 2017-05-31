@@ -149,6 +149,7 @@ docker_run() {
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
+	       --log-driver=none \
 	       $extravol \
 	       $extrahosts \
 	       $extraenv \
