@@ -86,7 +86,9 @@ cfg_parser() {
 	fi
 
 	# restore previous bash behaviour
-	[ "$compat" = "1" ] && shopt -u compat42
+	if [ "$compat" = "1" ]; then
+		shopt -u compat42
+	fi
 }
 
 ## die() - exit when an error occured
@@ -120,7 +122,9 @@ docker_build() {
 # arg$1: the command string to execute as builder
 #
 docker_run() {
-	[ -z "$JENKINS_URL" ] && local nojenkins=1
+	if [ -z "$JENKINS_URL" ]; then
+		local nojenkins=1
+	fi
 
 	# The user may set the CQFD_EXTRA_VOLUMES environment variable
 	# to map custom volumes inside his development container.
@@ -183,7 +187,9 @@ make_archive() {
 	local date_rfc3339=`date --rfc-3339='date'`
 
 	# default name for the archive if not set
-	[ -z "$release_archive" ] && release_archive="%Po-%Pn.tar.xz"
+	if [ -z "$release_archive" ]; then
+		release_archive="%Po-%Pn.tar.xz"
+	fi
 
 	release_archive=`echo $release_archive |
 		sed -e 's!%%!%!g;
@@ -277,7 +283,9 @@ while [ $# -gt 0 ]; do
 		quiet=true
 		;;
 	run|release)
-		[ "$1" = "release" ] && make_archive=1
+		if [ "$1" = "release" ]; then
+			make_archive=1
+		fi
 		if [ $# -gt 1 ]; then
 			shift
 			build_cmd_alt="$@"
