@@ -122,8 +122,10 @@ docker_build() {
 # arg$1: the command string to execute as builder
 #
 docker_run() {
-	if [ -z "$JENKINS_URL" ]; then
-		local nojenkins=1
+	local istty
+
+	if tty -s; then
+		istty=1
 	fi
 
 	# The user may set the CQFD_EXTRA_VOLUMES environment variable
@@ -157,7 +159,7 @@ docker_run() {
 	       $extravol \
 	       $extrahosts \
 	       $extraenv \
-	       ${nojenkins:+ -ti} \
+	       ${istty:+ -ti} \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
 	       $docker_img_name \
