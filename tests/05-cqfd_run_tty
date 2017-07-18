@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# This test ensures cqfd works when not invoked from a tty (this is the case
+# when running from a CI system for example).
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+jtest_prepare "cqfd works when not in a tty"
+
+cd $TDIR/
+
+# the key here is to use /dev/null as stdin
+$cqfd run cat /etc/passwd </dev/null | grep -q "^root:"
+if [ $? -ne 0 ]; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
