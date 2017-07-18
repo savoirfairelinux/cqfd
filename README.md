@@ -53,9 +53,8 @@ in your ``.cqfdrc``) will be included inside the release archive.
 
     $ cqfd release
 
-The resulting release file is then called unique job name, or the string
-"local-build" when run from outside Jenkins, and BUILD\_ID is a
-Jenkins-generated unique and date-based string, or the current date.
+The resulting release file is then called according to the archive
+template, which defaults to ``%Po-%Pn.tar.xz``.
 
 ### Flavors ###
 
