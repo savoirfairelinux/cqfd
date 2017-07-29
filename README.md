@@ -14,13 +14,14 @@ in an older Linux distribution.
 
 Just follow these steps:
 
-* Install cqfd (see below)
+* Follow requirements (see [below](#requirements))
+* Install cqfd (see [below](#installingremoving-cqfd))
 * Go into your project's directory
-* Create a .cqfdrc file
+* Create a .cqfdrc file ([cqfdrc(5)](cqfdrc.5.adoc#examples))
 * Put a Dockerfile and save it as .cqfd/docker/Dockerfile
 * Run ``cqfd init``
 
-Examples are available in the samples/ directory.
+Examples are available in the [samples](samples) directory.
 
 cqfd will use the provided Dockerfile to create a normalized runtime
 build environment for your project.
@@ -216,6 +217,10 @@ variables:
 
     $ make install PREFIX=/opt
     $ make install PREFIX=/usr DESTDIR=package
+
+## Man pages ##
+
+Have a look to [cqfd(1)](cqfd.1.adoc) and [cqfdrc(5)](cqfdrc.5.adoc) man pages
 
 ## Testing cqfd (for developers) ##
 
