@@ -15,7 +15,8 @@ else
 fi
 
 # Adding a files section should help
-echo "files=build.txt" >>.cqfdrc
+rel_files="a/cqfd_a.txt a/b/c/cqfd_c.txt a/b/cqfd_b.txt"
+echo "files=\"$rel_files\"" >>.cqfdrc
 
 jtest_prepare "cqfd release now with a files parameter"
 if $cqfd release; then
@@ -24,22 +25,50 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "default archive is generated"
+jtest_prepare "default orgname-project.tar.xz archive is generated"
 
 if tar tf cqfd-test.tar.xz >/dev/null 2>&1; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
+
+# cqfd packs files at the archive root, whatever their original place,
+# only if tar_transform=1
+jtest_prepare "archived files NOT at root of tar archive"
+result="pass"
+for f in $rel_files; do
+	if ! tar tf cqfd-test.tar.xz | grep -q "^${f}$"; then
+		result="fail"
+	fi
+done
+jtest_result $result
+
+# now use tar_transform=1
+rm -f cqfd-test.tar.xz
+jtest_prepare "archived files at root of tar archive if tar_transform=1"
+echo "tar_transform=1" >>.cqfdrc
+$cqfd release
+result="pass"
+for f in $rel_files; do
+	if ! tar tf cqfd-test.tar.xz | grep -q "^$(basename $f)$"; then
+		result="fail"
+	fi
+done
+jtest_result $result
+
+# cleanup
+sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
 rm -f cqfd-test.tar.xz
 
 # Now test adding an archive filename template to the config
-jtest_prepare "build.archive filename templating"
+jtest_prepare "build.archive can template filenames"
 
 export CTEST=foobar
 d3=`date --rfc-3339='date'`
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
+# Generate the release archive
 $cqfd release
 
 if tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
@@ -47,7 +76,29 @@ if tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
 else
 	jtest_result fail
 fi
-rm -f cqfd-$gh-foobar.tar.xz
+rm -f cqfd-$d3-foobar.tar.xz
+
+# Now test generation of .tar.gz archives
+jtest_prepare "build.archive can make a .tar.gz archive"
+sed -i -e '$ s!^archive=.*xz!archive=cqfd-$CTEST.tar.gz!' .cqfdrc
+$cqfd release
+if tar ztf cqfd-$CTEST.tar.gz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-$CTEST.tar.gz
+
+# Now test generation of .zip archives
+jtest_prepare "build.archive can make a .zip archive"
+sed -i -e '$ s!^archive=.*gz!archive=cqfd-$CTEST.zip!' .cqfdrc
+$cqfd release
+if unzip -l cqfd-$CTEST.zip >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-$CTEST.zip
 
 # Now test releasing a flavor
 for flav in foo bar; do

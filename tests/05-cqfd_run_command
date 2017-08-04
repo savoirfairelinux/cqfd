@@ -10,7 +10,7 @@ cd $TDIR/
 # Second pass: the command is the rest of the arguments
 
 for i in 0 1; do
-	# Data set shall produce build.txt:
+	# Data set shall produce $test_file:
 
 	jtest_log info "run cqfd hout additional argument, pass $i"
 

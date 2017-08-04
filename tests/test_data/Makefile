@@ -13,7 +13,10 @@ bar:
 	@echo cqfd >bar
 
 build:
-	@echo cqfd >build.txt
+	@mkdir -p a/b/c
+	@echo cqfd >a/cqfd_a.txt
+	@echo cqfd_b >a/b/cqfd_b.txt
+	@echo cqfd_c >a/b/c/cqfd_c.txt
 
 clean:
-	@rm -f foo bar build.txt
+	@rm -rf foo bar a/

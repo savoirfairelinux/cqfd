@@ -2,15 +2,13 @@
 
 . `dirname $0`/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-test_file="build.txt"
+test_file="a/cqfd_a.txt"
 
 cd $TDIR/
 
 # Here we test cqfd run, which is also invoked without any argument
 for i in 0 1; do
-	# Data set shall produce build.txt:
-
-	jtest_log info "run cqfd without any argument, pass $i"
+	# Data set shall produce a/cqfd_a.txt:
 
 	if [ -f "$test_file" ]; then
 		jtest_log fatal "$test_file already present before test"
@@ -30,6 +28,7 @@ for i in 0 1; do
 	if ! grep -qw "cqfd" $test_file; then
 		jtest_log fatal "$test_file not present after test"
 		jtest_result fail
+		rm -f $test_file
 		continue
 	else
 		jtest_result pass
