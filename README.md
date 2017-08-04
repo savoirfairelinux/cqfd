@@ -114,9 +114,15 @@ following template marks:
 * ``%Pn`` - value of the ``project.name`` configuration key
 * ``%%`` - a litteral '%' sign
 
-By default, cqfd will generate a release tarball named
-org-name.tar.xz, where 'org' and 'name' come from the project's
-configuration keys.
+By default, cqfd will generate a release archive named
+``org-name.tar.xz``, where 'org' and 'name' come from the project's
+configuration keys. The .tar.xz, .tar.gz and .zip archive formats are
+supported.
+
+For tar archives, setting ``tar_transform=yes`` will cause all files
+specified for the archive to be stored at the root of the archive,
+which is desired in some scenarios. This feature is not supported with
+.zip archives.
 
 ``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like build.command.

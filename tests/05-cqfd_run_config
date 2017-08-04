@@ -22,7 +22,7 @@ for i in 0 1 2 3; do
 
 	case $i in
 		0)
-			test_file=build.txt
+			test_file="a/cqfd_a.txt"
 			jtest_prepare "cqfd run with with this config file only"
 			$cqfd -f $confdir/mycqfdrc run
 			;;

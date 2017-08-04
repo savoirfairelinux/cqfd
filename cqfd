@@ -205,8 +205,27 @@ make_archive() {
 	# also replace variable names - beware with eval
 	eval release_archive=`echo $release_archive`
 
-	XZ_OPT=-9 tar --transform "s/.*\///g" -cJf \
-		"$release_archive" $release_files
+	# setting tar_transform=1 will move files to the root of a tar archive
+	if [ -n "$release_transform" ]; then
+		local tar_opts='--transform s/.*\///g'
+	fi
+
+	# support the following archive formats
+	case "$release_archive" in
+	*.tar.xz)
+		XZ_OPT=-9 tar $tar_opts -cJf \
+			"$release_archive" $release_files
+		;;
+	*.tar.gz)
+		tar $tar_opts -czf \
+			"$release_archive" $release_files
+		;;
+	*.zip)
+		zip -q -9 -r "$release_archive" $release_files
+		;;
+	*)
+		;;
+	esac
 }
 
 # config_load() - load build settings from cqfdrc
@@ -242,6 +261,7 @@ config_load() {
 	build_cmd="$command"
 	release_files="`eval echo $files`"
 	release_archive="$archive"
+	release_transform="$tar_transform"
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then
