@@ -13,7 +13,7 @@ _jtest_log_init()
 	local l
 	local i=0
 
-	for l in all debug error fatal info off; do
+	for l in all debug error fatal info notice off; do
 		_jloglevels[$l]=$i
 		((i++))
 	done
@@ -47,9 +47,10 @@ _jtest_trap_exit()
 # arg1: a valid loglevel
 jtest_log()
 {
-	local level="$1"
+	local level="$1"; shift
 	local color
 
+	# filter out messages for lower loglevels
 	if [ -z "${_jloglevels[$level]}" ]; then
 		# invalid log level
 		return 1
@@ -61,17 +62,19 @@ jtest_log()
 		return 0
 	fi
 
-	# per-level rules
+	# per-loglevel coloring rules
 	case "$level" in
 	error)
 		color=31 # red
 		;;
+	notice)
+		color='0;33;40' # yellow
+		;;
 	*)
-		color=35 # pink
 		;;
 	esac
 
-	echo -e "\e[${color}m[`date +%s` jtest/$level] $@\e[0m"
+	echo -e "\e[${color}m[`date +%T`|$level] $@\e[0m"
 }
 
 # jtest_prepare() - prepare next test
@@ -79,7 +82,7 @@ jtest_log()
 jtest_prepare()
 {
 	[ -n "$1" ] || return 1
-	jtest_log info 'preparing "'$1'"'
+	jtest_log notice 'preparing "'$1'"'
 	_jtest_current="$1"
 }
 
@@ -97,12 +100,6 @@ jtest_result()
 
 	jtest_log info "result: $_jtest_current: $status"
 	unset _jtest_current
-}
-
-# jtest_indent() - indent stdin
-jtest_indent()
-{
-	sed -e 's/^/JTEST> /'
 }
 
 _jtest_log_init
