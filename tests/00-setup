@@ -9,6 +9,8 @@ cp -a ../cqfd $TDIR/.cqfd/
 cp -a test_data/. $TDIR/.
 
 cd $TDIR/
+
+# running 'cqfd init' should fail, as there's no proper config
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
 else
@@ -17,6 +19,7 @@ fi
 
 jtest_prepare "create an empty cqfdrc"
 
+# running 'cqfd init' should fail, as there's an empty config
 touch $TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
@@ -26,6 +29,7 @@ fi
 
 jtest_prepare "create an incomplete cqfdrc"
 
+# running 'cqfd init' should fail, as there's an incomplete config
 echo '[project]' >$TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
@@ -33,4 +37,5 @@ else
 	jtest_result pass
 fi
 
+# finally, insert a proper testing .cqfdrc
 cat $TDIR/cqfdrc-test >$TDIR/.cqfdrc

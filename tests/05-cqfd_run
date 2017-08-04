@@ -17,10 +17,10 @@ for i in 0 1; do
 	fi
 
 	if [ "$i" = "1" ]; then
-		jtest_prepare "running cqfd run for pass $f"
+		jtest_prepare "running \"cqfd run\" makes it run"
 		$cqfd run
 	else
-		jtest_prepare "running cqfd run without argument for pass $f"
+		jtest_prepare "running \"cqfd\" with no argument makes it run"
 		$cqfd
 	fi
 
