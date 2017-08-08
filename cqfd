@@ -306,7 +306,7 @@ while [ $# -gt 0 ]; do
 		;;
 	run|release)
 		if [ "$1" = "release" ]; then
-			make_archive=1
+			release=1
 		fi
 		if [ $# -gt 1 ]; then
 			shift
@@ -334,6 +334,6 @@ fi
 
 docker_run "$build_cmd"
 
-if [ "$make_archive" = "1" ]; then
+if [ "$release" = "1" ]; then
 	make_archive
 fi
