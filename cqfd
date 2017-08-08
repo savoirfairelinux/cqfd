@@ -180,7 +180,9 @@ make_archive() {
 	fi
 
 	for file in $release_files; do
-		[ -f $file ] || die "Cannot create release: missing $file"
+		if [ ! -e $file ]; then
+			die "Cannot release: can't find $file"
+		fi
 	done
 
 	# template the generated archive's filename
