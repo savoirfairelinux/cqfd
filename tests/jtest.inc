@@ -92,8 +92,13 @@ jtest_prepare()
 jtest_result()
 {
 	local status="$1"
+	local pfx="  "
 
-	echo "|$status|$_jtest_current" >>$TDIR/.jtest_results
+	if [ "$status" = "fail" ]; then
+		pfx="**"
+	fi
+
+	echo "$pfx|${status^^}|$_jtest_current" >>$TDIR/.jtest_results
 
 	[ "$status" = "pass" ] && status="\e[32mPASS"
 	[ "$status" = "fail" ] && status="\e[31mFAIL"
