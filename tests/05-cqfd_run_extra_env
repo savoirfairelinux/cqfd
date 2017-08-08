@@ -5,6 +5,10 @@ cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
 
+################################################################################
+# 'cqfd run' passes environment variables to the container when using
+# CQFD_EXTRA_ENV
+################################################################################
 jtest_prepare "run cqfd with extra environment variables"
 
 val1="value-$RANDOM"
