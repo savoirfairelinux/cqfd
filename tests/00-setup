@@ -10,16 +10,19 @@ cp -a test_data/. $TDIR/.
 
 cd $TDIR/
 
+################################################################################
 # running 'cqfd init' should fail, as there's no proper config
+################################################################################
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
 else
 	jtest_result pass
 fi
 
-jtest_prepare "create an empty cqfdrc"
-
+################################################################################
 # running 'cqfd init' should fail, as there's an empty config
+################################################################################
+jtest_prepare "cqfd init complains with an empty .cqfdrc"
 touch $TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
@@ -27,9 +30,10 @@ else
 	jtest_result pass
 fi
 
-jtest_prepare "create an incomplete cqfdrc"
-
+################################################################################
 # running 'cqfd init' should fail, as there's an incomplete config
+################################################################################
+jtest_prepare "cqfd init complains with an incomplete .cqfdrc"
 echo '[project]' >$TDIR/.cqfdrc
 if $TDIR/.cqfd/cqfd init; then
 	jtest_result fail
@@ -37,5 +41,7 @@ else
 	jtest_result pass
 fi
 
-# finally, insert a proper testing .cqfdrc
+################################################################################
+# finally, for setup, insert a proper testing .cqfdrc
+################################################################################
 cat $TDIR/cqfdrc-test >$TDIR/.cqfdrc

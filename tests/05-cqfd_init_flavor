@@ -6,6 +6,9 @@ flavor="foo"
 
 cd $TDIR/
 
+################################################################################
+# 'cqfd init' with different flavor makes a different container
+################################################################################
 cqfdrc_old=`mktemp`
 cp -f .cqfdrc $cqfdrc_old
 sed -i -e "s/\[foo\]/[foo]\ndistro='centos'/" .cqfdrc
@@ -18,6 +21,9 @@ else
 	jtest_result fail
 fi
 
+################################################################################
+# 'cqfd init' without flavor generates our regular container
+################################################################################
 mv -f $cqfdrc_old .cqfdrc
 
 jtest_prepare "cqfd init without flavor"

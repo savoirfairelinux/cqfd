@@ -2,6 +2,9 @@
 
 . `dirname $0`/jtest.inc "$1"
 
+################################################################################
+# 'cqfd help' shall be an accepted command
+################################################################################
 jtest_prepare "cqfd help shall exit normally"
 TEST=`mktemp`
 
@@ -12,8 +15,11 @@ else
 	jtest_result pass
 fi
 
-jtest_prepare "cqfd help shall produce an help message"
 
+################################################################################
+# 'cqfd help' shall produce a useful help message
+################################################################################
+jtest_prepare "cqfd help shall produce an help message"
 # Those words shall be present in the output
 for word in Usage Options Commands; do
 	if ! grep -q "^$word:" $TEST; then
