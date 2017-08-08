@@ -127,3 +127,41 @@ for flav in foo bar; do
 	fi
 	rm -f $filename
 done
+
+################################################################################
+# Using a non-existing file/dir in files= should fail
+################################################################################
+jtest_prepare "cqfd fails on missing file in build.files"
+sed -i -e 's!^files=.*$!files="ThisFileDoesNotExist.txt"!' .cqfdrc
+if ! $cqfd release; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# Now test usage of globs in the file= parameter
+################################################################################
+jtest_prepare "cqfd resolves globs in build.files"
+sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
+sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
+
+# cqfd release must work witout error
+if ! $cqfd release; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
+
+# the generated archive should contain our expanded globs
+jtest_prepare "resolved globs are properly archived"
+tar tf cqfd-$CTEST.tar.xz >tmp.$$
+if ! grep -q '^.cqfdrc$' tmp.$$ ||
+   ! grep -q '^Makefile$' tmp.$$; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
+
+# cleanup
+rm -f tmp.$$ cqfd-$CTEST.tar.xz
