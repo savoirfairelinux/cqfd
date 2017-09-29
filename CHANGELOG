@@ -1,5 +1,7 @@
 = ChangeLog for cqfd
 
+== Version 4
+
 * Files in an archive are only moved at its root if tar_transform is
   set to yes.
 * Added support for .tar.gz and .zip archives.
@@ -9,18 +11,18 @@
 * Allow templating the release filename
 * Preserve container environment into the build user's shell
 
-== Version 3.0
+== Version 3
 
 * Support multiple build flavors
 * Support user-specified volume mappings ($CQFD_EXTRA_VOLUMES)
 
-== Version 2.0
+== Version 2
 
 * Fix config parser issue on bash >4.1
 * Use action verbs in user interface
 * Do not have user depend on SSH_AUTH_SOCK
 
-== Version 1.0
+== Version 1
 
 * Initial release
 * Support for Ubuntu (trusty) build containers
