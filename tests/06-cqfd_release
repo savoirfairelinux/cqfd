@@ -39,7 +39,7 @@ fi
 
 ################################################################################
 # cqfd packs files at the archive root, whatever their original place,
-# only if tar_transform=1
+# only if tar_transform=yes
 ################################################################################
 jtest_prepare "archived files NOT at root of tar archive"
 result="pass"
@@ -49,11 +49,25 @@ for f in $rel_files; do
 	fi
 done
 jtest_result $result
-
-# now use tar_transform=1
 rm -f cqfd-test.tar.xz
-jtest_prepare "archived files at root of tar archive if tar_transform=1"
-echo "tar_transform=1" >>.cqfdrc
+
+# now use tar_transform=no
+jtest_prepare "archived files NOT at root of tar archive if tar_transform=no"
+echo "tar_transform=no" >>.cqfdrc
+$cqfd release
+result="pass"
+for f in $rel_files; do
+	if ! tar tf cqfd-test.tar.xz | grep -q "^${f}$"; then
+		result="fail"
+	fi
+done
+jtest_result $result
+sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
+rm -f cqfd-test.tar.xz
+
+# now use tar_transform=yes
+jtest_prepare "archived files at root of tar archive if tar_transform=yes"
+echo "tar_transform=yes" >>.cqfdrc
 $cqfd release
 result="pass"
 for f in $rel_files; do
@@ -62,8 +76,6 @@ for f in $rel_files; do
 	fi
 done
 jtest_result $result
-
-# cleanup
 sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
 rm -f cqfd-test.tar.xz
 

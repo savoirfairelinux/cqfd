@@ -1,7 +1,7 @@
 = ChangeLog for cqfd
 
 * Files in an archive are only moved at its root if tar_transform is
-  set.
+  set to yes.
 * Added support for .tar.gz and .zip archives.
 * Default archive filename is now named after the project's
   configuration.
