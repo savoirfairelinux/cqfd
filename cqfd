@@ -233,8 +233,6 @@ make_archive() {
 # config_load() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command.
 config_load() {
-	local p_flavor="$1"
-
 	IFS="$IFS" parse_ini_config_file "$cqfdrc"
 
 	cfg.section.project # load the [project] section
@@ -245,18 +243,12 @@ config_load() {
 
 	# build parameters may be overriden by a flavor defined in the
 	# build section's 'flavors' parameter.
-	if [ -n "$p_flavor" ]; then
-		for flavor in $flavors; do
-			if [ "$flavor" = "$p_flavor" ]; then
-				local _found=1
-				break
-			fi
-		done
-
-		if [ -n "$_found" ]; then
-			cfg.section."$p_flavor" # load the [$p_flavor] section
+	local flavor="$1"
+	if [ -n "$flavor" ]; then
+		if grep -qw "$flavor" <<< "$flavors"; then
+			cfg.section."$flavor" # load the [$flavor] section
 		else
-			die "flavor \"$p_flavor\" not found in flavors list"
+			die "flavor \"$flavor\" not found in flavors list"
 		fi
 	fi
 
