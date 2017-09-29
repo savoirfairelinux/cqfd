@@ -207,8 +207,8 @@ make_archive() {
 	# also replace variable names - beware with eval
 	eval release_archive=`echo $release_archive`
 
-	# setting tar_transform=1 will move files to the root of a tar archive
-	if [ -n "$release_transform" ]; then
+	# setting tar_transform=yes will move files to the root of a tar archive
+	if [ "$release_transform" = "yes" ]; then
 		local tar_opts='--transform s/.*\///g'
 	fi
 
