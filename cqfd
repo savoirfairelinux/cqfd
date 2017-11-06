@@ -20,6 +20,7 @@
 set -e
 
 PROGNAME=`basename $0`
+VERSION=4
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 
@@ -32,6 +33,7 @@ Options:
     -f <file>           Use file as config file (default .cqfdrc).
     -b <flavor_name>    Target a specific build flavor.
     -q                  Turn on quiet mode
+    --version           Show version.
     -h or --help        Show this help text.
 
 Commands:
@@ -276,6 +278,10 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|"--help")
 		usage
+		exit 0
+		;;
+	version|-V|"--version")
+		echo $VERSION
 		exit 0
 		;;
 	init)

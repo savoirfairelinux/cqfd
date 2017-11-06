@@ -50,13 +50,13 @@ _cqfd() {
 		;;
 	esac
 
-	local opts="-f -b -q -h --help"
+	local opts="-f -b -q -V --version -h --help"
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
 		return
 	fi
 
-	local long_opts="init flavors run release help"
+	local long_opts="init flavors run release version help"
 	COMPREPLY=( $(compgen -W "$long_opts $opts" -- "$cur") )
 } &&
 complete -F _cqfd cqfd
