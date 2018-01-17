@@ -152,6 +152,15 @@ docker_run() {
 		done
 	fi
 
+	# CQFD_EXTRA_PORTS allows to publish container's ports to
+	# the host, in a space-separated HOST:CONTAINER list.
+	if [ -n "$CQFD_EXTRA_PORTS" ]; then
+		local port extraports
+		for port in $CQFD_EXTRA_PORTS; do
+			extraports+="-p $port "
+		done
+	fi
+
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
@@ -159,6 +168,7 @@ docker_run() {
 	       $extravol \
 	       $extrahosts \
 	       $extraenv \
+	       $extraports \
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
