@@ -1,0 +1,36 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+
+################################################################################
+# 'cqfd run' sets HOME environment variable for builder user
+################################################################################
+jtest_prepare "run cqfd sets HOME environment variable for builder user"
+result=$($cqfd run 'echo -n $HOME')
+
+if [ "$result" = "/home/builder" ]; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+
+################################################################################
+# 'cqfd run' does not override HOME environment explicitely set via
+# CQFD_EXTRA_ENV
+################################################################################
+jtest_prepare "run cqfd does not override HOME environment explicitely set via CQFD_EXTRA_ENV"
+val1="value-$RANDOM"
+val2="value-$RANDOM"
+
+result=$(CQFD_EXTRA_ENV="FOO=$val1 HOME=$val2" $cqfd run 'echo -n $FOO $HOME' | grep value)
+
+if [ "$result" = "$val1 $val2" ]; then
+	jtest_result pass
+else
+	jtest_result fail
+fi

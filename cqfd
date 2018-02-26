@@ -163,6 +163,17 @@ docker_run() {
 		done
 	fi
 
+	# Set HOME variable for the builder user, except if it
+	# was explicitely set via CQFD_EXTRA_ENV
+	local home_env_var
+	home_env_var="-e HOME=/home/builder"
+	if [ -n "$extraenv" ]; then
+		if `echo $extraenv | grep "HOME=" 1>/dev/null 2>&1`
+		then
+			home_env_var=""
+		fi
+	fi
+
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
@@ -171,6 +182,7 @@ docker_run() {
 	       $extrahosts \
 	       $extraenv \
 	       $extraports \
+	       $home_env_var \
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
