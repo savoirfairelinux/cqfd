@@ -167,12 +167,9 @@ docker_run() {
 	# was explicitely set via CQFD_EXTRA_ENV
 	local home_env_var
 	home_env_var="-e HOME=/home/builder"
-	if [ -n "$extraenv" ]; then
-		if `echo $extraenv | grep "HOME=" 1>/dev/null 2>&1`
-		then
-			home_env_var=""
-		fi
-	fi
+	if echo "$extraenv" | grep -q "[[:blank:]]HOME="; then
+        home_env_var=""
+    fi
 
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
