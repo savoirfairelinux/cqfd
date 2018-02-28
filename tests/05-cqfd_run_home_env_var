@@ -34,3 +34,36 @@ if [ "$result" = "$val1 $val2" ]; then
 else
 	jtest_result fail
 fi
+
+################################################################################
+# 'cqfd run' does not override HOME environment when it is the only entry in
+# CQFD_EXTRA_ENV
+################################################################################
+jtest_prepare "run cqfd does not override HOME environment when it is the only entry in CQFD_EXTRA_ENV"
+val1="value-$RANDOM"
+
+result=$(CQFD_EXTRA_ENV="HOME=$val1" $cqfd run 'echo -n $FOO $HOME' | grep value)
+
+if [ "$result" = "$val1" ]; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd run' does not confuse JAVA_HOME and the like with HOME when set via
+# CQFD_EXTRA_ENV
+################################################################################
+jtest_prepare "run cqfd 'cqfd run' does not confuse JAVA_HOME and the like with HOME"
+val1="value-$RANDOM"
+val2="value-$RANDOM"
+
+result=$(CQFD_EXTRA_ENV="JAVA_HOME=$val1 HOME=$val2" $cqfd run 'echo -n $JAVA_HOME $HOME' | grep value)
+
+if [ "$result" = "$val1 $val2" ]; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+
