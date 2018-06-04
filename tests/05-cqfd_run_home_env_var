@@ -7,12 +7,12 @@ cd $TDIR/
 
 
 ################################################################################
-# 'cqfd run' sets HOME environment variable for builder user
+# 'cqfd run' sets HOME environment variable for the local user
 ################################################################################
-jtest_prepare "run cqfd sets HOME environment variable for builder user"
+jtest_prepare "run cqfd sets HOME environment variable for the local user"
 result=$($cqfd run 'echo -n $HOME')
 
-if [ "$result" = "/home/builder" ]; then
+if [ "$result" = "$HOME" ]; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -23,8 +23,7 @@ fi
 # 'cqfd run' does not override HOME environment explicitely set via
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd does not override HOME environment explicitely set \
-	via CQFD_EXTRA_RUN_ARGS"
+jtest_prepare "run doesn't override HOME env when set via CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
@@ -41,8 +40,7 @@ fi
 # 'cqfd run' does not override HOME environment when it is the only entry in
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd does not override HOME environment when it is the \
-	only entry in CQFD_EXTRA_RUN_ARGS"
+jtest_prepare "run doesn't override HOME env when the only entry in CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 
 result=$(CQFD_EXTRA_RUN_ARGS="-e HOME=$val1" \
@@ -58,8 +56,7 @@ fi
 # 'cqfd run' does not confuse JAVA_HOME and the like with HOME when set via
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd 'cqfd run' does not confuse JAVA_HOME and the like \
-	with HOME"
+jtest_prepare "run doesn't confuse JAVA_HOME and the like with HOME"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
@@ -71,5 +68,3 @@ if [ "$result" = "$val1 $val2" ]; then
 else
 	jtest_result fail
 fi
-
-
