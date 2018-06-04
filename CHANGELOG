@@ -1,5 +1,8 @@
 = ChangeLog for cqfd
 
+* The container user is the same as the invocating user.
+* The container's work directory is the same as the invocating user's.
+
 == Version 4
 
 * Files in an archive are only moved at its root if tar_transform is

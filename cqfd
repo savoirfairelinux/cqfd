@@ -2,7 +2,7 @@
 #
 # cqfd - a tool to wrap commands in controlled Docker containers
 #
-# Copyright (C) 2015-2017 Savoir-faire Linux, Inc.
+# Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ Commands:
     By default, run is assumed, and the run command is the one
     configured in .cqfdrc.
 
-    cqfd is Copyright (C) 2015-2017 Savoir-faire Linux, Inc.
+    cqfd is Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
 
     This program comes with ABSOLUTELY NO WARRANTY. This is free
     software, and you are welcome to redistribute it under the terms
@@ -133,6 +133,16 @@ docker_run() {
 		interactive_options="-ti"
 	fi
 
+	# If possible, map cqfd_user from the calling user's
+	if [ -n "$USER" ]; then
+		cqfd_user="$USER"
+	fi
+
+	if [ -n "$HOME" ]; then
+		cqfd_user_home="$(cd $HOME; pwd)"
+		cqfd_user_cwd="$(pwd)"
+	fi
+
 	# Display a warning message if using no more supported options
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
 		echo 'Warning: CQFD_EXTRA_VOLUMES is no more supported, use
@@ -161,8 +171,12 @@ docker_run() {
 		home_env_var=""
 	fi
 
-	docker run --privileged -v "$PWD":$cqfd_user_cwd \
+	tmp_launcher=$(make_launcher)
+
+	docker run --privileged \
+	       -v $tmp_launcher:/bin/cqfd_launch \
 	       -v ~/.ssh:$cqfd_user_home/.ssh \
+	       -v "$PWD":$cqfd_user_cwd \
 	       --rm \
 	       --log-driver=none \
 	       $CQFD_EXTRA_RUN_ARGS \
@@ -170,11 +184,9 @@ docker_run() {
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh} \
-	       $docker_img_name \
-	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
-	       useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user && \
-	       chown $UID:$GROUPS $cqfd_user_home && \
-	       su $cqfd_user -p -c \"cd $cqfd_user_cwd && $1\" 2>&1"
+	       $docker_img_name cqfd_launch "$@" 2>&1
+
+	rm -f $tmp_launcher
 }
 
 # make_archive(): Create a release package.
@@ -236,6 +248,28 @@ make_archive() {
 	*)
 		;;
 	esac
+}
+
+# make_launcher - generate in-container launcher script
+# return: the path to the launcher script on stdout
+make_launcher()
+{
+	local tmpfile=$(mktemp)
+
+	chmod 0755 $tmpfile
+	cat >$tmpfile <<EOF
+#!/bin/sh
+
+# create container user to match expected environment
+groupadd -og $GROUPS -f builders >/dev/null 2>&1
+useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user >/dev/null 2>&1
+chown $UID:$GROUPS $cqfd_user_home
+
+# run the provided command in the working directory
+cd $cqfd_user_cwd
+su $cqfd_user -p -c "\$@"
+EOF
+	echo $tmpfile
 }
 
 # config_load() - load build settings from cqfdrc
