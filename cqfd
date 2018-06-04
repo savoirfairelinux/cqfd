@@ -25,6 +25,7 @@ dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
+cqfd_user_cwd="$cqfd_user_home/src"
 
 ## usage() - print usage on stdout
 usage() {
@@ -117,7 +118,7 @@ docker_build() {
 #   named after $cqfd_user, with the same uid/gid as your user to keep
 #   filesystem permissions in sync.
 #
-# - Your project's source directory is always mapped to ~${cqfd_user}/src/
+# - Your project's source directory is always mapped to $cqfd_user_cwd
 #
 # - Your ~/.ssh directory is mapped to ~${cqfd_user}/.ssh to provide
 #   access to the ssh keys (your build may pull authenticated git
@@ -160,7 +161,7 @@ docker_run() {
 		home_env_var=""
 	fi
 
-	docker run --privileged -v "$PWD":$cqfd_user_home/src \
+	docker run --privileged -v "$PWD":$cqfd_user_cwd \
 	       -v ~/.ssh:$cqfd_user_home/.ssh \
 	       --rm \
 	       --log-driver=none \
@@ -173,7 +174,7 @@ docker_run() {
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user && \
 	       chown $UID:$GROUPS $cqfd_user_home && \
-	       su $cqfd_user -p -c \"cd ~$cqfd_user/src/ && $1\" 2>&1"
+	       su $cqfd_user -p -c \"cd $cqfd_user_cwd && $1\" 2>&1"
 }
 
 # make_archive(): Create a release package.
