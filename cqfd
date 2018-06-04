@@ -24,6 +24,7 @@ VERSION=4
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
+cqfd_user_home='/home/builder'
 
 ## usage() - print usage on stdout
 usage() {
@@ -154,24 +155,24 @@ docker_run() {
 
 	# Set HOME variable for the $cqfd_user, except if it was
 	# explicitely set via CQFD_EXTRA_RUN_ARGS
-	local home_env_var="-e HOME=/home/$cqfd_user"
+	local home_env_var="-e HOME=$cqfd_user_home"
 	if echo "$CQFD_EXTRA_RUN_ARGS" | egrep -q "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
 		home_env_var=""
 	fi
 
-	docker run --privileged -v "$PWD":/home/$cqfd_user/src \
-	       -v ~/.ssh:/home/$cqfd_user/.ssh \
+	docker run --privileged -v "$PWD":$cqfd_user_home/src \
+	       -v ~/.ssh:$cqfd_user_home/.ssh \
 	       --rm \
 	       --log-driver=none \
 	       $CQFD_EXTRA_RUN_ARGS \
 	       $home_env_var \
 	       $interactive_options \
-	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/$cqfd_user/.sockets/ssh} \
-	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/$cqfd_user/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh} \
 	       $docker_img_name \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
 	       useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user && \
-	       chown $UID:$GROUPS /home/$cqfd_user && \
+	       chown $UID:$GROUPS $cqfd_user_home && \
 	       su $cqfd_user -p -c \"cd ~$cqfd_user/src/ && $1\" 2>&1"
 }
 
