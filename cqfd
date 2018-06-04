@@ -23,6 +23,7 @@ PROGNAME=`basename $0`
 VERSION=4
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
+cqfd_user='builder'
 
 ## usage() - print usage on stdout
 usage() {
@@ -112,16 +113,16 @@ docker_build() {
 # A few implementation details:
 #
 # - The user executing the build commands inside the container is
-#   named 'builder', with the same uid/gid as your user to keep
+#   named after $cqfd_user, with the same uid/gid as your user to keep
 #   filesystem permissions in sync.
 #
-# - Your project's source directory is always mapped to ~builder/src/
+# - Your project's source directory is always mapped to ~${cqfd_user}/src/
 #
-# - Your ~/.ssh directory is mapped to ~builder/.ssh to provide access
-#   to the ssh keys (your build may pull authenticated git repos for
-#   example).
+# - Your ~/.ssh directory is mapped to ~${cqfd_user}/.ssh to provide
+#   access to the ssh keys (your build may pull authenticated git
+#   repos for example).
 #
-# arg$1: the command string to execute as builder
+# arg$1: the command string to execute as $cqfd_user
 #
 docker_run() {
 	local interactive_options
@@ -151,27 +152,27 @@ docker_run() {
 	# The user may set the CQFD_EXTRA_RUN_ARGS environment variables
 	# to pass custom run arguments to his development container.
 
-	# Set HOME variable for the builder user, except if it was
+	# Set HOME variable for the $cqfd_user, except if it was
 	# explicitely set via CQFD_EXTRA_RUN_ARGS
-	local home_env_var="-e HOME=/home/builder"
+	local home_env_var="-e HOME=/home/$cqfd_user"
 	if echo "$CQFD_EXTRA_RUN_ARGS" | egrep -q "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
 		home_env_var=""
 	fi
 
-	docker run --privileged -v "$PWD":/home/builder/src \
-	       -v ~/.ssh:/home/builder/.ssh \
+	docker run --privileged -v "$PWD":/home/$cqfd_user/src \
+	       -v ~/.ssh:/home/$cqfd_user/.ssh \
 	       --rm \
 	       --log-driver=none \
 	       $CQFD_EXTRA_RUN_ARGS \
 	       $home_env_var \
 	       $interactive_options \
-	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
-	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/$cqfd_user/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/$cqfd_user/.sockets/ssh} \
 	       $docker_img_name \
 	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
-	       useradd -s /bin/bash -ou $UID -g $GROUPS builder && \
-	       chown $UID:$GROUPS /home/builder && \
-	       su builder -p -c \"cd ~builder/src/ && $1\" 2>&1"
+	       useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user && \
+	       chown $UID:$GROUPS /home/$cqfd_user && \
+	       su $cqfd_user -p -c \"cd ~$cqfd_user/src/ && $1\" 2>&1"
 }
 
 # make_archive(): Create a release package.
