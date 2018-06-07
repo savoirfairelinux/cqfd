@@ -6,8 +6,8 @@ getent_cmd="getent hosts 1.2.3.4"
 
 cd $TDIR/
 
-# First pass: no cqfd_extra_hosts
-# Second pass: cqfd_extra_hosts defined
+# First pass: no extra hosts
+# Second pass: extra hosts defined with CQFD_EXTRA_RUN_ARGS
 
 for i in 0 1; do
     if [ "$i" = "0" ]; then
@@ -23,7 +23,8 @@ for i in 0 1; do
 
     if [ "$i" = "1" ]; then
         jtest_prepare "run cqfd with extra hosts, pass $i"
-        output=$(CQFD_EXTRA_HOSTS="testhost:1.2.3.4" $cqfd run $getent_cmd ; exit 0)
+        output=$(CQFD_EXTRA_RUN_ARGS="--add-host testhost:1.2.3.4" \
+			$cqfd run $getent_cmd ; exit 0)
 
         if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
             jtest_result pass

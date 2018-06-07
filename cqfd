@@ -130,54 +130,39 @@ docker_run() {
 		interactive_options="-ti"
 	fi
 
-	# The user may set the CQFD_EXTRA_VOLUMES environment variable
-	# to map custom volumes inside his development container.
+	# Display a warning message if using no more supported options
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
-		local map extravol
-		for map in $CQFD_EXTRA_VOLUMES; do
-			extravol+="-v $map "
-		done
+		echo 'Warning: CQFD_EXTRA_VOLUMES is no more supported, use
+		CQFD_EXTRA_RUN_ARGS="-v <local_dir>:<container_dir>"'
 	fi
-
 	if [ -n "$CQFD_EXTRA_HOSTS" ]; then
-		local map extrahosts
-		for map in $CQFD_EXTRA_HOSTS; do
-			extrahosts+="--add-host $map "
-		done
+		echo 'Warning: CQFD_EXTRA_HOSTS is no more supported, use
+		CQFD_EXTRA_RUN_ARGS="--add-host <hostname>:<IP_address>"'
 	fi
-
-	# CQFD_EXTRA_ENV is a space-separated list like VAR=value
 	if [ -n "$CQFD_EXTRA_ENV" ]; then
-		local map extraenv
-		for map in $CQFD_EXTRA_ENV; do
-			extraenv+="-e $map "
-		done
+		echo 'Warning: CQFD_EXTRA_ENV is no more supported, use
+		CQFD_EXTRA_RUN_ARGS="-e <var_name>=<value>"'
+	fi
+	if [ -n "$CQFD_EXTRA_PORTS" ]; then
+		echo 'Warning: CQFD_EXTRA_PORTS is no more supported, use
+		CQFD_EXTRA_RUN_ARGS="-p <host_port>:<docker_port>"'
 	fi
 
-	# CQFD_EXTRA_PORTS allows to publish container's ports to
-	# the host, in a space-separated HOST:CONTAINER list.
-	if [ -n "$CQFD_EXTRA_PORTS" ]; then
-		local port extraports
-		for port in $CQFD_EXTRA_PORTS; do
-			extraports+="-p $port "
-		done
-	fi
+	# The user may set the CQFD_EXTRA_RUN_ARGS environment variables
+	# to pass custom run arguments to his development container.
 
 	# Set HOME variable for the builder user, except if it was
-	# explicitely set via CQFD_EXTRA_ENV
+	# explicitely set via CQFD_EXTRA_RUN_ARGS
 	local home_env_var="-e HOME=/home/builder"
-	if echo "$extraenv" | grep -q "[[:blank:]]HOME="; then
-		home_env_var=""
+	if echo "$CQFD_EXTRA_RUN_ARGS" | egrep -q "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
+		local home_env_var=""
 	fi
 
 	docker run --privileged -v "$PWD":/home/builder/src \
 	       -v ~/.ssh:/home/builder/.ssh \
 	       --rm \
 	       --log-driver=none \
-	       $extravol \
-	       $extrahosts \
-	       $extraenv \
-	       $extraports \
+	       $CQFD_EXTRA_RUN_ARGS \
 	       $home_env_var \
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
