@@ -21,13 +21,15 @@ fi
 
 ################################################################################
 # 'cqfd run' does not override HOME environment explicitely set via
-# CQFD_EXTRA_ENV
+# CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd does not override HOME environment explicitely set via CQFD_EXTRA_ENV"
+jtest_prepare "run cqfd does not override HOME environment explicitely set \
+	via CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
-result=$(CQFD_EXTRA_ENV="FOO=$val1 HOME=$val2" $cqfd run 'echo -n $FOO $HOME' | grep value)
+result=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e HOME=$val2" \
+	$cqfd run 'echo -n $FOO $HOME' | grep value)
 
 if [ "$result" = "$val1 $val2" ]; then
 	jtest_result pass
@@ -37,12 +39,14 @@ fi
 
 ################################################################################
 # 'cqfd run' does not override HOME environment when it is the only entry in
-# CQFD_EXTRA_ENV
+# CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd does not override HOME environment when it is the only entry in CQFD_EXTRA_ENV"
+jtest_prepare "run cqfd does not override HOME environment when it is the \
+	only entry in CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 
-result=$(CQFD_EXTRA_ENV="HOME=$val1" $cqfd run 'echo -n $FOO $HOME' | grep value)
+result=$(CQFD_EXTRA_RUN_ARGS="-e HOME=$val1" \
+	$cqfd run 'echo -n $FOO $HOME' | grep value)
 
 if [ "$result" = "$val1" ]; then
 	jtest_result pass
@@ -52,13 +56,15 @@ fi
 
 ################################################################################
 # 'cqfd run' does not confuse JAVA_HOME and the like with HOME when set via
-# CQFD_EXTRA_ENV
+# CQFD_EXTRA_RUN_ARGS
 ################################################################################
-jtest_prepare "run cqfd 'cqfd run' does not confuse JAVA_HOME and the like with HOME"
+jtest_prepare "run cqfd 'cqfd run' does not confuse JAVA_HOME and the like \
+	with HOME"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
-result=$(CQFD_EXTRA_ENV="JAVA_HOME=$val1 HOME=$val2" $cqfd run 'echo -n $JAVA_HOME $HOME' | grep value)
+result=$(CQFD_EXTRA_RUN_ARGS="-e JAVA_HOME=$val1 -e HOME=$val2" \
+	$cqfd run 'echo -n $JAVA_HOME $HOME' | grep value)
 
 if [ "$result" = "$val1 $val2" ]; then
 	jtest_result pass
