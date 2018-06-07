@@ -157,17 +157,10 @@ The following environment variables are supported by cqfd to provide
 the user with extra flexibility during his day-to-day development
 tasks:
 
-``CQFD_EXTRA_VOLUMES``: A space-separated list of additional volume
-mappings to be configured inside the started container. Format is the
-same as (and passed to) docker-run’s -v option.
-
-``CQFD_EXTRA_HOSTS``: A space-separated list of additional host
-mappings to be configured inside the started container. Format is the
-same as (and passed to) docker-run’s --add-host option.
-
-``CQFD_EXTRA_ENV``: A space-separated list of additional environment
-variables to be passed to the started container. Format is the
-same as (and passed to) docker-run’s -e option.
+``CQFD_EXTRA_RUN_ARGS``: A space-separated list of additional
+docker-run options to be append to the starting container.
+Format is the same as (and passed to) docker-run’s options.
+See 'docker run --help'.
 
 ### Other command-line options ###
 
