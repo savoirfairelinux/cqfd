@@ -7,14 +7,15 @@ cd $TDIR/
 
 ################################################################################
 # 'cqfd run' passes environment variables to the container when using
-# CQFD_EXTRA_ENV
+# CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run cqfd with extra environment variables"
 
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
-result=$(CQFD_EXTRA_ENV="FOO=$val1 BAR=$val2" $cqfd run 'echo -n $FOO $BAR' | grep value)
+result=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e BAR=$val2" \
+	$cqfd run 'echo -n $FOO $BAR' | grep value)
 
 if [ "$result" = "$val1 $val2" ]; then
     jtest_result pass
