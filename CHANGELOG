@@ -1,7 +1,13 @@
 = ChangeLog for cqfd
 
-* The container user is the same as the invocating user.
-* The container's work directory is the same as the invocating user's.
+== Those changes will be in version 5
+
+* CQFD_EXTRA_RUN_ARGS replaces CQFD_EXTRA_VOLUMES,ENV,HOSTS,PORTS.
+* The container's user and work directory are now the same as the
+  invocating user. This is useful to prevent cases where the build
+  process generates symlinks or paths in files that don't match the
+  developer's environment.
+* New cqfd [-v|--version] to print the version
 
 == Version 4
 
