@@ -1,7 +1,6 @@
 FROM ubuntu:14.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV HOME /home/builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	openjdk-7-jdk \
@@ -31,7 +30,3 @@ RUN wget -O /tmp/android-sdk.tgz http://dl.google.com/android/android-sdk_r24.4.
 ENV ANDROID_HOME=/opt/android-sdk-linux
 ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
 RUN echo y | android update sdk --filter ${ANDROID_DEPS} --all --no-ui --force
-
-WORKDIR /home/builder/src
-VOLUME /home/builder/src
-
