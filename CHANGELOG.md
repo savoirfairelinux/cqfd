@@ -1,5 +1,10 @@
 # ChangeLog for cqfd
 
+## Version 5.0.1 (2018-12-13)
+
+* Fix wrong user homedir in container when host user isn't in /home
+* Terminate cqfd in case a legacy CQFD_EXTRA_* variable is used.
+
 ## Version 5.0.0
 
 * Use semantic versioning
