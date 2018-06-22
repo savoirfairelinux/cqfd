@@ -1,7 +1,8 @@
 # ChangeLog for cqfd
 
-## Those changes will be in version 5
+## Version 5.0.0
 
+* Use semantic versioning
 * CQFD_EXTRA_RUN_ARGS replaces CQFD_EXTRA_VOLUMES,ENV,HOSTS,PORTS.
 * The container's user and work directory are now the same as the
   invocating user. This is useful to prevent cases where the build
