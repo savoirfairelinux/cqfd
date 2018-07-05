@@ -356,7 +356,9 @@ while [ $# -gt 0 ]; do
 		break
 		;;
 	?*)
-		die "Unknown command: $1"
+		echo "Unknown command: $1"
+		usage
+		exit 1
 		;;
 	*)
 		# empty or no argument case
