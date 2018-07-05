@@ -20,7 +20,7 @@
 set -e
 
 PROGNAME=`basename $0`
-VERSION=5.0.0
+VERSION=5.1.0
 dockerfile=".cqfd/docker/Dockerfile"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
