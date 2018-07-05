@@ -36,7 +36,7 @@ Options:
     -f <file>           Use file as config file (default .cqfdrc).
     -b <flavor_name>    Target a specific build flavor.
     -q                  Turn on quiet mode
-    --version           Show version.
+    -v or --version     Show version.
     -h or --help        Show this help text.
 
 Commands:
@@ -320,7 +320,7 @@ while [ $# -gt 0 ]; do
 		usage
 		exit 0
 		;;
-	version|-V|"--version")
+	version|-v|"--version")
 		echo $VERSION
 		exit 0
 		;;
