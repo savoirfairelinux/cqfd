@@ -15,15 +15,31 @@ else
 	jtest_result pass
 fi
 
-
 ################################################################################
 # 'cqfd version' shall produce a version message
 ################################################################################
 jtest_prepare "cqfd version shall produce a version message"
+
 if grep -qE "^[0-9.]+\$" $TEST; then
 	jtest_result pass
 else
 	jtest_log error "not a version message"
+cat $TEST >&2
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd version' shall match the latest documented version
+################################################################################
+jtest_prepare "cqfd version major number shall match the latest documented version"
+
+doc=$(sed "s/## Version \([0-9]\+\)\..*/\1/;t;d" $TDIR/CHANGELOG.md)
+version=$(sed "s/^\([0-9]\+\)\..*/\1/" $TEST)
+
+if [ $doc -eq $version ]; then
+	jtest_result pass
+else
+	jtest_log error "version major number doesn't match the doc"
 cat $TEST >&2
 	jtest_result fail
 fi
