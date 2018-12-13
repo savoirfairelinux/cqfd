@@ -174,12 +174,12 @@ docker_run() {
 	tmp_launcher=$(make_launcher)
 
 	docker run --privileged \
+	       $CQFD_EXTRA_RUN_ARGS \
+	       --rm \
+	       --log-driver=none \
 	       -v $tmp_launcher:/bin/cqfd_launch \
 	       -v ~/.ssh:$cqfd_user_home/.ssh \
 	       -v "$PWD":$cqfd_user_cwd \
-	       --rm \
-	       --log-driver=none \
-	       $CQFD_EXTRA_RUN_ARGS \
 	       $home_env_var \
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh} \
