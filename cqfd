@@ -145,19 +145,19 @@ docker_run() {
 
 	# Display a warning message if using no more supported options
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
-		echo 'Warning: CQFD_EXTRA_VOLUMES is no more supported, use
+		die 'Warning: CQFD_EXTRA_VOLUMES is no more supported, use
 		CQFD_EXTRA_RUN_ARGS="-v <local_dir>:<container_dir>"'
 	fi
 	if [ -n "$CQFD_EXTRA_HOSTS" ]; then
-		echo 'Warning: CQFD_EXTRA_HOSTS is no more supported, use
+		die 'Warning: CQFD_EXTRA_HOSTS is no more supported, use
 		CQFD_EXTRA_RUN_ARGS="--add-host <hostname>:<IP_address>"'
 	fi
 	if [ -n "$CQFD_EXTRA_ENV" ]; then
-		echo 'Warning: CQFD_EXTRA_ENV is no more supported, use
+		die 'Warning: CQFD_EXTRA_ENV is no more supported, use
 		CQFD_EXTRA_RUN_ARGS="-e <var_name>=<value>"'
 	fi
 	if [ -n "$CQFD_EXTRA_PORTS" ]; then
-		echo 'Warning: CQFD_EXTRA_PORTS is no more supported, use
+		die 'Warning: CQFD_EXTRA_PORTS is no more supported, use
 		CQFD_EXTRA_RUN_ARGS="-p <host_port>:<docker_port>"'
 	fi
 
