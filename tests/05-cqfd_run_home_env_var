@@ -68,3 +68,17 @@ if [ "$result" = "$val1 $val2" ]; then
 else
 	jtest_result fail
 fi
+
+################################################################################
+# The container's user directory has been created with the right home
+# directory.
+################################################################################
+jtest_prepare "the user's home in passwd == \$HOME"
+passwd_home=$($cqfd run "grep ^$(whoami): /etc/passwd |cut -d: -f6")
+user_home=$($cqfd run "echo \$HOME")
+
+if [ "$passwd_home" = "$user_home" ]; then
+	jtest_result pass
+else
+	jtest_result fail
+fi

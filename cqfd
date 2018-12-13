@@ -262,7 +262,7 @@ make_launcher()
 
 # create container user to match expected environment
 groupadd -og $GROUPS -f builders >/dev/null 2>&1
-useradd -s /bin/bash -ou $UID -g $GROUPS $cqfd_user >/dev/null 2>&1
+useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user >/dev/null 2>&1
 chown $UID:$GROUPS $cqfd_user_home
 
 # run the provided command in the working directory
