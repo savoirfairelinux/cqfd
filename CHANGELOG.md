@@ -2,6 +2,8 @@
 
 ## Next version (tbd)
 
+* The ``project.build_context`` key allows changing the docker-build
+  context directory.
 * Options `-v` and `--version` now behave appropriately
 
 ## Version 5.0.1 (2018-12-13)

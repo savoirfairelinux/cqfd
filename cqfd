@@ -108,7 +108,11 @@ docker_build() {
 	if [ ! -f $dockerfile ]; then
 		die "no Dockerfile found at location $dockerfile"
 	fi
-	docker build ${quiet:+-q} -t "$docker_img_name" `dirname $dockerfile`
+	if [ -z "$project_build_context" ]; then
+		docker build ${quiet:+-q} -t "$docker_img_name" "$(dirname "$dockerfile")"
+	else
+		docker build ${quiet:+-q} -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
+	fi
 }
 
 # docker_run() - run command in configured container
@@ -280,6 +284,7 @@ config_load() {
 	cfg.section.project # load the [project] section
 	project_org="$org"
 	project_name="$name"
+	project_build_context="$build_context"
 
 	cfg.section.build # load the [build] section
 

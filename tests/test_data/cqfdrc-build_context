@@ -1,0 +1,7 @@
+[project]
+org='cqfd'
+name='context_test'
+build_context="."
+
+[build]
+command='make build'
