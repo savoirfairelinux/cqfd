@@ -77,6 +77,7 @@ Here is a sample .cqfdrc file:
     [project]
     org='fooinc'
     name='buildroot'
+    build_context='.'
 
     [build]
     command='make foobar_defconfig && make && asciidoc README.FOOINC'
@@ -88,6 +89,11 @@ Here is a sample .cqfdrc file:
 ``org``: a short, lowercase name for the project’s parent organization.
 
 ``name``: a short, lowercase name for the project.
+
+``build_context``: an optional directory to pass as the build context
+to Docker. This should be specified relatively to where cqfd is
+invoked. In the example above, the whole current working directory of
+cqfd is passed to Docker as its build context.
 
 Generated Docker images for your project will be named $org_$name.
 
