@@ -1,5 +1,9 @@
 # ChangeLog for cqfd
 
+## Next version (tbd)
+
+* Options `-v` and `--version` now behave appropriately
+
 ## Version 5.0.1 (2018-12-13)
 
 * Fix wrong user homedir in container when host user isn't in /home
