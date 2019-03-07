@@ -271,7 +271,12 @@ chown $UID:$GROUPS $cqfd_user_home
 
 # run the provided command in the working directory
 cd $cqfd_user_cwd
-su $cqfd_user -p -c "\$@"
+if [ -x "$(which sudo)" ]; then
+  # Use sudo to provide a controlling TTY for the executed command
+  sudo -E -u $cqfd_user sh -c "\$@"
+else
+  su $cqfd_user -p -c "\$@"
+fi
 EOF
 	echo $tmpfile
 }
