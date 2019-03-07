@@ -2,6 +2,8 @@
 
 ## Next version (tbd)
 
+* ``sudo(8)`` is now used to run the commands as the unprivileged user
+  in the container instead of ``su(1)``.
 * The ``project.build_context`` key allows changing the docker-build
   context directory.
 * Options `-v` and `--version` now behave appropriately

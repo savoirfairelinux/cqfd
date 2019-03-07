@@ -191,6 +191,24 @@ The local ~/.ssh directory is also mapped to the corresponding
 directory in the build container. This effectively enables SSH agent
 forwarding so a build can, for example, pull authenticated git repos.
 
+### Terminal job control ###
+
+When cqfd runs a command as the unprivileged user that called it in
+the first place, ``su(1)`` is used to run the command. This brings a
+limitation for processes that require a controlling terminal (such as
+an interactive shell), as ``su`` will prevent the command executed
+from having one.
+
+```
+$ cqfd run bash
+bash: cannot set terminal process group (-1): Inappropriate ioctl for device
+bash: no job control in this shell
+```
+
+To workaround this limitation, cqfd will use ``sudo(8)`` when it is
+available in the container instead. The user is responsible for
+including it in the related Dockerfile.
+
 ## Requirements ##
 
 To use cqfd, ensure the following requirements are satisfied on your
