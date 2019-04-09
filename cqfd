@@ -271,7 +271,7 @@ chown $UID:$GROUPS $cqfd_user_home
 
 # run the provided command in the working directory
 cd $cqfd_user_cwd
-if [ -x "$(which sudo)" ]; then
+if command -v sudo > /dev/null 2>&1; then
   # Use sudo to provide a controlling TTY for the executed command
   sudo -E -u $cqfd_user sh -c "\$@"
 else
