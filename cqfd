@@ -265,16 +265,44 @@ make_launcher()
 #!/bin/sh
 # create container user to match expected environment
 
-groupadd -og $GROUPS -f builders
-useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user
-chown $UID:$GROUPS $cqfd_user_home
+die () {
+	echo "error: \$*"
+	exit 1
+}
+
+test_cmd () {
+	command -v "\$1" > /dev/null 2>&1
+}
+
+debug () {
+      test -n "\$CQFD_DEBUG" && echo "debug: \$*"
+}
+
+# Check requirements.
+test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist \
+or is not executable" ;}
+test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" ;}
+test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" ;}
+test_cmd chown || { failed=1 && echo "error: Missing command: chown" ;}
+test_cmd sudo && has_sudo=1 || test_cmd su \
+	|| { failed=1 && echo "error: Missing command: su or sudo" ;}
+test -n "\$failed" && die "Some dependencies are missing from the \
+Docker container... Please refer to the above error messages."
+
+# Add the host's user and group to the container, and adjust ownership.
+groupadd -og $GROUPS -f builders || die "groupadd command failed."
+useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
+	|| die "useradd command failed."
+chown $UID:$GROUPS $cqfd_user_home || die "chown command failed."
 
 # run the provided command in the working directory
-cd $cqfd_user_cwd
-if command -v sudo > /dev/null 2>&1; then
+cd $cqfd_user_cwd || die "Changing directory to \"$cqfd_user_cwd\" failed."
+if [ -n "\$has_sudo" ]; then
   # Use sudo to provide a controlling TTY for the executed command
+  debug "Using \"sudo\" to execute command \"\$@\" as user \"$cqfd_user\""
   sudo -E -u $cqfd_user sh -c "\$@"
 else
+  debug "Using \"su\" to execute command \"\$@\" as user \"$cqfd_user\""
   su $cqfd_user -p -c "\$@"
 fi
 EOF
