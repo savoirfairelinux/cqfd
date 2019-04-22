@@ -71,8 +71,8 @@ parse_ini_config_file() {
 	if ! ini="$(<$1)"; then           # read the file
 		die "$1: No such file!"
 	fi
-	ini="${ini//[/\[}"          # escape [
-	ini="${ini//]/\]}"          # escape ]
+	ini="${ini//[/\\[}"          # escape [
+	ini="${ini//]/\\]}"          # escape ]
 	IFS=$'\n' && ini=( ${ini} ) # convert to line-array
 	ini=( ${ini[*]//;*/} )      # remove comments with ;
 	ini=( ${ini[*]/\    =/=} )  # remove tabs before =
