@@ -258,7 +258,7 @@ make_archive() {
 # return: the path to the launcher script on stdout
 make_launcher()
 {
-	local tmpfile=$(mktemp)
+	local tmpfile=$(mktemp /tmp/tmp.XXXXXX)
 
 	chmod 0755 $tmpfile
 	cat >$tmpfile <<EOF
