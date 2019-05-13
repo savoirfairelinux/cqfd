@@ -59,13 +59,8 @@ template, which defaults to ``%Po-%Pn.tar.xz``.
 
 ### Flavors ###
 
-You may also want to build a specific build flavor, for a regular build
-or a release. To do so use the -b option, for example:
-
-    $ cqfd -b debug run
-
-When building with a flavor, as when building a regular project, the
-``run`` option can be omitted.
+Flavors are used to create alternate build scenarios. For example, to
+use another container or another build command.
 
 ## The .cqfdrc file ##
 
@@ -131,6 +126,10 @@ specified for the archive to be stored at the root of the archive,
 which is desired in some scenarios. This feature is not supported with
 .zip archives.
 
+``distro``: the name of the directory containing the Dockerfile. By
+default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is
+used.
+
 ``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like build.command.
 
@@ -144,6 +143,10 @@ In the .cqfdrc file, one or more flavors may be listed in the
 ``[build]`` section, referencing other sections named following
 flavor's name.
 
+    [centos7]
+    command='make CENTOS=1'
+    distro='centos7'
+
     [debug]
     command='make DEBUG=1'
     files='myprogram Symbols.map'
@@ -151,10 +154,10 @@ flavor's name.
     [build]
     command='make'
     files='myprogram'
-    flavors='debug'
+    flavors='centos7 debug'
 
-A flavor will typically redefine the keys of the build section:
-command, files, archive.
+A flavor will typically redefine some keys of the build section:
+command, files, archive, distro.
 
 Flavors from a `.cqfdrc` file can be listed using the `flavors` argument.
 
