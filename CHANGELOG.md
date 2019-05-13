@@ -1,7 +1,9 @@
 # ChangeLog for cqfd
 
-## Next version (tbd)
+## Version 5.1.0 (2019-05-13)
 
+* The launcher script in the container now gives extra infos in
+  case of failure.
 * ``sudo(8)`` is now used to run the commands as the unprivileged user
   in the container instead of ``su(1)``.
 * The ``project.build_context`` key allows changing the docker-build
