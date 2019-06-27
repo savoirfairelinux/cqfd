@@ -236,6 +236,12 @@ make_archive() {
 		local tar_opts='--transform s/.*\///g'
 	fi
 
+	# setting tar_options will add the following options to the tar
+	# command
+	if [ -n "$tar_options" ]; then
+		local tar_opts="$tar_opts $tar_options"
+	fi
+
 	# support the following archive formats
 	case "$release_archive" in
 	*.tar.xz)
@@ -335,6 +341,7 @@ config_load() {
 	release_files="`eval echo $files`"
 	release_archive="$archive"
 	release_transform="$tar_transform"
+	tar_options="$tar_options"
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then

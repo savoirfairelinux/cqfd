@@ -80,6 +80,40 @@ sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
 rm -f cqfd-test.tar.xz
 
 ################################################################################
+# cqfd follows the symlinks of the files, only if tar_options=-h,
+# only for tar archive.
+################################################################################
+
+jtest_prepare "symlink files are copied in the tar archive"
+cqfd run ln -s a/cqfd_a.txt link.txt
+rel_files_link="a/cqfd_a.txt link.txt"
+sed -i '/files=/d' .cqfdrc
+echo "files=\"$rel_files_link\"" >>.cqfdrc
+echo "tar_options=-h" >>.cqfdrc
+
+$cqfd release
+result="pass"
+tmp_dir=$(mktemp -d)
+if ! tar xf cqfd-test.tar.xz -C "${tmp_dir}"; then
+	result="fail"
+fi
+
+if [ -L "${tmp_dir}"/link.txt ] || ! diff "${tmp_dir}"/a/cqfd_a.txt "${tmp_dir}"/link.txt; then
+	result="fail"
+fi
+
+jtest_result $result
+
+# revert the changes in .cqfdrc file
+cqfd run rm link.txt
+sed -i '/tar_options/d' .cqfdrc
+sed -i '/files=/d' .cqfdrc
+echo "files=\"$rel_files\"" >>.cqfdrc
+
+rm -f cqfd-test.tar.xz
+rm -rf "${tmp_dir}"
+
+################################################################################
 # Now test adding an archive filename template to the config
 ################################################################################
 jtest_prepare "build.archive can template filenames"

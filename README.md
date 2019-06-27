@@ -126,6 +126,12 @@ specified for the archive to be stored at the root of the archive,
 which is desired in some scenarios. This feature is not supported with
 .zip archives.
 
+For tar archives, setting ``tar_options`` will add extra options to the
+tar command.
+For example, setting ``tar_options=-h`` will copy all symlink files as
+hardlinks, which is desired in some scenarios. This feature is not
+supported with .zip archives.
+
 ``distro``: the name of the directory containing the Dockerfile. By
 default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is
 used.
