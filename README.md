@@ -121,10 +121,15 @@ By default, cqfd will generate a release archive named
 configuration keys. The .tar.xz, .tar.gz and .zip archive formats are
 supported.
 
-For tar archives, setting ``tar_transform=yes`` will cause all files
-specified for the archive to be stored at the root of the archive,
-which is desired in some scenarios. This feature is not supported with
-.zip archives.
+For tar archives:
+
+* Setting ``tar_transform=yes`` will cause all files specified for the
+  archive to be stored at the root of the archive, which is desired in
+  some scenarios.
+
+* Setting ``tar_options`` will pass extra options to
+  the tar command. For example, setting ``tar_options=-h`` will copy
+  all symlink files as hardlinks, which is desired in some scenarios.
 
 ``distro``: the name of the directory containing the Dockerfile. By
 default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is

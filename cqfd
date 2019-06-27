@@ -199,6 +199,8 @@ docker_run() {
 # include two files with the same name in the list of files to
 # archive.
 make_archive() {
+	local tar_opts
+
 	if [ -z "$release_files" ]; then
 		die "No files to archive, check files in $cqfdrc"
 	fi
@@ -233,7 +235,13 @@ make_archive() {
 
 	# setting tar_transform=yes will move files to the root of a tar archive
 	if [ "$release_transform" = "yes" ]; then
-		local tar_opts='--transform s/.*\///g'
+		tar_opts='--transform s/.*\///g'
+	fi
+
+	# setting tar_options will add the following options to the tar
+	# command
+	if [ -n "$tar_options" ]; then
+		tar_opts="$tar_opts $tar_options"
 	fi
 
 	# support the following archive formats
@@ -335,6 +343,7 @@ config_load() {
 	release_files="`eval echo $files`"
 	release_archive="$archive"
 	release_transform="$tar_transform"
+	tar_options="$tar_options"
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then

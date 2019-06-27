@@ -1,5 +1,7 @@
 # ChangeLog for cqfd
 
+* Add `tar_options` cqfd option to add extra options to tar command.
+
 ## Version 5.1.0 (2019-05-13)
 
 * The launcher script in the container now gives extra infos in
