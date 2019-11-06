@@ -165,6 +165,21 @@ docker_run() {
 		CQFD_EXTRA_RUN_ARGS="-p <host_port>:<docker_port>"'
 	fi
 
+	# The user may set the user_extra_groups in the .cqfdrc
+	# file to add groups to the user in the container.
+	local group
+	if [ -n "$cqfd_extra_groups" ]; then
+		for group in $cqfd_extra_groups; do
+			# optional groupd id specified ("name:123")
+			if echo "$group" | grep -qE ":[0-9]+$"; then
+				CQFD_GROUPS+="${group} "
+			else
+				id=$(awk -F: "\$1 == \"$group\" { print \$3 }" /etc/group)
+				CQFD_GROUPS+="${group}:${id} "
+			fi
+		done
+	fi
+
 	# The user may set the CQFD_EXTRA_RUN_ARGS environment variables
 	# to pass custom run arguments to his development container.
 
@@ -290,6 +305,7 @@ debug () {
 test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist or is not executable"; }
 test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd"; }
 test_cmd useradd || { failed=1 && echo "error: Missing command: useradd"; }
+test_cmd usermod || { failed=1 && echo "error: Missing command: usermod"; }
 test_cmd chown || { failed=1 && echo "error: Missing command: chown"; }
 test_cmd sudo && has_sudo=1 || test_cmd su ||
 	{ failed=1 && echo "error: Missing command: su or sudo"; }
@@ -301,6 +317,19 @@ groupadd -og $GROUPS -f builders || die "groupadd command failed."
 useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
 	|| die "useradd command failed."
 chown $UID:$GROUPS $cqfd_user_home || die "chown command failed."
+
+# Add specified groups to cqfd_user
+for g in ${CQFD_GROUPS}; do
+	group=\$(echo "\$g" | cut -d: -f1)
+	gid=\$(echo "\$g" | cut -d: -f2)
+
+	if [ -n "\$gid" ]; then
+		# create group with provided id ("name:123")
+		groupadd -og "\$gid" -f "\$group" || die "groupadd failed for \$group."
+	fi
+
+	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
+done
 
 # run the provided command in the working directory
 cd $cqfd_user_cwd || die "Changing directory to \"$cqfd_user_cwd\" failed."
@@ -340,6 +369,7 @@ config_load() {
 	fi
 
 	build_cmd="$command"
+	cqfd_extra_groups="$user_extra_groups"
 	release_files="`eval echo $files`"
 	release_archive="$archive"
 	release_transform="$tar_transform"
