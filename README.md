@@ -177,6 +177,11 @@ docker-run options to be append to the starting container.
 Format is the same as (and passed to) docker-run’s options.
 See 'docker run --help'.
 
+``CQFD_EXTRA_BUILD_ARGS``: A space-separated list of additional
+docker-build options to be append to the building image.
+Format is the same as (and passed to) docker-build’s options.
+See 'docker build --help'.
+
 ### Other command-line options ###
 
 In some conditions you may want to use an alternate config file with

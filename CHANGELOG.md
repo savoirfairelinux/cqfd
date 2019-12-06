@@ -1,6 +1,7 @@
 # ChangeLog for cqfd
 
 * Add `tar_options` cqfd option to add extra options to tar command.
+* Add CQFD_EXTRA_BUILD_ARGS to pass args and options to the image build process.
 
 ## Version 5.1.0 (2019-05-13)
 

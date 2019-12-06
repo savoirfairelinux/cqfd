@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# validate the behavior of CQFD_EXTRA_BUILD_ARGS
+
+. $(dirname "$0")/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+################################################################################
+# Create a special test context
+################################################################################
+cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
+cp -f .cqfd/docker/Dockerfile.init_extra_env .cqfd/docker/Dockerfile
+
+################################################################################
+# 'cqfd init' without CQFD_EXTRA_BUILD_ARGS should fail
+################################################################################
+jtest_prepare "cqfd init without using CQFD_EXTRA_BUILD_ARGS"
+if $cqfd init; then
+	jtest_result fail
+else
+	jtest_result pass
+fi
+
+################################################################################
+# 'cqfd init' with CQFD_EXTRA_BUILD_ARGS should lead
+################################################################################
+jtest_prepare "cqfd init using CQFD_EXTRA_BUILD_ARGS"
+export CQFD_EXTRA_BUILD_ARGS="--build-arg FOO=foo --no-cache"
+if $cqfd init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# restore initial .cqfdrc and Dockerfile
+################################################################################
+mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
