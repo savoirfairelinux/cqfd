@@ -1,5 +1,8 @@
 # ChangeLog for cqfd
 
+* Containers are now named `cqfd_%user_%company_%project` instead of
+  `cqfd_%company_%project`. This prevents collisions with Docker when
+  several users are using it on the same machine.
 * Add `tar_options` cqfd option to add extra options to tar command.
 * Add CQFD_EXTRA_BUILD_ARGS to pass args and options to the image build process.
 
