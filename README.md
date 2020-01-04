@@ -135,6 +135,11 @@ For tar archives:
 default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is
 used.
 
+``user_extra_groups``: an optional, space-separated list of groups the user
+should be a member of in the container. You can either use the ``group:gid``
+format, or simply specify the ``group`` name if it exists either in the host or
+inside the docker image.
+
 ``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like build.command.
 
