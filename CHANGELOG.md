@@ -1,5 +1,7 @@
 # ChangeLog for cqfd
 
+* Add the `-d` option to specify an alternate cqfd directory.
+* Add the `-C` option to change the working directory.
 * Containers are now named `cqfd_%user_%company_%project` instead of
   `cqfd_%company_%project`. This prevents collisions with Docker when
   several users are using it on the same machine.

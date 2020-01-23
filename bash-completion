@@ -20,7 +20,7 @@ _cqfd() {
 	_init_completion || return
 
 	case $prev in
-	-f)
+	-C|-d|-f)
 		_filedir
 		return
 		;;
@@ -50,7 +50,7 @@ _cqfd() {
 		;;
 	esac
 
-	local opts="-f -b -q -V --version -h --help"
+	local opts="-C -d -f -b -q -V --version -h --help"
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
 		return

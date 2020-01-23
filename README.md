@@ -189,10 +189,28 @@ See 'docker build --help'.
 
 ### Other command-line options ###
 
-In some conditions you may want to use an alternate config file with
-cqfd. This is what the -f option is for:
+In some conditions you may want to use alternate cqfd filenames and / or an
+external working directory. These options can be used to control the cqfd
+configuration files:
 
-    $ cqfd -f .cqfdrc.test
+The working directory can be changed using the `-C` option:
+
+    $ cqfd -C external/directory
+
+An alternate cqfd directory can be specified with the `-d` option:
+
+    $ cqfd -d cqfd_alt
+
+An alternate cqfdrc file can be specified with the `-f` option:
+
+    $ cqfd -f cqfdrc_alt
+
+These options can be combined together:
+
+    $ cqfd -C external/directory -d cqfd_alt -f cqfdrc_alt
+    $ # cqfd will use:
+    $ #  - cqfd directory: external/directory/cqfd_alt
+    $ #  - cqfdrc file: external/directory/cqfdrc_alt
 
 ## Build Container Environment ##
 
