@@ -85,7 +85,7 @@ rm -f cqfd-test.tar.xz
 ################################################################################
 
 jtest_prepare "symlink files are copied in the tar archive"
-cqfd run ln -s a/cqfd_a.txt link.txt
+$cqfd run ln -s a/cqfd_a.txt link.txt
 rel_files_link="a/cqfd_a.txt link.txt"
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files_link\"" >>.cqfdrc
@@ -105,7 +105,7 @@ fi
 jtest_result $result
 
 # revert the changes in .cqfdrc file
-cqfd run rm link.txt
+$cqfd run rm link.txt
 sed -i '/tar_options/d' .cqfdrc
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files\"" >>.cqfdrc
