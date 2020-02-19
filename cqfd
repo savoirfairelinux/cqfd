@@ -233,7 +233,7 @@ make_archive() {
 	# template the generated archive's filename
 	local git_short=`git rev-parse --short HEAD 2>/dev/null`
 	local git_long=`git rev-parse HEAD 2>/dev/null`
-	local date_rfc3339=`date --rfc-3339='date'`
+	local date_rfc3339=`date +"%Y-%m-%d"`
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
