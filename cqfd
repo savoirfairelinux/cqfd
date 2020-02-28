@@ -196,6 +196,8 @@ docker_run() {
 
 	tmp_launcher=$(make_launcher)
 
+	trap "rm -f $tmp_launcher" EXIT
+
 	docker run --privileged \
 	       $CQFD_EXTRA_RUN_ARGS \
 	       --rm \
@@ -208,8 +210,6 @@ docker_run() {
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh} \
 	       $docker_img_name cqfd_launch "$@" 2>&1
-
-	rm -f $tmp_launcher
 }
 
 # make_archive(): Create a release package.
