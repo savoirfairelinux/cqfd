@@ -72,7 +72,6 @@ Here is a sample .cqfdrc file:
     [project]
     org='fooinc'
     name='buildroot'
-    build_context='.'
 
     [build]
     command='make foobar_defconfig && make && asciidoc README.FOOINC'
