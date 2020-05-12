@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# cqfd - a tool to wrap commands in controlled Docker containers
+# cqfd - run commands in a Dockerized environment
 #
-# Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
+# Copyright (C) 2015-2020 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,48 +15,64 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 set -e
 
-PROGNAME=`basename $0`
 VERSION=5.1.0
+
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 
-## usage() - print usage on stdout
-usage() {
-	cat <<EOF
-Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
+print_usage() {
+	cat <<- EOF
+	usage: ${0##*/} [options] [<command> [<args>...]]
 
-Options:
-    -f <file>           Use file as config file (default .cqfdrc).
-    -d <directory>      Use directory as cqfd directory (default .cqfd).
-    -C <directory>      Use the specified working directory.
-    -b <flavor_name>    Target a specific build flavor.
-    -q                  Turn on quiet mode
-    -v or --version     Show version.
-    -h or --help        Show this help text.
+	${0##*/} provides a quick and convenient way to run commands in the current
+	directory, but within a Docker container defined in a per-project rcfile.
 
-Commands:
-    init     Initialize project build container
-    flavors  List flavors from config file to stdout
-    run      Run argument(s) inside build container
-    release  Run argument(s) and release software
-    help     Show this help text
+	Available commands are:
+	    init                    Initialize the project container.
+	    run [<args>...]         Run the specified arguments inside the project
+	                            container. If no arguments are present those defined
+	                            in the rcfile are used.
+	    release [<args>...]     Execute the run command and release the software.
+	    flavors                 List the available build flavors from the rcfile.
 
-    By default, run is assumed, and the run command is the one
-    configured in .cqfdrc.
+	The run command is assumed when none is given in the command line.
 
-    cqfd is Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
+	Options:
+	    -f <rcfile>             Use the specified rcfile [default: .cqfdrc].
+	    -d <cqfd_directory>     Use the specified cqfd directory [default: .cqfd].
+	    -C <working_directory>  Use the specified working directory.
+	    -b <build_flavor>       Use the specified build flavor.
+	    -q                      Turn on quiet mode.
+	    --version               Show version.
+	    --help                  Show this help.
 
-    This program comes with ABSOLUTELY NO WARRANTY. This is free
-    software, and you are welcome to redistribute it under the terms
-    of the GNU GPLv3 license; see the LICENSE for more informations.
-EOF
+	Files:
+	   .cqfdrc                  The default rcfile.
+	                            This file can be replaced using the -f option.
+	   .cqfd/                   The default cqfd directory.
+	                            This directory can be replaced using the -d option.
+
+	Environment:
+	   CQFD_EXTRA_BUILD_ARGS    Extra arguments to give to the 'docker build'.
+	   CQFD_EXTRA_RUN_ARGS      Extra arguments to give to the 'docker run'.
+	EOF
+}
+
+print_version() {
+	cat <<- EOF
+	${0##/*} ${VERSION}
+
+	Copyright (C) 2015-2020 Savoir-faire Linux, Inc.
+	This program comes with ABSOLUTELY NO WARRANTY. This is free software,
+	and you are welcome to redistribute it under the terms of the GNU GPLv3 license.
+	EOF
 }
 
 # parse_ini_config_file()
@@ -396,11 +412,11 @@ has_to_release=false
 while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|"--help")
-		usage
+		print_usage
 		exit 0
 		;;
 	version|-v|"--version")
-		echo $VERSION
+		print_version
 		exit 0
 		;;
 	init)
@@ -444,7 +460,7 @@ while [ $# -gt 0 ]; do
 		;;
 	?*)
 		echo "Unknown command: $1"
-		usage
+		print_usage
 		exit 1
 		;;
 	*)
