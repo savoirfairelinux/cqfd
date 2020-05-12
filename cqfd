@@ -25,41 +25,45 @@ cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 
-print_usage() {
+print_help() {
 	cat <<- EOF
-	usage: ${0##*/} [options] [<command> [<args>...]]
+	Usage: ${0##*/} [options] [<command> [<args>...]]
 
 	${0##*/} provides a quick and convenient way to run commands in the current
-	directory, but within a Docker container defined in a per-project rcfile.
+	directory, but within a Docker container defined in a per-project config file.
 
 	Available commands are:
 	    init                    Initialize the project container.
 	    run [<args>...]         Run the specified arguments inside the project
 	                            container. If no arguments are present those defined
-	                            in the rcfile are used.
+	                            in the config file are used.
 	    release [<args>...]     Execute the run command and release the software.
-	    flavors                 List the available build flavors from the rcfile.
+	    flavors                 List the available flavors from the config file.
 
 	The run command is assumed when none is given in the command line.
 
 	Options:
-	    -f <rcfile>             Use the specified rcfile [default: .cqfdrc].
-	    -d <cqfd_directory>     Use the specified cqfd directory [default: .cqfd].
-	    -C <working_directory>  Use the specified working directory.
-	    -b <build_flavor>       Use the specified build flavor.
-	    -q                      Turn on quiet mode.
+	    -f <file>, --config-file <file>
+	                            Use the specified config file [default: .cqfdrc].
+	    -d <path>, --cqfd-dir <path>
+	                            Use the specified cqfd directory [default: .cqfd].
+	    -C <path>, --working-dir <path>
+	                            Use the specified working directory.
+	    -b <flavor>, --flavor <flavor>
+	                            Use the specified flavor.
+	    -q, --quiet             Turn on quiet mode.
 	    --version               Show version.
 	    --help                  Show this help.
 
 	Files:
-	   .cqfdrc                  The default rcfile.
-	                            This file can be replaced using the -f option.
+	   .cqfdrc                  The default config file.
+	                            This file can be replaced using the --config-file option.
 	   .cqfd/                   The default cqfd directory.
-	                            This directory can be replaced using the -d option.
+	                            This directory can be replaced using the --cqfd-dir option.
 
 	Environment:
-	   CQFD_EXTRA_BUILD_ARGS    Extra arguments to give to the 'docker build'.
-	   CQFD_EXTRA_RUN_ARGS      Extra arguments to give to the 'docker run'.
+	   CQFD_EXTRA_BUILD_ARGS    Extra arguments to give to the docker build.
+	   CQFD_EXTRA_RUN_ARGS      Extra arguments to give to the docker run.
 	EOF
 }
 
@@ -406,78 +410,115 @@ config_load() {
 	fi
 }
 
-has_to_release=false
-while [ $# -gt 0 ]; do
-	case "$1" in
-	help|-h|"--help")
-		print_usage
-		exit 0
-		;;
-	version|-v|"--version")
-		print_version
-		exit 0
-		;;
-	init)
-		config_load $flavor
-		docker_build
-		exit $?
-		;;
-	flavors)
-		config_load
-		echo $flavors
-		exit 0
-		;;
-	-b)
-		shift
-		flavor="$1"
-		;;
-	-d)
-		shift
-		cqfddir="$1"
-		;;
-	-f)
-		shift
-		cqfdrc="$1"
-		;;
-	-C)
-		shift
-		cd "$1"
-		;;
-	-q)
-		quiet=true
-		;;
-	run|release)
-		if [ "$1" = "release" ]; then
-			has_to_release=true
-		fi
-		if [ $# -gt 1 ]; then
-			shift
-			build_cmd_alt="$@"
-		fi
-		break
-		;;
-	?*)
-		echo "Unknown command: $1"
-		print_usage
-		exit 1
-		;;
-	*)
-		# empty or no argument case
-		;;
+while getopts ":f:d:C:b:q-:" OPTCHAR
+do
+	case "${OPTCHAR}" in
+		-)
+			case "${OPTARG}" in
+				config-file)
+					cqfdrc="${!OPTIND}"
+					OPTIND=$((${OPTIND} + 1))
+					;;
+				cqfd-dir)
+					cqfddir="${!OPTIND}"
+					OPTIND=$((${OPTIND} + 1))
+					;;
+				working-dir)
+					cd "${!OPTIND}"
+					OPTIND=$((${OPTIND} + 1))
+					;;
+				flavor)
+					flavor="${!OPTIND}"
+					OPTIND=$((${OPTIND} + 1))
+					;;
+				quiet)
+					quiet=true
+					;;
+				version)
+					print_version
+					exit 0
+					;;
+				help)
+					print_help
+					exit 0
+					;;
+				*)
+					print_help
+					exit 1
+					;;
+			esac
+			;;
+		f)
+			cqfdrc="${OPTARG}"
+			;;
+		d)
+			cqfddir="${OPTARG}"
+			;;
+		C)
+			cd "${OPTARG}"
+			;;
+		b)
+			flavor="${OPTARG}"
+			;;
+		q)
+			quiet=true
+			;;
+		*)
+			print_help
+			exit 1
+			;;
 	esac
-	shift
 done
 
-config_load $flavor
+shift $((${OPTIND} - 1))
 
-if [ -n "$build_cmd_alt" ]; then
-	build_cmd=$build_cmd_alt
-elif [ -z "$build_cmd" ]; then
-	die "No build.command defined in $cqfdrc !"
-fi
+do_init() {
+	config_load ${flavor}
+	docker_build
+}
 
-docker_run "$build_cmd"
+do_run() {
+	config_load ${flavor}
 
-if $has_to_release; then
+	if [ ${#} -gt 0 ]
+	then
+		build_cmd="${@}"
+
+	elif [ -z "${build_cmd}" ]
+	then
+		die "No build.command defined in ${cqfdrc} !"
+	fi
+
+	docker_run "${build_cmd}"
+}
+
+do_release() {
+	do_run ${@}
 	make_archive
-fi
+}
+
+do_flavors() {
+	config_load
+	echo "${flavors}"
+}
+
+case "${1:-run}" in
+	init)
+		do_init
+		;;
+	run)
+		shift || true
+		do_run ${@}
+		;;
+	release)
+		shift || true
+		do_release ${@}
+		;;
+	flavors)
+		do_flavors
+		;;
+	*)
+		print_help
+		exit 1
+		;;
+esac
