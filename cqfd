@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # cqfd - a tool to wrap commands in controlled Docker containers
 #
@@ -209,7 +209,7 @@ docker_run() {
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh} \
-	       $docker_img_name cqfd_launch "$@" 2>&1
+	       $docker_img_name /bin/cqfd_launch "$@" 2>&1
 }
 
 # make_archive(): Create a release package.
@@ -338,6 +338,7 @@ done
 # run the provided command in the working directory
 cd $cqfd_user_cwd || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
+	echo "$cqfd_user ALL = NOPASSWD: ALL" >> /etc/sudoers
 	# Use sudo to provide a controlling TTY for the executed command
 	debug "Using \"sudo\" to execute command \"\$@\" as user \"$cqfd_user\""
 	sudo -E -u $cqfd_user sh -c "\$@"
