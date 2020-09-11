@@ -1,7 +1,10 @@
 # ChangeLog for cqfd
 
+## Version 5.2.0 (2019-11-11)
+
 * Add the `-d` option to specify an alternate cqfd directory.
 * Add the `-C` option to change the working directory.
+* Date strings now use POSIX options, eg. for running on macOS.
 * Containers are now named `cqfd_%user_%company_%project` instead of
   `cqfd_%company_%project`. This prevents collisions with Docker when
   several users are using it on the same machine.
