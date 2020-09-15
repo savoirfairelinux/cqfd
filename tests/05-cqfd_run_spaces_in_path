@@ -1,0 +1,34 @@
+#!/bin/bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+################################################################################
+# Working from a sub-directory with spaces should also work.
+# Create one and copy the necessary config inside it.
+################################################################################
+spaces_dir="aa bb cc dd"
+spaces_dir2="aa2 bb2 cc2 dd2"
+mkdir -p "$spaces_dir"/"$spaces_dir2"
+
+cp -a .cqfd .cqfdrc "$spaces_dir"/"$spaces_dir2"
+
+cd "$spaces_dir"/"$spaces_dir2"
+
+jtest_prepare "cqfd run from a directory with spaces"
+
+file="rand.$RANDOM"
+result=$($cqfd run touch $file)
+
+if [ -f "$file" ]; then
+    rm -f "$file"
+    jtest_result pass
+else
+    jtest_result fail
+fi
+
+# Teardown
+cd $TDIR
+rm -rf "$spaces_dir"
