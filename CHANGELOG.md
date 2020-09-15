@@ -1,10 +1,12 @@
 # ChangeLog for cqfd
 
-## Version 5.2.1-alpha (Coming soon)
+## Version 5.2.1 (2020-09-14)
 
-* Nothing yet!
+* Fixed an error when launching `cqfd run` from a working directory with
+  spaces in its hierarchy.
+* Misc. fixes to the integrated test suite.
 
-## Version 5.2.0 (2019-11-11)
+## Version 5.2.0 (2020-11-11)
 
 * Add the `-d` option to specify an alternate cqfd directory.
 * Add the `-C` option to change the working directory.

@@ -20,7 +20,7 @@
 set -e
 
 PROGNAME=`basename $0`
-VERSION=5.2.1-alpha
+VERSION=5.2.1
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
