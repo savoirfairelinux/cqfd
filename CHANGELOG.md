@@ -1,5 +1,9 @@
 # ChangeLog for cqfd
 
+## Version 5.2.2-alpha (Coming soon)
+
+* Nothing here yet!
+
 ## Version 5.2.1 (2020-09-14)
 
 * Fixed an error when launching `cqfd run` from a working directory with
