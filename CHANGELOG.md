@@ -1,5 +1,9 @@
 # ChangeLog for cqfd
 
+## Version 5.2.1-alpha (Coming soon)
+
+* Nothing yet!
+
 ## Version 5.2.0 (2019-11-11)
 
 * Add the `-d` option to specify an alternate cqfd directory.

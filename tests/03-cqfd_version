@@ -20,7 +20,7 @@ fi
 ################################################################################
 jtest_prepare "cqfd version shall produce a version string"
 
-if grep -qE "^[0-9.]+\$" $TEST; then
+if grep -qE "^[0-9.]+(-[a-z]+)?\$" $TEST; then
 	jtest_result pass
 else
 	jtest_log error "not a version message"
@@ -33,7 +33,7 @@ fi
 ################################################################################
 jtest_prepare "cqfd version major number shall match the latest documented version"
 
-doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | egrep -o '[0-9.]+' | head -1)
+doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | egrep -Eo '[0-9.]+(-[a-z]+)?' | head -1)
 version="$(cat $TEST)"
 
 if [ "$doc" = "$version" ]; then
