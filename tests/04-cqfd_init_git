@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# validate the behavior of project.build_context
+
+. $(dirname "$0")/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+################################################################################
+# 'cqfd init' outside a git repo should not fail and yield a "latest" tag
+################################################################################
+jtest_prepare "cqfd init outside git repository"
+if $cqfd init | tail -n 1 | grep -q ":latest"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# Create git context
+################################################################################
+git init
+git commit --allow-empty -m "cqfd test"
+
+################################################################################
+# 'cqfd init' inside git repository
+################################################################################
+jtest_prepare "cqfd init on master branch"
+if $cqfd init | tail -n 1 | grep -q ":master"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# restore status without git
+################################################################################
+rm -rf $TDIR/.git

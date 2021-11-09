@@ -28,9 +28,11 @@ cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 
 # git environment for container image cration/run and packaging
-git_short=$(git rev-parse --short HEAD 2>/dev/null)
-git_long=$(git rev-parse HEAD 2>/dev/null)
-git_branch=$(git branch -a --contains $git_short 2>/dev/null | grep -Ev "remotes|HEAD" | head -n 1 | sed -e 's/[ \*]*//g')
+if git rev-parse 2>/dev/null; then
+	git_short=$(git rev-parse --short HEAD 2>/dev/null)
+	git_long=$(git rev-parse HEAD 2>/dev/null)
+	git_branch=$(git branch -a --contains $git_short 2>/dev/null | grep -Ev "remotes|HEAD" | head -n 1 | sed -e 's/[ \*]*//g')
+fi
 date_rfc3339=$(date +"%Y-%m-%d")
 
 ## usage() - print usage on stdout
