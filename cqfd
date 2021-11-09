@@ -27,6 +27,12 @@ cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 
+# git environment for container image cration/run and packaging
+git_short=$(git rev-parse --short HEAD 2>/dev/null)
+git_long=$(git rev-parse HEAD 2>/dev/null)
+git_branch=$(git branch -a --contains $git_short 2>/dev/null | grep -Ev "remotes|HEAD" | head -n 1 | sed -e 's/[ \*]*//g')
+date_rfc3339=$(date +"%Y-%m-%d")
+
 ## usage() - print usage on stdout
 usage() {
 	cat <<EOF
@@ -113,9 +119,9 @@ docker_build() {
 		die "no Dockerfile found at location $dockerfile"
 	fi
 	if [ -z "$project_build_context" ]; then
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name:${git_branch:-latest}" "$(dirname "$dockerfile")"
 	else
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name:${git_branch:-latest}" "${project_build_context}" -f "$dockerfile"
 	fi
 }
 
@@ -209,7 +215,7 @@ docker_run() {
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:"$cqfd_user_home"/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK="$cqfd_user_home"/.sockets/ssh} \
-	       $docker_img_name cqfd_launch "$@" 2>&1
+	       "$docker_img_name:${git_branch:-latest}" cqfd_launch "$@" 2>&1
 }
 
 # make_archive(): Create a release package.
@@ -231,9 +237,7 @@ make_archive() {
 	done
 
 	# template the generated archive's filename
-	local git_short=`git rev-parse --short HEAD 2>/dev/null`
-	local git_long=`git rev-parse HEAD 2>/dev/null`
-	local date_rfc3339=`date +"%Y-%m-%d"`
+
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
