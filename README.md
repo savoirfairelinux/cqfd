@@ -145,6 +145,12 @@ inside the docker image.
 ``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like build.command.
 
+``docker_run_args`` (optional): arguments used to invoke `docker run`.
+For example, to share networking with the host, it can be set like:
+```
+docker_run_args='--network=host'
+```
+
 ### Using build flavors ###
 
 In some cases, it may be desirable to build the project using
