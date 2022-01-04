@@ -2,7 +2,7 @@
 #
 # cqfd - a tool to wrap commands in controlled Docker containers
 #
-# Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
+# Copyright (C) 2015-2022 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ Commands:
     By default, run is assumed, and the run command is the one
     configured in .cqfdrc.
 
-    cqfd is Copyright (C) 2015-2018 Savoir-faire Linux, Inc.
+    cqfd is Copyright (C) 2015-2022 Savoir-faire Linux, Inc.
 
     This program comes with ABSOLUTELY NO WARRANTY. This is free
     software, and you are welcome to redistribute it under the terms
@@ -199,6 +199,7 @@ docker_run() {
 	trap "rm -f $tmp_launcher" EXIT
 
 	docker run --privileged \
+	       $build_docker_run_args \
 	       $CQFD_EXTRA_RUN_ARGS \
 	       --rm \
 	       --log-driver=none \
@@ -373,6 +374,7 @@ config_load() {
 	fi
 
 	build_cmd="$command"
+	build_docker_run_args="$docker_run_args"
 	cqfd_extra_groups="$user_extra_groups"
 	release_files="`eval echo $files`"
 	release_archive="$archive"
