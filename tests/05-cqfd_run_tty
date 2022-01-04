@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This test ensures cqfd works when not invoked from a tty (this is the case
 # when running from a CI system for example).
