@@ -270,7 +270,15 @@ workstation:
 
 ## Installing/removing cqfd ##
 
-The cqfd script can be installed system-wide.
+If you use the [GNU Guix](https://gnu.org/software/guix) package
+manager, you can install `cqfd` via:
+
+```sh
+guix install cqfd
+```
+
+Otherwise, the following describes how you can install it system-wide
+from source.
 
 Install or remove the script and its resources:
 
