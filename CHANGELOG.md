@@ -1,6 +1,6 @@
 # ChangeLog for cqfd
 
-## Version 5.3.1-alpha (Coming soon)
+## Version 5.3.1-dev (Coming soon)
 
 * Nothing here yet!
 
