@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+. `dirname $0`/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+test_file="a/cqfd_a.txt"
+test_run_c_file="test_run_c.txt"
+
+cd $TDIR/
+
+# First pass: build the default command with run -c
+# Second pass: concatenate default command build with an additional option
+
+for i in 0 1; do
+
+	if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
+		jtest_log fatal "$test_file or $test_run_c_file already present before test"
+		rm -f $test_file
+		rm -f $test_run_c_file
+		continue
+	fi
+
+	if [ "$i" = "1" ]; then
+		jtest_prepare "running \"cqfd run -c\" makes it run with concatene arguments"
+		$cqfd run -c --debug >> $test_run_c_file
+
+		# at the end of this test, $test_run_c_file is populated
+		if ! grep -qw "target \`build'" $test_run_c_file; then
+			jtest_log fatal "$test_run_c_file not present after test"
+			jtest_result fail
+			rm -f $test_run_c_file
+			continue
+		fi
+	else
+		jtest_prepare "running \"cqfd run -c\" with no argument makes it run"
+		$cqfd run -c
+	fi
+
+	# at the end of either test, $test_file is populated
+	if ! grep -qw "cqfd" $test_file; then
+		jtest_log fatal "$test_file not present after test"
+		jtest_result fail
+		rm -f $test_file
+		continue
+	else
+		jtest_result pass
+	fi
+
+	rm -f $test_file
+	rm -f $test_run_c_file
+done

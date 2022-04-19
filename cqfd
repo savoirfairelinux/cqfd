@@ -30,7 +30,7 @@ cqfd_user_cwd="$cqfd_user_home/src"
 ## usage() - print usage on stdout
 usage() {
 	cat <<EOF
-Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [ARGUMENTS]
+Usage: $PROGNAME [OPTION ARGUMENT] [COMMAND] [COMMAND OPTION] [ARGUMENTS]
 
 Options:
     -f <file>           Use file as config file (default .cqfdrc).
@@ -50,6 +50,10 @@ Commands:
 
     By default, run is assumed, and the run command is the one
     configured in .cqfdrc.
+
+Command options:
+    -c      Only with run or release commands. Concatenate arguments
+            with the command configured in .cqfdrc.
 
     cqfd is Copyright (C) 2015-2022 Savoir-faire Linux, Inc.
 
@@ -440,7 +444,12 @@ while [ $# -gt 0 ]; do
 		fi
 		if [ $# -gt 1 ]; then
 			shift
-			build_cmd_alt="$@"
+            if [ "$1" = "-c" ] ; then
+                shift
+                build_cmd_c="$@"
+            else
+    			build_cmd_alt="$@"
+            fi
 		fi
 		break
 		;;
@@ -460,6 +469,8 @@ config_load $flavor
 
 if [ -n "$build_cmd_alt" ]; then
 	build_cmd=$build_cmd_alt
+elif [ -n "$build_cmd_c" ]; then
+	build_cmd="$build_cmd $build_cmd_c"
 elif [ -z "$build_cmd" ]; then
 	die "No build.command defined in $cqfdrc !"
 fi
