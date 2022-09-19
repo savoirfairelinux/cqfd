@@ -1,3 +1,5 @@
+![cqfd logo](./doc/cqfd_logo.png?raw=true)
+
 # What is cqfd ? #
 
 cqfd provides a quick and convenient way to run commands in the current
