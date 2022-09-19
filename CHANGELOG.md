@@ -1,8 +1,8 @@
 # ChangeLog for cqfd
 
-## Version 5.3.1-dev (Coming soon)
+## Version 5.4.0-dev (Coming soon)
 
-* Nothing here yet!
+* Add the `-c` option to cqfd run/release, to pass extra arguments
 
 ## Version 5.3.0 (2022-01-05)
 

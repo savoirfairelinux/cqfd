@@ -7,32 +7,32 @@ test_run_c_file="test_run_c.txt"
 
 cd $TDIR/
 
-# First pass: build the default command with run -c
-# Second pass: concatenate default command build with an additional option
 
-for i in 0 1; do
-
+test_setup() {
 	if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
 		jtest_log fatal "$test_file or $test_run_c_file already present before test"
 		rm -f $test_file
 		rm -f $test_run_c_file
 		continue
 	fi
+}
 
-	if [ "$i" = "1" ]; then
-		jtest_prepare "running \"cqfd run -c\" makes it run with concatene arguments"
-		$cqfd run -c --debug >> $test_run_c_file
+test_cleanup() {
+	rm -f $test_file
+	rm -f $test_run_c_file
+}
 
-		# at the end of this test, $test_run_c_file is populated
-		if ! grep -qw "target \`build'" $test_run_c_file; then
-			jtest_log fatal "$test_run_c_file not present after test"
-			jtest_result fail
-			rm -f $test_run_c_file
-			continue
-		fi
-	else
-		jtest_prepare "running \"cqfd run -c\" with no argument makes it run"
-		$cqfd run -c
+# Append default command build with an additional option
+test_step1() {
+	jtest_prepare "running \"cqfd run -c\" makes it run with appended arguments"
+	$cqfd run -c --debug >> $test_run_c_file
+
+	# at the end of this test, $test_run_c_file is populated
+	if ! grep -qw "target \`build'" $test_run_c_file; then
+		jtest_log fatal "$test_run_c_file not present after test"
+		jtest_result fail
+		rm -f $test_run_c_file
+		return
 	fi
 
 	# at the end of either test, $test_file is populated
@@ -40,11 +40,24 @@ for i in 0 1; do
 		jtest_log fatal "$test_file not present after test"
 		jtest_result fail
 		rm -f $test_file
-		continue
+		return
 	else
 		jtest_result pass
 	fi
+}
+    
+# Build the default command with run -c
+test_step2() {
+	jtest_prepare "running \"cqfd run -c\" with no argument makes it fail"
+	$cqfd run -c
+	[ $? -eq 0 ] && jtest_result fail || jtest_result pass
+}
 
-	rm -f $test_file
-	rm -f $test_run_c_file
-done
+test_setup
+test_step1
+test_cleanup
+
+test_setup
+test_step2
+test_cleanup
+
