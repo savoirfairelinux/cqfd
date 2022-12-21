@@ -387,7 +387,8 @@ config_load() {
 
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then
-		docker_img_name="cqfd${USER:+_${USER}}_${project_org}_${project_name}"
+		local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
+		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}"
 	else
 		die "project.org and project.name not configured"
 	fi
