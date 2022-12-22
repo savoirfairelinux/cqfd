@@ -110,8 +110,6 @@ die() {
 
 # docker_build() - Initialize build container
 docker_build() {
-	local dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
-
 	if [ ! -f $dockerfile ]; then
 		die "no Dockerfile found at location $dockerfile"
 	fi
@@ -138,8 +136,12 @@ docker_build() {
 # arg$1: the command string to execute as $cqfd_user
 #
 docker_run() {
-	local interactive_options
 
+	if ! docker image inspect $docker_img_name &> /dev/null; then
+		die "The docker image doesn't exist, launch 'cqfd init' to create it"
+	fi
+
+	local interactive_options
 	if tty -s; then
 		interactive_options="-ti"
 	fi
@@ -385,10 +387,13 @@ config_load() {
 	release_transform="$tar_transform"
 	tar_options="$tar_options"
 
+	dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
+
 	# This will look like fooinc_reponame
 	if [ -n "$project_org" -a -n "$project_name" ]; then
 		local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
-		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}"
+		local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
+		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
 	else
 		die "project.org and project.name not configured"
 	fi

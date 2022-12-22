@@ -36,3 +36,17 @@ for i in 0 1; do
 
 	rm -f $test_file
 done
+
+################################################################################
+# If the Dockerfile changed and no init is done again, 'cqfd run' should fail
+################################################################################
+jtest_prepare "Modifying the Dockerfile should require running 'cqfd init' again"
+dockerfile=.cqfd/docker/Dockerfile
+echo "RUN echo $RANDOM" >> $dockerfile
+if $TDIR/.cqfd/cqfd run; then
+  jtest_result fail
+else
+  jtest_result pass
+fi
+# restore Dockerfile
+sed -i '$d' $dockerfile
