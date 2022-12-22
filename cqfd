@@ -223,6 +223,7 @@ docker_run() {
 # archive.
 make_archive() {
 	local tar_opts
+	release_files="`eval echo $release_files`"
 
 	if [ -z "$release_files" ]; then
 		die "No files to archive, check files in $cqfdrc"
@@ -379,7 +380,7 @@ config_load() {
 	build_cmd="$command"
 	build_docker_run_args="$docker_run_args"
 	cqfd_extra_groups="$user_extra_groups"
-	release_files="`eval echo $files`"
+	release_files="$files"
 	release_archive="$archive"
 	release_transform="$tar_transform"
 	tar_options="$tar_options"
