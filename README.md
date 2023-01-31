@@ -28,6 +28,11 @@ Examples are available in the samples/ directory.
 cqfd will use the provided Dockerfile to create a normalized runtime
 build environment for your project.
 
+Warning: Running cqfd init creates and names a new Docker image each
+time the Dockerfile is modified, which may lead to a large number of
+unused images that cannot be automatically purged. Currently, cqfd
+does not have a systematic clean-up system in place.
+
 ## Using cqfd on a daily basis ##
 
 ### Regular builds ###
