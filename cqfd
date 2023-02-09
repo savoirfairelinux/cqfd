@@ -138,7 +138,9 @@ docker_build() {
 docker_run() {
 
 	if ! docker image inspect $docker_img_name &> /dev/null; then
-		die "The docker image doesn't exist, launch 'cqfd init' to create it"
+		# If custom image name is used, try to pull it before dying
+		[ -n "$custom_img_name" ] && docker pull $docker_img_name
+		[ $? -ne 0 ] && die "The docker image doesn't exist, launch 'cqfd init' to create it"
 	fi
 
 	local interactive_options
@@ -365,6 +367,7 @@ config_load() {
 	project_org="$org"
 	project_name="$name"
 	project_build_context="$build_context"
+	custom_img_name="$custom_img_name"
 
 	cfg.section.build # load the [build] section
 
@@ -394,6 +397,8 @@ config_load() {
 		local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
 		local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
 		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
+	elif [ -n "$custom_img_name" ]; then
+		docker_img_name="${custom_img_name}"
 	else
 		die "project.org and project.name not configured"
 	fi
