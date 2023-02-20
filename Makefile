@@ -41,5 +41,9 @@ uninstall:
 		rm -rf $(DESTDIR)$$completionsdir/cqfd; \
 	fi
 
+user-install user-uninstall:
+user-%:
+	$(MAKE) $* PREFIX=$$HOME/.local
+
 tests:
 	@make -C tests
