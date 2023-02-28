@@ -392,13 +392,13 @@ config_load() {
 
 	dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
 
+	if [ -n "$custom_img_name" ]; then
+		docker_img_name="${custom_img_name}"
 	# This will look like fooinc_reponame
-	if [ -n "$project_org" -a -n "$project_name" ]; then
+	elif [ -n "$project_org" -a -n "$project_name" ]; then
 		local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
 		local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
 		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
-	elif [ -n "$custom_img_name" ]; then
-		docker_img_name="${custom_img_name}"
 	else
 		die "project.org and project.name not configured"
 	fi
