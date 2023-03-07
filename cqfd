@@ -73,24 +73,27 @@ parse_ini_config_file() {
 		shopt -s compat42
 	fi
 
-	if ! ini="$(<$1)"; then           # read the file
-		die "$1: No such file!"
+	if ! [ -f "$1" ]; then
+		die "$1: No such file!
+		Create the .cqfdrc file or use a custom one with 'cqfd -f'"
 	fi
+
+	ini="$(<$1)"                 # read the file
 	ini="${ini//[/\\[}"          # escape [
 	ini="${ini//]/\\]}"          # escape ]
-	IFS=$'\n' && ini=( ${ini} ) # convert to line-array
-	ini=( ${ini[*]//;*/} )      # remove comments with ;
-	ini=( ${ini[*]/\    =/=} )  # remove tabs before =
-	ini=( ${ini[*]/=\   /=} )   # remove tabs be =
-	ini=( ${ini[*]/\ =\ /=} )   # remove anything with a space around =
+	IFS=$'\n' && ini=( ${ini} )  # convert to line-array
+	ini=( ${ini[*]//;*/} )       # remove comments with ;
+	ini=( ${ini[*]/\    =/=} )   # remove tabs before =
+	ini=( ${ini[*]/=\   /=} )    # remove tabs be =
+	ini=( ${ini[*]/\ =\ /=} )    # remove anything with a space around =
 	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} ) # set section prefix
-	ini=( ${ini[*]/%\\]/ \(} )  # convert text2function (1)
-	ini=( ${ini[*]/%\(/ \( \)} ) # close array parenthesis
-	ini=( ${ini[*]/%\\ \)/ \\} ) # the multiline trick
+	ini=( ${ini[*]/%\\]/ \(} )       # convert text2function (1)
+	ini=( ${ini[*]/%\(/ \( \)} )     # close array parenthesis
+	ini=( ${ini[*]/%\\ \)/ \\} )     # the multiline trick
 	ini=( ${ini[*]/%\( \)/\(\) \{} ) # convert text2function (2)
-	ini=( ${ini[*]/%\} \)/\}} ) # remove extra parenthesis
-	ini[0]="" # remove first element
-	ini[${#ini[*]} + 1]='}'    # add the last brace
+	ini=( ${ini[*]/%\} \)/\}} )      # remove extra parenthesis
+	ini[0]=""                        # remove first element
+	ini[${#ini[*]} + 1]='}'          # add the last brace
 	if ! eval "$(echo "${ini[*]}")" 2>/dev/null; then # eval the result
 		die "$1: Invalid ini-file!"
 	fi
@@ -110,9 +113,6 @@ die() {
 
 # docker_build() - Initialize build container
 docker_build() {
-	if [ ! -f $dockerfile ]; then
-		die "no Dockerfile found at location $dockerfile"
-	fi
 	if [ -z "$project_build_context" ]; then
 		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
 	else
@@ -389,14 +389,18 @@ config_load() {
 
 	dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
 
-	# This will look like fooinc_reponame
-	if [ -n "$project_org" -a -n "$project_name" ]; then
-		local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
-		local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
-		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
-	else
+	if ! [ -n "$project_org" -a -n "$project_name" ]; then
 		die "project.org and project.name not configured"
 	fi
+	if ! [ -f "$dockerfile" ]; then
+		die "no Dockerfile found at location $dockerfile.
+		Create the file or specify a directory with 'cqfd -d'"
+	fi
+
+ 	# This will look like cqfd_USER_ORG_NAME_HASH
+	local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
+	local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
+	docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
 
 	# Adapt things for a specific container
 	if [ -n "$distro" ]; then
