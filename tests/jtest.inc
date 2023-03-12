@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Shell test functions
-# Copyright (C) 2016 Savoir-faire Linux, Inc.
+# Copyright (C) 2016-2023 Savoir-faire Linux, Inc.
 
 TDIR="$1"
 JTEST_LOGLVL=debug # all debug error fatal info off

@@ -2,7 +2,7 @@
 #
 # cqfd - a tool to wrap commands in controlled Docker containers
 #
-# Copyright (C) 2015-2022 Savoir-faire Linux, Inc.
+# Copyright (C) 2015-2023 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ Commands:
 Command options for run / release:
     -c <args>      Append args to the default command
 
-    cqfd is Copyright (C) 2015-2022 Savoir-faire Linux, Inc.
+    cqfd is Copyright (C) 2015-2023 Savoir-faire Linux, Inc.
 
     This program comes with ABSOLUTELY NO WARRANTY. This is free
     software, and you are welcome to redistribute it under the terms
