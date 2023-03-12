@@ -19,7 +19,7 @@
 
 set -e
 
-PROGNAME=`basename $0`
+PROGNAME=$(basename "$0")
 VERSION=5.4.0-dev
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
@@ -226,7 +226,7 @@ docker_run() {
 # archive.
 make_archive() {
 	local tar_opts
-	release_files="`eval echo $release_files`"
+	release_files="$(eval echo $release_files)"
 
 	if [ -z "$release_files" ]; then
 		die "No files to archive, check files in $cqfdrc"
@@ -239,26 +239,26 @@ make_archive() {
 	done
 
 	# template the generated archive's filename
-	local git_short=`git rev-parse --short HEAD 2>/dev/null`
-	local git_long=`git rev-parse HEAD 2>/dev/null`
-	local date_rfc3339=`date +"%Y-%m-%d"`
+	local git_short=$(git rev-parse --short HEAD 2>/dev/null)
+	local git_long=$(git rev-parse HEAD 2>/dev/null)
+	local date_rfc3339=$(date +"%Y-%m-%d")
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
 		release_archive="%Po-%Pn.tar.xz"
 	fi
 
-	release_archive=`echo $release_archive |
+	release_archive=$(echo $release_archive |
 		sed -e 's!%%!%!g;
 			s!%Gh!'$git_short'!g;
 			s!%GH!'$git_long'!g;
 			s!%D3!'$date_rfc3339'!g;
 			s!%Po!'$project_org'!g;
 			s!%Pn!'$project_name'!g;
-			s!%Cf!'$flavor'!g;'`
+			s!%Cf!'$flavor'!g;')
 
 	# also replace variable names - beware with eval
-	eval release_archive=`echo $release_archive`
+	eval release_archive=$(echo $release_archive)
 
 	# setting tar_transform=yes will move files to the root of a tar archive
 	if [ "$release_transform" = "yes" ]; then
@@ -399,8 +399,8 @@ config_load() {
 	fi
 
  	# This will look like cqfd_USER_ORG_NAME_HASH
-	local format_user=`echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g'`
-	local dockerfile_hash=`sha256sum $dockerfile | cut -b 1-7`
+	local format_user=$(echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g')
+	local dockerfile_hash=$(sha256sum $dockerfile | cut -b 1-7)
 	docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
 
 	# Adapt things for a specific container
