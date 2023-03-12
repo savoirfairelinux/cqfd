@@ -74,9 +74,8 @@ parse_ini_config_file() {
 		shopt -s compat42
 	fi
 
-	if ! [ -f "$1" ]; then
-		die "$1: No such file!
-		Create the .cqfdrc file or use a custom one with 'cqfd -f'"
+	if [ ! -f "$1" ]; then
+		die "Can't find $1 - create it or pick one using 'cqfd -f'"
 	fi
 
 	ini="$(<$1)"                 # read the file
@@ -390,12 +389,12 @@ config_load() {
 
 	dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
 
-	if ! [ -n "$project_org" -a -n "$project_name" ]; then
-		die "project.org and project.name not configured"
+	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
+		die "Please set project.org and project.name in .cqfdrc"
 	fi
-	if ! [ -f "$dockerfile" ]; then
-		die "no Dockerfile found at location $dockerfile.
-		Create the file or specify a directory with 'cqfd -d'"
+
+	if [ ! -f "$dockerfile" ]; then
+		die "$dockerfile not found"
 	fi
 
  	# This will look like cqfd_USER_ORG_NAME_HASH
