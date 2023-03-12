@@ -74,7 +74,7 @@ jtest_log()
 		;;
 	esac
 
-	echo -e "\e[${color}m[`date +%T`|$level] $@\e[0m"
+	echo -e "\e[${color}m[$(date +%T)|$level] $@\e[0m"
 }
 
 # jtest_prepare() - prepare next test

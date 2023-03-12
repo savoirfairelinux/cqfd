@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. `dirname $0`/jtest.inc "$1"
+. "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
@@ -119,7 +119,7 @@ rm -rf "${tmp_dir}"
 jtest_prepare "build.archive can template filenames"
 
 export CTEST=foobar
-d3=`date --rfc-3339='date'`
+d3=$(date --rfc-3339='date')
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
 # Generate the release archive
