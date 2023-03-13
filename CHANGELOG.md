@@ -2,7 +2,9 @@
 
 ## Version 5.4.0-dev (Coming soon)
 
-* Add the `-c` option to cqfd run/release, to pass extra arguments
+* Add the `-c` option to cqfd run/release, to pass extra arguments.
+* When in a project sub-directory, try to locate the cqfd context in parent
+  directories automatically.
 
 ## Version 5.3.0 (2022-01-05)
 

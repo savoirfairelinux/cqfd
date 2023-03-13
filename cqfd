@@ -215,7 +215,7 @@ docker_run() {
 	       -v "$tmp_launcher":/bin/cqfd_launch \
 	       ${cqfd_ssh_config:+ -v "$cqfd_user_home"/.ssh:"$cqfd_user_home"/.ssh} \
 	       ${cqfd_ssh_config:+ -v /etc/ssh:/etc/ssh} \
-	       -v "$PWD":"$cqfd_user_cwd" \
+	       -v "$cqfd_project_dir":"$cqfd_project_dir" \
 	       ${home_env_var:+ -e "$home_env_var"} \
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:"$cqfd_user_home"/.sockets/ssh} \
@@ -361,10 +361,35 @@ EOF
 	echo $tmpfile
 }
 
+# locate_project_dir() - locate directory with .cqfd upwards
+# The directory will be printed on stdout, if found.
+locate_project_dir() {
+	local search_dir="$PWD"
+
+	while [ "$search_dir" != "/" ]; do
+		if [ -d "$search_dir"/"$cqfddir" ]; then
+			realpath "$search_dir"
+			return 0
+		fi
+		search_dir="$(readlink -f "$search_dir"/..)"
+	done
+
+	return 1
+}
+
 # config_load() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command.
 config_load() {
-	IFS="$IFS" parse_ini_config_file "$cqfdrc"
+	if ! cqfd_project_dir=$(locate_project_dir); then
+		die ".cqfd directory not found in directory tree"
+	fi
+
+	# unless using '-f other_cqfdrc', use base directory located above
+	if ! $has_custom_cqfdrc; then
+		local cqfdrc_dir="$cqfd_project_dir/"
+	fi
+
+	IFS="$IFS" parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
@@ -406,7 +431,7 @@ config_load() {
 	release_transform="$tar_transform"
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
 
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
 		die "Please set project.org and project.name in .cqfdrc"
@@ -427,6 +452,7 @@ config_load() {
 	fi
 }
 
+has_custom_cqfdrc=false
 has_to_release=false
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -458,6 +484,7 @@ while [ $# -gt 0 ]; do
 		;;
 	-f)
 		shift
+		has_custom_cqfdrc=true
 		cqfdrc="$1"
 		;;
 	-C)
