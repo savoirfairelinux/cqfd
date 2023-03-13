@@ -78,7 +78,7 @@ parse_ini_config_file() {
 		die "Can't find $1 - create it or pick one using 'cqfd -f'"
 	fi
 
-	ini="$(<$1)"                 # read the file
+	ini="$(<"$1")"               # read the file
 	ini="${ini//[/\\[}"          # escape [
 	ini="${ini//]/\\]}"          # escape ]
 	IFS=$'\n' && ini=( ${ini} )  # convert to line-array
@@ -398,7 +398,7 @@ config_load() {
 
  	# This will look like cqfd_USER_ORG_NAME_HASH
 	local format_user=$(echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g')
-	local dockerfile_hash=$(sha256sum $dockerfile | cut -b 1-7)
+	local dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
 	docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
 
 	# Adapt things for a specific container
