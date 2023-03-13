@@ -2,11 +2,13 @@
 
 . "$(dirname $0)"/jtest.inc "$1"
 
+cqfd="$TDIR"/.cqfd/cqfd
+
 ################################################################################
 # Running cqfd with an unknown argument shall fail
 ################################################################################
 jtest_prepare "run a bad cqfd command-line shall fail"
-if $TDIR/.cqfd/cqfd thisshouldfail; then
+if "$cqfd" invalid_arg_should_fail; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -15,11 +17,18 @@ fi
 ################################################################################
 # Running cqfd without a .cqfdrc file in the current directory shall fail
 ################################################################################
-jtest_prepare "run with no config file shall fail"
-mkdir -p $TDIR/.empty/dir
-cd $TDIR/.empty/dir
-if $TDIR/.cqfd/cqfd run "echo Hello cqfd"; then
+jtest_prepare "'cfd run' with no config file shall fail"
+
+empty_dir=$(mktemp -d)
+pushd "$empty_dir" >/dev/null || exit 1
+
+if "$cqfd" run true; then
 	jtest_result fail
 else
 	jtest_result pass
 fi
+
+# cleanup
+popd >/dev/null || exit 1
+rm -rf "$empty_dir"
+
