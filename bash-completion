@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2017 Savoir-faire Linux, Inc.
+# Copyright (C) 2017-2023 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ _cqfd() {
 		return
 	fi
 
-	local long_opts="init flavors run release version help"
-	COMPREPLY=( $(compgen -W "$long_opts $opts" -- "$cur") )
+	local cmds="init flavors run release version help"
+	COMPREPLY=( $(compgen -W "$cmds $opts" -- "$cur") )
 } &&
 complete -F _cqfd cqfd
