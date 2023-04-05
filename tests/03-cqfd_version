@@ -33,7 +33,7 @@ fi
 ################################################################################
 jtest_prepare "cqfd version major number shall match the latest documented version"
 
-doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | egrep -Eo '[0-9.]+(-[a-z]+)?' | head -1)
+doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | grep -Eo '[0-9.]+(-[a-z]+)?' | head -1)
 version="$(cat $TEST)"
 
 if [ "$doc" = "$version" ]; then

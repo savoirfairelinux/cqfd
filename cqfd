@@ -195,7 +195,7 @@ docker_run() {
 	# Set HOME variable for the $cqfd_user, except if it was
 	# explicitely set via CQFD_EXTRA_RUN_ARGS
 	local home_env_var="HOME=$cqfd_user_home"
-	if echo "$CQFD_EXTRA_RUN_ARGS" | egrep -q "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
+	if echo "$CQFD_EXTRA_RUN_ARGS" | grep -qE "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
 		home_env_var=""
 	fi
 
