@@ -2,7 +2,7 @@
 
 PREFIX?=/usr/local
 
-.PHONY: all help install uninstall tests
+.PHONY: all help install uninstall test tests
 
 all:	help
 
@@ -45,5 +45,5 @@ user-install user-uninstall:
 user-%:
 	$(MAKE) $* PREFIX=$$HOME/.local
 
-tests:
+test tests:
 	@make -C tests
