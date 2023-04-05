@@ -360,6 +360,19 @@ EOF
 config_load() {
 	IFS="$IFS" parse_ini_config_file "$cqfdrc"
 
+	# generate dynamically the list of flavors based on the names of shell
+	# functions reported by the buildtin:
+	#  - the cfg.section. prefix is stripped
+	#  - the build and project sections are stripped
+	mapfile -t flavors < <(compgen -A function -X '!cfg.section.*')
+	flavors=("${flavors[@]/cfg.section./}")
+	for i in "${!flavors[@]}"; do
+		if [[ "${flavors[$i]}" =~ ^(build|project)$ ]]; then
+			unset 'flavors[$i]'
+		fi
+	done
+	flavors="${flavors[*]}"
+
 	cfg.section.project # load the [project] section
 	project_org="$org"
 	project_name="$name"
