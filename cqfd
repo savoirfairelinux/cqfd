@@ -617,7 +617,7 @@ config_load() {
 
 		# This will look like cqfd_USER_ORG_NAME_HASH
 		# shellcheck disable=SC2001
-		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
+		format_user=$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
 		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
 	fi
