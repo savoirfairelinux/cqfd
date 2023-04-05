@@ -366,6 +366,7 @@ config_load() {
 	project_build_context="$build_context"
 
 	cfg.section.build # load the [build] section
+	build_flavors="$flavors"
 
 	# build parameters may be overriden by a flavor defined in the
 	# build section's 'flavors' parameter.
@@ -425,7 +426,7 @@ while [ $# -gt 0 ]; do
 		;;
 	flavors)
 		config_load
-		echo $flavors
+		echo $build_flavors
 		exit 0
 		;;
 	-b)
