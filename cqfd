@@ -142,6 +142,7 @@ image_exists_locally() {
 # arg$1: the command string to execute as $cqfd_user
 #
 docker_run() {
+	local args=(--privileged)
 
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
@@ -154,9 +155,25 @@ docker_run() {
 		fi
 	fi
 
-	local interactive_options
+	# Append extra args from the .cqfdrc [build] section
+	if [ "$build_docker_run_args" ]; then
+		local array
+		read -a array <<<"$build_docker_run_args"
+		args+=("${array[@]}")
+	fi
+
+	# Append extra args from $CQFD_EXTRA_RUN_ARGS
+	if [ "$CQFD_EXTRA_RUN_ARGS" ]; then
+		local array
+		read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
+		args+=("${array[@]}")
+	fi
+
+	args+=(--rm --log-driver=none)
+
+	# interactive options if standard input is connected to a tty
 	if tty -s; then
-		interactive_options="-ti"
+		args+=(-ti)
 	fi
 
 	# If possible, map cqfd_user from the calling user's
@@ -212,28 +229,30 @@ docker_run() {
 		home_env_var=""
 	fi
 
-	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
-		local cqfd_ssh_config=true;
+	if [ "$home_env_var" ]; then
+		args+=(-e "$home_env_var")
 	fi
 
+	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
+		args+=(-v "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
+		args+=(-v /etc/ssh:/etc/ssh)
+	fi
+
+	if [ "$SSH_AUTH_SOCK" ]; then
+		args+=(-v "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
+		args+=(-e "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
+	fi
+
+	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
+
 	tmp_launcher=$(make_launcher)
+	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
 
 	trap "rm -f $tmp_launcher" EXIT
 
-	docker run --privileged \
-	       $build_docker_run_args \
-	       $CQFD_EXTRA_RUN_ARGS \
-	       --rm \
-	       --log-driver=none \
-	       -v "$tmp_launcher":/bin/cqfd_launch \
-	       ${cqfd_ssh_config:+ -v "$cqfd_user_home"/.ssh:"$cqfd_user_home"/.ssh} \
-	       ${cqfd_ssh_config:+ -v /etc/ssh:/etc/ssh} \
-	       -v "$cqfd_project_dir":"$cqfd_project_dir" \
-	       ${home_env_var:+ -e "$home_env_var"} \
-	       $interactive_options \
-	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:"$cqfd_user_home"/.sockets/ssh} \
-	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK="$cqfd_user_home"/.sockets/ssh} \
-	       $docker_img_name cqfd_launch "$1"
+	args+=("$docker_img_name" cqfd_launch "$1")
+
+	docker run "${args[@]}" 2>&1
 }
 
 # make_archive(): Create a release package.
