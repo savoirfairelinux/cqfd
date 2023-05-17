@@ -199,6 +199,10 @@ docker_run() {
 		home_env_var=""
 	fi
 
+	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
+		local cqfd_ssh_config=true;
+	fi
+
 	tmp_launcher=$(make_launcher)
 
 	trap "rm -f $tmp_launcher" EXIT
@@ -209,8 +213,8 @@ docker_run() {
 	       --rm \
 	       --log-driver=none \
 	       -v "$tmp_launcher":/bin/cqfd_launch \
-	       -v ~/.ssh:"$cqfd_user_home"/.ssh \
-	       -v /etc/ssh:/etc/ssh \
+	       ${cqfd_ssh_config:+ -v "$cqfd_user_home"/.ssh:"$cqfd_user_home"/.ssh} \
+	       ${cqfd_ssh_config:+ -v /etc/ssh:/etc/ssh} \
 	       -v "$PWD":"$cqfd_user_cwd" \
 	       ${home_env_var:+ -e "$home_env_var"} \
 	       $interactive_options \
@@ -327,6 +331,7 @@ test -n "\$failed" &&
 groupadd -og $GROUPS -f builders || die "groupadd command failed."
 useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
 	|| die "useradd command failed."
+mkdir -p "$cqfd_user_home" || die "mkdir command failed."
 chown $UID:$GROUPS "$cqfd_user_home" || die "chown command failed."
 
 # Add specified groups to cqfd_user
