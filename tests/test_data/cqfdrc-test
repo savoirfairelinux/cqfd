@@ -13,5 +13,4 @@ files=bar
 archive=cqfd-%Cf.tar.xz
 
 [build]
-flavors='foo bar'
 command='make build'

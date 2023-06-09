@@ -16,4 +16,3 @@ command='cp README.md README.FOOINC \
          && asciidoc README.FOOINC'
 files='README.html'
 archive='cqfd_${BUILD_ID}_%Gh.tar.xz'
-flavors='hello app debug'

@@ -179,7 +179,6 @@ flavor's name.
     [build]
     command='make'
     files='myprogram'
-    flavors='centos7 debug'
 
 A flavor will typically redefine some keys of the build section:
 command, files, archive, distro.
