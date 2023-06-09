@@ -17,12 +17,12 @@ fi
 ################################################################################
 # Running cqfd without a .cqfdrc file in the current directory shall fail
 ################################################################################
-jtest_prepare "'cqfd run' with no config file shall fail"
+jtest_prepare "'cqfd' with no config file shall fail"
 
 empty_dir=$(mktemp -d)
 pushd "$empty_dir" >/dev/null || exit 1
 
-if "$cqfd" run true; then
+if "$cqfd" true; then
 	jtest_result fail
 else
 	jtest_result pass

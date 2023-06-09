@@ -42,11 +42,9 @@ Options:
     -h or --help        Show this help text.
 
 Commands:
-    init     Initialize project build container
-    flavors  List flavors from config file to stdout
-    run      Run argument(s) inside build container
-    release  Run argument(s) and release software
-    help     Show this help text
+    --init     Initialize project build container
+    --flavors  List flavors from config file to stdout
+    --release  Run argument(s) and release software
 
     By default, run is assumed, and the run command is the one
     configured in .cqfdrc.
@@ -138,7 +136,7 @@ docker_build() {
 docker_run() {
 
 	if ! docker image inspect $docker_img_name &> /dev/null; then
-		die "The docker image doesn't exist, launch 'cqfd init' to create it"
+		die "The docker image doesn't exist, launch 'cqfd --init' to create it"
 	fi
 
 	local interactive_options
@@ -456,20 +454,20 @@ has_custom_cqfdrc=false
 has_to_release=false
 while [ $# -gt 0 ]; do
 	case "$1" in
-	help|-h|"--help")
+	-h|"--help")
 		usage
 		exit 0
 		;;
-	version|-v|"--version")
+	-v|"--version")
 		echo $VERSION
 		exit 0
 		;;
-	init)
+	"--init")
 		config_load $flavor
 		docker_build
 		exit $?
 		;;
-	flavors)
+	"--flavors")
 		config_load
 		echo $build_flavors
 		exit 0
@@ -494,42 +492,32 @@ while [ $# -gt 0 ]; do
 	-q)
 		quiet=true
 		;;
-	run|release)
-		if [ "$1" = "release" ]; then
-			has_to_release=true
-		fi
-
-		shift
-
-		# No more args? run default command
-		[ "$#" -eq 0 ] && break
-
-		# -c appends following args to the default command
-		if [ "$1" = "-c" ]; then
-			if [ $# -lt 2 ]; then
-				die "option -c requires arguments"
-			fi
-
-			shift
-			build_cmd_append="$*"
-			break
-		fi
-
-		# Run alternate command
-		build_cmd_alt="$@"
-		break
-		;;
-	?*)
-		echo "Unknown command: $1"
-		usage
-		exit 1
+	"--release")
+		has_to_release=true
 		;;
 	*)
-		# empty or no argument case
+		# run a command
+		break
 		;;
 	esac
 	shift
 done
+
+# No more args? run default command
+if [ "$#" -ne 0 ]; then
+	# -c appends following args to the default command
+	if [ "$1" = "-c" ]; then
+		if [ $# -lt 2 ]; then
+			die "option -c requires arguments"
+		fi
+
+		shift
+		build_cmd_append="$*"
+	else
+		# Run alternate command
+		build_cmd_alt="$@"
+	fi
+fi
 
 config_load $flavor
 

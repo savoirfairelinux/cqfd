@@ -9,7 +9,7 @@ test_run_c_file="test_run_c.txt"
 cd $TDIR/
 
 # concatenate flavor build with an additional option
-jtest_log info "run cqfd run -c with a given '$flavor' flavor"
+jtest_log info "run cqfd -c with a given '$flavor' flavor"
 
 if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
 	jtest_log fatal "$test_file or $test_run_c_file already present before test"
@@ -19,7 +19,7 @@ if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
 fi
 
 jtest_prepare "build cmd for '$flavor' flavor and concatenate with an additional option"
-$cqfd -b $flavor run -c --debug >> $test_run_c_file
+$cqfd -b $flavor -c --debug >> $test_run_c_file
 
 # at the end of this test, $test_run_c_file is populated
 if ! grep -qw "target \`foo'" $test_run_c_file; then

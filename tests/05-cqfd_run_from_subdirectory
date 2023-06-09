@@ -14,7 +14,7 @@ pushd "$sub_dir" >/dev/null || exit 1
 
 # the two paths should be identical
 p1=$(pwd | strings)
-p2=$($cqfd run pwd | strings)
+p2=$($cqfd pwd | strings)
 
 if [ "$p1" = "$p2" ]; then
 	jtest_result pass

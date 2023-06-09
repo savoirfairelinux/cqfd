@@ -6,7 +6,7 @@ test_file="a/cqfd_a.txt"
 
 cd $TDIR/
 
-# Here we test cqfd run, which is also invoked without any argument
+# Here we test cqfd, which is also invoked without any argument
 for i in 0 1; do
 	# Data set shall produce a/cqfd_a.txt:
 
@@ -17,8 +17,8 @@ for i in 0 1; do
 	fi
 
 	if [ "$i" = "1" ]; then
-		jtest_prepare "running \"cqfd run\" makes it run"
-		$cqfd run
+		jtest_prepare "running \"cqfd\" makes it run"
+		$cqfd
 	else
 		jtest_prepare "running \"cqfd\" with no argument makes it run"
 		$cqfd
@@ -38,12 +38,12 @@ for i in 0 1; do
 done
 
 ################################################################################
-# If the Dockerfile changed and no init is done again, 'cqfd run' should fail
+# If the Dockerfile changed and no init is done again, 'cqfd' should fail
 ################################################################################
-jtest_prepare "Modifying the Dockerfile should require running 'cqfd init' again"
+jtest_prepare "Modifying the Dockerfile should require running 'cqfd --init' again"
 dockerfile=.cqfd/docker/Dockerfile
 echo "RUN echo $RANDOM" >> $dockerfile
-if $TDIR/.cqfd/cqfd run; then
+if $TDIR/.cqfd/cqfd; then
   jtest_result fail
 else
   jtest_result pass

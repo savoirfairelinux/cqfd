@@ -9,8 +9,8 @@ cd $TDIR/
 # The first invocation has no 'files' parameter defined,
 # hence it should fail
 ################################################################################
-jtest_prepare "cqfd release fails without files parameter"
-if ! $cqfd release; then
+jtest_prepare "cqfd --release fails without files parameter"
+if ! $cqfd --release; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -22,8 +22,8 @@ fi
 rel_files="a/cqfd_a.txt a/b/c/cqfd_c.txt a/b/cqfd_b.txt"
 echo "files=\"$rel_files\"" >>.cqfdrc
 
-jtest_prepare "cqfd release now with a files parameter"
-if $cqfd release; then
+jtest_prepare "cqfd --release now with a files parameter"
+if $cqfd --release; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -54,7 +54,7 @@ rm -f cqfd-test.tar.xz
 # now use tar_transform=no
 jtest_prepare "archived files NOT at root of tar archive if tar_transform=no"
 echo "tar_transform=no" >>.cqfdrc
-$cqfd release
+$cqfd --release
 result="pass"
 for f in $rel_files; do
 	if ! tar tf cqfd-test.tar.xz | grep -q "^${f}$"; then
@@ -68,7 +68,7 @@ rm -f cqfd-test.tar.xz
 # now use tar_transform=yes
 jtest_prepare "archived files at root of tar archive if tar_transform=yes"
 echo "tar_transform=yes" >>.cqfdrc
-$cqfd release
+$cqfd --release
 result="pass"
 for f in $rel_files; do
 	if ! tar tf cqfd-test.tar.xz | grep -q "^$(basename $f)$"; then
@@ -85,13 +85,13 @@ rm -f cqfd-test.tar.xz
 ################################################################################
 
 jtest_prepare "symlink files are copied in the tar archive"
-$cqfd run ln -s a/cqfd_a.txt link.txt
+$cqfd ln -s a/cqfd_a.txt link.txt
 rel_files_link="a/cqfd_a.txt link.txt"
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files_link\"" >>.cqfdrc
 echo "tar_options=-h" >>.cqfdrc
 
-$cqfd release
+$cqfd --release
 result="pass"
 tmp_dir=$(mktemp -d)
 if ! tar xf cqfd-test.tar.xz -C "${tmp_dir}"; then
@@ -105,7 +105,7 @@ fi
 jtest_result $result
 
 # revert the changes in .cqfdrc file
-$cqfd run rm link.txt
+$cqfd rm link.txt
 sed -i '/tar_options/d' .cqfdrc
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files\"" >>.cqfdrc
@@ -123,7 +123,7 @@ d3=$(date --rfc-3339='date')
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
 # Generate the release archive
-$cqfd release
+$cqfd --release
 
 if tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
 	jtest_result pass
@@ -137,7 +137,7 @@ rm -f cqfd-$d3-foobar.tar.xz
 ################################################################################
 jtest_prepare "build.archive can make a .tar.gz archive"
 sed -i -e '$ s!^archive=.*xz!archive=cqfd-$CTEST.tar.gz!' .cqfdrc
-$cqfd release
+$cqfd --release
 if tar ztf cqfd-$CTEST.tar.gz >/dev/null 2>&1; then
 	jtest_result pass
 else
@@ -150,7 +150,7 @@ rm -f cqfd-$CTEST.tar.gz
 ################################################################################
 jtest_prepare "build.archive can make a .zip archive"
 sed -i -e '$ s!^archive=.*gz!archive=cqfd-$CTEST.zip!' .cqfdrc
-$cqfd release
+$cqfd --release
 if unzip -l cqfd-$CTEST.zip >/dev/null 2>&1; then
 	jtest_result pass
 else
@@ -165,7 +165,7 @@ for flav in foo bar; do
 	filename=cqfd-$flav.tar.xz
 	jtest_prepare "release for flavor $flav creates $filename"
 
-	$cqfd -b $flav release
+	$cqfd -b $flav --release
 	if tar tf $filename >/dev/null 2>&1; then
 		jtest_result pass
 	else
@@ -179,7 +179,7 @@ done
 ################################################################################
 jtest_prepare "cqfd fails on missing file in build.files"
 sed -i -e 's!^files=.*$!files="ThisFileDoesNotExist.txt"!' .cqfdrc
-if ! $cqfd release; then
+if ! $cqfd --release; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -192,8 +192,8 @@ jtest_prepare "cqfd resolves globs in build.files"
 sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
 sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
 
-# cqfd release must work witout error
-if ! $cqfd release; then
+# cqfd --release must work witout error
+if ! $cqfd --release; then
 	jtest_result fail
 else
 	jtest_result pass

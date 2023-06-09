@@ -12,31 +12,31 @@ cp -a test_data/. $TDIR/.
 cd $TDIR/
 
 ################################################################################
-# running 'cqfd init' should fail, as there's no proper config
+# running 'cqfd --init' should fail, as there's no proper config
 ################################################################################
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result fail
 else
 	jtest_result pass
 fi
 
 ################################################################################
-# running 'cqfd init' should fail, as there's an empty config
+# running 'cqfd --init' should fail, as there's an empty config
 ################################################################################
-jtest_prepare "cqfd init complains with an empty .cqfdrc"
+jtest_prepare "cqfd --init complains with an empty .cqfdrc"
 touch $TDIR/.cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result fail
 else
 	jtest_result pass
 fi
 
 ################################################################################
-# running 'cqfd init' should fail, as there's an incomplete config
+# running 'cqfd --init' should fail, as there's an incomplete config
 ################################################################################
-jtest_prepare "cqfd init complains with an incomplete .cqfdrc"
+jtest_prepare "cqfd --init complains with an incomplete .cqfdrc"
 echo '[project]' >$TDIR/.cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result fail
 else
 	jtest_result pass
