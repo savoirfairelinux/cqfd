@@ -1,5 +1,9 @@
 # ChangeLog for cqfd
 
+## Version 5.5.0-dev (coming soon)
+
+* Stay tuned!
+
 ## Version 5.4.0 (2023-06-09)
 
 * Changes to the `Dockerfile` since the last `init` are now detected, and will
