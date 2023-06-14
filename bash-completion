@@ -44,11 +44,21 @@ _cqfd() {
 	init|flavors|release|help)
 		return
 		;;
-	run)
+	esac
+
+	local arg=
+	_get_first_arg
+	if [[ "$arg" == run ]]; then
+		for (( i=1; i <= cword; i++ )); do
+			if [[ ${words[i]} == run ]]; then
+				_command_offset $((i + 1))
+				return
+			fi
+		done
+
 		COMPREPLY=( $(compgen -c "$cur") )
 		return
-		;;
-	esac
+	fi
 
 	local opts="-C -d -f -b -q -V --version -h --help"
 	if [[ "$cur" == -* ]]; then
