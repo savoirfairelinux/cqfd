@@ -187,9 +187,8 @@ docker_build() {
 # arg$1: the command string to execute as $cqfd_user
 #
 docker_run() {
-
 	if ! docker image inspect $docker_img_name &> /dev/null; then
-		die "The docker image doesn't exist, launch 'cqfd --init' to create it"
+		docker_build
 	fi
 
 	local interactive_options

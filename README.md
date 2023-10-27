@@ -21,7 +21,6 @@ Just follow these steps:
 * Go into your project's directory
 * Create a .cqfdrc file
 * Put a Dockerfile and save it as .cqfd/docker/Dockerfile
-* Run ``cqfd --init``
 
 Examples are available in the samples/ directory.
 
