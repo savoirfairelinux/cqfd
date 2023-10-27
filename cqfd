@@ -109,13 +109,66 @@ die() {
 	exit 1
 }
 
+# loading_throbber() - Loading throbber process for Docker build initialization
+loading_throbber() {
+    pid=$1
+    delay=0.1
+    spinstr='-\|/'
+
+    while kill -0 "$pid" 2>/dev/null
+    do
+        temp=${spinstr#?}
+        state=$(awk '$2 ~ /(\[[0-9]+\/[0-9]+)\]/ { print $2 }' "$TEMP_OUTPUT" | sed 's/^.\(.*\).$/\1/' | tail -n 1)
+        # if not using buildx, use previous format
+        [ "$state" ] || state=$(awk '$1 == "Step" { print $2 }' "$TEMP_OUTPUT" | tail -n 1)
+        spinstr=$temp${spinstr%"$temp"}
+        # Getting the last line of the output of the long command
+        if [ "$state" ]; then
+            printf '\r[%c] %s: Initialization of the environment (%s)' "$spinstr" "$PROGNAME" "$state"
+            line_length=$((46 + ${#state}))
+        else
+            printf '\r[%c] %s: Initialization of the environment' "$spinstr" "$PROGNAME"
+        fi
+        sleep $delay
+    done
+}
+
 # docker_build() - Initialize build container
 docker_build() {
+	export BUILDKIT_PROGRESS=plain
+	TEMP_OUTPUT=$(mktemp -u)
+	line_length=46
+
 	if [ -z "$project_build_context" ]; then
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")" > "$TEMP_OUTPUT" 2>&1 &
 	else
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile" > "$TEMP_OUTPUT" 2>&1 &
 	fi
+	container_init_command_pid=$!
+
+	if [ "$quiet" ]; then
+		# If quiet mode is enabled, we don't display the throbber
+		# and we wait for the docker build to finish
+		wait $container_init_command_pid
+		cat "$TEMP_OUTPUT"
+		rm "$TEMP_OUTPUT"
+		return 0
+	fi
+
+	# Start the throbber
+	loading_throbber $container_init_command_pid
+
+	# Wait for the docker build to finish
+	if ! wait $container_init_command_pid; then
+		printf "\r%${line_length}s\r"
+		cat "$TEMP_OUTPUT" 1>&2
+		rm "$TEMP_OUTPUT"
+		die 'Initialization of environment failed'
+	fi
+
+	# Clean up the output file and the console
+	printf "\r%${line_length}s\r"
+	rm "$TEMP_OUTPUT"
 }
 
 # docker_run() - run command in configured container
@@ -465,7 +518,9 @@ while [ $# -gt 0 ]; do
 	"--init")
 		config_load $flavor
 		docker_build
-		exit $?
+		ret=$?
+		[ "$quiet" ] || echo "$PROGNAME: Initialization of environment successful"
+		exit $ret
 		;;
 	"--flavors")
 		config_load
