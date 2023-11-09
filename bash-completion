@@ -63,6 +63,19 @@ _cqfd() {
 
 		COMPREPLY=( $(compgen -c -W "-c" -- "$cur") )
 		return
+	elif [[ "$arg" == shell ]]; then
+		for (( i=1; i <= cword; i++ )); do
+			if [[ ${words[i]} == shell ]]; then
+				((i++))
+				break
+			fi
+		done
+
+		COMP_WORDS=("${SHELL:-/bin/sh}" "${COMP_WORDS[@]:$i}" "$cur")
+		COMP_LINE="${COMP_WORDS[*]}"
+		COMP_POINT="${#COMP_LINE}"
+		_command_offset 0
+		return
 	fi
 
 	local opts="-C -d -f -b -q -V --version -h --help"
@@ -71,7 +84,7 @@ _cqfd() {
 		return
 	fi
 
-	local cmds="init flavors run release version help"
+	local cmds="init flavors run release shell version help"
 	COMPREPLY=( $(compgen -W "$cmds $opts" -- "$cur") )
 } &&
 complete -F _cqfd cqfd
