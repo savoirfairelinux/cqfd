@@ -46,6 +46,7 @@ Commands:
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
     release [cmdstring]  Run argument(s) and release software.
+    shell [shargs]       Run shell command inside build container.
     help                 Show this help text.
 
     By default, the 'run' command is assumed, with the default
@@ -172,8 +173,9 @@ docker_run() {
 	args+=(--rm --log-driver=none)
 
 	# interactive options if standard input is connected to a tty
+	args+=(-i)
 	if tty -s; then
-		args+=(-ti)
+		args+=(-t)
 	fi
 
 	# If possible, map cqfd_user from the calling user's
@@ -561,6 +563,16 @@ while [ $# -gt 0 ]; do
 		# Run alternate command
 		has_alternate_command=true
 		break
+		;;
+	shell)
+		shift
+		config_load "$flavor"
+		command_string="${CQFD_SHELL:-/bin/sh}"
+		if [ "$#" -gt 0 ]; then
+			command_string+=" ${@@Q}"
+		fi
+		docker_run "$command_string"
+		exit
 		;;
 	?*)
 		echo "Unknown command: $1" >&2
