@@ -45,6 +45,7 @@ Options:
 
 Commands:
     init                 Initialize project build container.
+    exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
     release [cmdstring]  Run argument(s) and release software.
@@ -564,6 +565,16 @@ while [ $# -gt 0 ]; do
 		;;
 	-q)
 		quiet=true
+		;;
+	exec)
+		if [ "$#" -lt 2 ]; then
+			die "command exec requires arguments"
+		fi
+		shift
+		config_load $flavor
+		command_string="${@@Q}"
+		docker_run "$command_string"
+		exit
 		;;
 	run|release)
 		if [ "$1" = "release" ]; then

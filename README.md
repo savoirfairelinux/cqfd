@@ -42,10 +42,13 @@ default build command as configured in .cqfdrc, use:
 
     $ cqfd
 
-Alternatively, you may want to specify a custom build command to be
+Alternatively, you may want to specify a single custom command to be
 executed from inside the build container.
 
-    $ cqfd run make clean
+    $ cqfd exec make clean
+
+Or custom commands composed with shell grammar:
+
     $ cqfd run "make linux-dirclean && make foobar-dirclean"
 
 When ``cqfd`` is running, the current directory is mounted by Docker
