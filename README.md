@@ -51,6 +51,10 @@ Or custom commands composed with shell grammar:
 
     $ cqfd run "make linux-dirclean && make foobar-dirclean"
 
+Or run a shell script with arguments:
+
+    $ cqfd shell ./build.sh debug
+
 When ``cqfd`` is running, the current directory is mounted by Docker
 as a volume. As a result, all the build artefacts generated inside the
 container are still accessible in this directory after the container
