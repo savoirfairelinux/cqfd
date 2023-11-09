@@ -55,9 +55,9 @@ _cqfd() {
 
 	local arg=
 	_get_first_arg
-	if [[ "$arg" == run ]]; then
+	if [[ "$arg" =~ ^(exec|run)$ ]]; then
 		for (( i=1; i <= cword; i++ )); do
-			if [[ ${words[i]} == run ]]; then
+			if [[ ${words[i]} =~ ^(exec|run)$ ]]; then
 				if [[ $((i+1)) -eq $cword ]]; then
 					break
 				elif [[ ${words[i+1]} == -c ]]; then
@@ -68,7 +68,11 @@ _cqfd() {
 			fi
 		done
 
-		COMPREPLY=( $(compgen -c -W "-c" -- "$cur") )
+		if [[ "$arg" == exec ]]; then
+			COMPREPLY=( $(compgen -c -- "$cur") )
+		else
+			COMPREPLY=( $(compgen -c -W "-c" -- "$cur") )
+		fi
 		return
 	elif [[ "$arg" == shell ]]; then
 		for (( i=1; i <= cword; i++ )); do
@@ -91,7 +95,7 @@ _cqfd() {
 		return
 	fi
 
-	local cmds="init flavors run release shell version help"
+	local cmds="init flavors exec run release shell version help"
 	COMPREPLY=( $(compgen -W "$cmds $opts" -- "$cur") )
 } &&
 complete -F _cqfd cqfd
