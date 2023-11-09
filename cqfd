@@ -33,26 +33,26 @@ usage() {
 Usage: $PROGNAME [OPTIONS] [COMMAND] [COMMAND OPTIONS] [ARGUMENTS]
 
 Options:
-    -f <file>           Use file as config file (default .cqfdrc).
-    -d <directory>      Use directory as cqfd directory (default .cqfd).
-    -C <directory>      Use the specified working directory.
-    -b <flavor_name>    Target a specific build flavor.
-    -q                  Turn on quiet mode.
-    -v or --version     Show version.
-    -h or --help        Show this help text.
+    -f <file>            Use file as config file (default .cqfdrc).
+    -d <directory>       Use directory as cqfd directory (default .cqfd).
+    -C <directory>       Use the specified working directory.
+    -b <flavor_name>     Target a specific build flavor.
+    -q                   Turn on quiet mode.
+    -v or --version      Show version.
+    -h or --help         Show this help text.
 
 Commands:
-    init     Initialize project build container
-    flavors  List flavors from config file to stdout
-    run      Run argument(s) inside build container
-    release  Run argument(s) and release software
-    help     Show this help text
+    init                 Initialize project build container.
+    flavors              List flavors from config file to stdout.
+    run [cmdstring]      Run argument(s) inside build container.
+    release [cmdstring]  Run argument(s) and release software.
+    help                 Show this help text.
 
-    By default, run is assumed, and the run command is the one
-    configured in .cqfdrc.
+    By default, the 'run' command is assumed, with the default
+    command string configured in your .cqfdrc (see build.command).
 
 Command options for run / release:
-    -c <args>      Append args to the default command.
+    -c <args>             Append args to the default command string.
 
     cqfd is Copyright (C) 2015-2023 Savoir-faire Linux, Inc.
 
@@ -123,7 +123,7 @@ docker_build() {
 # docker_run() - run command in configured container
 # A few implementation details:
 #
-# - The user executing the build commands inside the container is
+# - The user executing the command string inside the container is
 #   named after $cqfd_user, with the same uid/gid as your user to keep
 #   filesystem permissions in sync.
 #
@@ -346,14 +346,14 @@ for g in ${CQFD_GROUPS}; do
 	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
 done
 
-# run the provided command in the working directory
+# run provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
-	debug "Using \"sudo\" to execute command \"\$@\" as user \"$cqfd_user\""
-	sudo -E -u $cqfd_user sh -c "\$@"
+	debug "Using \"sudo\" to execute command \"\$1\" as user \"$cqfd_user\""
+	sudo -E -u $cqfd_user sh -c "\$1"
 else
-	debug "Using \"su\" to execute command \"\$@\" as user \"$cqfd_user\""
-	su $cqfd_user -p --session-command "\$@"
+	debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
+	su $cqfd_user -p --session-command "\$1"
 fi
 EOF
 	echo $tmpfile
