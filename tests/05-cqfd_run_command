@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of run command with extra arguments
+
+set -o pipefail
 
 . "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
@@ -36,3 +40,12 @@ for i in 0 1; do
 	fi
 	rm -f $test_file
 done
+
+jtest_prepare "cqfd run with additional argument, do not preserve the arguments"
+if $cqfd run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
+       | grep "0=sh,\*=,#=0"; \
+   test "${PIPESTATUS[0]}" -eq 2; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
