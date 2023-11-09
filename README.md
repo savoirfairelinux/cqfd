@@ -2,9 +2,8 @@
 
 # What is cqfd ? #
 
-cqfd provides a quick and convenient way to run commands in the current
-directory, but within a Docker container defined in a per-project config
-file.
+cqfd provides a quick and convenient way to run command string in the current
+directory, but within a Docker container defined in a per-project config file.
 
 This becomes useful when building an application designed for another
 Linux system, e.g. building an old embedded firmware that only works
@@ -37,12 +36,12 @@ does not have a systematic clean-up system in place.
 
 ### Regular builds ###
 
-To build your project from the configured build environment with the
-default build command as configured in .cqfdrc, use:
+To build your project from the configured build environment with the default
+build command string as configured in .cqfdrc, use:
 
     $ cqfd
 
-Alternatively, you may want to specify a custom build command to be
+Alternatively, you may want to specify a custom build command string to be
 executed from inside the build container.
 
     $ cqfd run make clean
@@ -55,9 +54,9 @@ has been stopped and removed.
 
 ### Release ###
 
-The release command behaves exactly like run, but creates a release
-tarball for your project additionally. The release files (as specified
-in your ``.cqfdrc``) will be included inside the release archive.
+The release command string behaves exactly like run, but creates a release
+tarball for your project additionally. The release files (as specified in your
+``.cqfdrc``) will be included inside the release archive.
 
     $ cqfd release
 
@@ -66,8 +65,8 @@ template, which defaults to ``%Po-%Pn.tar.xz``.
 
 ### Flavors ###
 
-Flavors are used to create alternate build scenarios. For example, to
-use another container or another build command.
+Flavors are used to create alternate build scenarios. For example, to use
+another container or another build command string.
 
 ## The .cqfdrc file ##
 
@@ -91,14 +90,13 @@ Here is a sample .cqfdrc file:
 
 ``name``: a short, lowercase name for the project.
 
-``build_context`` (optional): a directory to pass as the build context
-to Docker. This should be specified relatively to where cqfd is
-invoked.  For example, it can be set to `.`, to use the current
-working directory of the invoked `cqfd` command as the Docker build
-context, which can be useful when files at the root of the project are
-required to build the image.  When using this option, a
-``.dockerignore`` file can be useful to limit what gets sent to the
-Docker daemon.
+``build_context`` (optional): a directory to pass as the build context to
+Docker. This should be specified relatively to where cqfd is invoked. For
+example, it can be set to `.`, to use the current working directory of the
+invoked `cqfd` command string as the Docker build context, which can be useful
+when files at the root of the project are required to build the image. When
+using this option, a ``.dockerignore`` file can be useful to limit what gets
+sent to the Docker daemon.
 
 Generated Docker images for your project will be named $org_$name.
 
@@ -149,8 +147,8 @@ should be a member of in the container. You can either use the ``group:gid``
 format, or simply specify the ``group`` name if it exists either in the host or
 inside the docker image.
 
-``flavors``: the list of build flavors (see below). Each flavor has its
-own command just like build.command.
+``flavors``: the list of build flavors (see below). Each flavor has its own
+command string just like build.command.
 
 ``docker_run_args`` (optional): arguments used to invoke `docker run`.
 For example, to share networking with the host, it can be set like:

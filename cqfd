@@ -44,15 +44,15 @@ Options:
 Commands:
     init     Initialize project build container
     flavors  List flavors from config file to stdout
-    run      Run argument(s) inside build container
-    release  Run argument(s) and release software
+    run      Run command string inside build container
+    release  Run command string and release software
     help     Show this help text
 
-    By default, run is assumed, and the run command is the one
+    By default, run is assumed, and the run command string is the one
     configured in .cqfdrc.
 
 Command options for run / release:
-    -c <args>      Append args to the default command
+    -c <string>         Append string to the default command string
 
     cqfd is Copyright (C) 2015-2023 Savoir-faire Linux, Inc.
 
@@ -120,10 +120,10 @@ docker_build() {
 	fi
 }
 
-# docker_run() - run command in configured container
+# docker_run() - run command string in configured container
 # A few implementation details:
 #
-# - The user executing the build commands inside the container is
+# - The user executing the build command string inside the container is
 #   named after $cqfd_user, with the same uid/gid as your user to keep
 #   filesystem permissions in sync.
 #
@@ -347,15 +347,15 @@ for g in ${CQFD_GROUPS}; do
 	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
 done
 
-# run the provided command in the working directory
+# run the provided command string in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
-	# Use sudo to provide a controlling TTY for the executed command
-	debug "Using \"sudo\" to execute command \"\$@\" as user \"$cqfd_user\""
-	sudo -E -u $cqfd_user sh -c "\$@"
+	# Use sudo to provide a controlling TTY for the executed command string
+	debug "Using \"sudo\" to execute command string \"\$1\" as user \"$cqfd_user\""
+	sudo -E -u $cqfd_user sh -c "\$1"
 else
-	debug "Using \"su\" to execute command \"\$@\" as user \"$cqfd_user\""
-	su $cqfd_user -p -c "\$@"
+	debug "Using \"su\" to execute command string \"\$1\" as user \"$cqfd_user\""
+	su $cqfd_user -p -c "\$1"
 fi
 EOF
 	echo $tmpfile
@@ -501,10 +501,10 @@ while [ $# -gt 0 ]; do
 
 		shift
 
-		# No more args? run default command
+		# No more args? run default command string
 		[ "$#" -eq 0 ] && break
 
-		# -c appends following args to the default command
+		# -c appends following args to the default command string
 		if [ "$1" = "-c" ]; then
 			if [ $# -lt 2 ]; then
 				die "option -c requires arguments"
@@ -515,7 +515,7 @@ while [ $# -gt 0 ]; do
 			break
 		fi
 
-		# Run alternate command
+		# Run alternate command string
 		build_cmd_alt="$*"
 		break
 		;;
