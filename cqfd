@@ -349,10 +349,10 @@ done
 # run provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
-	debug "Using \"sudo\" to execute command \"\$1\" as user \"$cqfd_user\""
+	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
 	sudo -E -u $cqfd_user sh -c "\$1"
 else
-	debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
+	debug "Using \"su\" to execute session command \"\$1\" as user \"$cqfd_user\""
 	su $cqfd_user -p --session-command "\$1"
 fi
 EOF
