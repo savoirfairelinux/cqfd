@@ -294,8 +294,7 @@ make_archive() {
 
 # make_launcher - generate in-container launcher script
 # return: the path to the launcher script on stdout
-make_launcher()
-{
+make_launcher() {
 	local tmpfile=$(mktemp /tmp/tmp.XXXXXX)
 
 	chmod 0755 $tmpfile
@@ -303,16 +302,16 @@ make_launcher()
 #!/bin/sh
 # create container user to match expected environment
 
-die () {
+die() {
 	echo "error: \$*"
 	exit 1
 }
 
-test_cmd () {
+test_cmd() {
 	command -v "\$1" > /dev/null 2>&1
 }
 
-debug () {
+debug() {
       test -n "\$CQFD_DEBUG" && echo "debug: \$*"
 }
 
