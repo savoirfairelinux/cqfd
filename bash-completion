@@ -51,12 +51,17 @@ _cqfd() {
 	if [[ "$arg" == run ]]; then
 		for (( i=1; i <= cword; i++ )); do
 			if [[ ${words[i]} == run ]]; then
+				if [[ $((i+1)) -eq $cword ]]; then
+					break
+				elif [[ ${words[i+1]} == -c ]]; then
+					((i++))
+				fi
 				_command_offset $((i + 1))
 				return
 			fi
 		done
 
-		COMPREPLY=( $(compgen -c "$cur") )
+		COMPREPLY=( $(compgen -c -W "-c" -- "$cur") )
 		return
 	fi
 
