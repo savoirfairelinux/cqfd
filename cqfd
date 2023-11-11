@@ -220,7 +220,7 @@ docker_run() {
 	       $interactive_options \
 	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:"$cqfd_user_home"/.sockets/ssh} \
 	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK="$cqfd_user_home"/.sockets/ssh} \
-	       $docker_img_name cqfd_launch "$1" 2>&1
+	       $docker_img_name cqfd_launch "$1"
 }
 
 # make_archive(): Create a release package.
