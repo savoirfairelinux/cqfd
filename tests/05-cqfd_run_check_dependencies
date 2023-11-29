@@ -2,6 +2,8 @@
 #
 # validate the behavior of project.build_context
 
+set -o pipefail
+
 . $(dirname "$0")/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
