@@ -46,4 +46,4 @@ user-%:
 	$(MAKE) $* PREFIX=$$HOME/.local
 
 test tests:
-	@make -C tests
+	@$(MAKE) -C tests
