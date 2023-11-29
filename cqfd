@@ -107,7 +107,7 @@ parse_ini_config_file() {
 ## die() - exit when an error occured
 # $* messages and variables shown in the error message
 die() {
-	echo "cqfd: fatal: $*" 1>&2
+	echo "cqfd: fatal: $*" >&2
 	exit 1
 }
 
