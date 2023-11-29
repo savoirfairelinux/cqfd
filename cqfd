@@ -350,12 +350,11 @@ done
 # run the provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
-	# Use sudo to provide a controlling TTY for the executed command
 	debug "Using \"sudo\" to execute command \"\$@\" as user \"$cqfd_user\""
 	sudo -E -u $cqfd_user sh -c "\$@"
 else
 	debug "Using \"su\" to execute command \"\$@\" as user \"$cqfd_user\""
-	su $cqfd_user -p -c "\$@"
+	su $cqfd_user -p --session-command "\$@"
 fi
 EOF
 	echo $tmpfile
