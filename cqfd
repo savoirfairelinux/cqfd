@@ -532,12 +532,14 @@ done
 
 config_load $flavor
 
+if [ -z "$build_cmd" ]; then
+	die "No build.command defined in $cqfdrc !"
+fi
+
 if [ -n "$build_cmd_alt" ]; then
 	build_cmd=$build_cmd_alt
 elif [ -n "$build_cmd_append" ]; then
 	build_cmd+=" $build_cmd_append"
-elif [ -z "$build_cmd" ]; then
-	die "No build.command defined in $cqfdrc !"
 fi
 
 docker_run "$build_cmd"
