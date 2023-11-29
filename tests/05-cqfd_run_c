@@ -13,7 +13,6 @@ test_setup() {
 		jtest_log fatal "$test_file or $test_run_c_file already present before test"
 		rm -f $test_file
 		rm -f $test_run_c_file
-		continue
 	fi
 }
 
