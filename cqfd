@@ -42,11 +42,9 @@ Options:
     -h or --help        Show this help text.
 
 Commands:
-    init     Initialize project build container
-    flavors  List flavors from config file to stdout
-    run      Run argument(s) inside build container
-    release  Run argument(s) and release software
-    help     Show this help text
+    --init     Initialize project build container
+    --flavors  List flavors from config file to stdout
+    --release  Run argument(s) and release software
 
     By default, run is assumed, and the run command is the one
     configured in .cqfdrc.
@@ -111,13 +109,66 @@ die() {
 	exit 1
 }
 
+# loading_throbber() - Loading throbber process for Docker build initialization
+loading_throbber() {
+    pid=$1
+    delay=0.1
+    spinstr='-\|/'
+
+    while kill -0 "$pid" 2>/dev/null
+    do
+        temp=${spinstr#?}
+        state=$(awk '$2 ~ /(\[[0-9]+\/[0-9]+)\]/ { print $2 }' "$TEMP_OUTPUT" | sed 's/^.\(.*\).$/\1/' | tail -n 1)
+        # if not using buildx, use previous format
+        [ "$state" ] || state=$(awk '$1 == "Step" { print $2 }' "$TEMP_OUTPUT" | tail -n 1)
+        spinstr=$temp${spinstr%"$temp"}
+        # Getting the last line of the output of the long command
+        if [ "$state" ]; then
+            printf '\r[%c] %s: Initialization of the environment (%s)' "$spinstr" "$PROGNAME" "$state"
+            line_length=$((46 + ${#state}))
+        else
+            printf '\r[%c] %s: Initialization of the environment' "$spinstr" "$PROGNAME"
+        fi
+        sleep $delay
+    done
+}
+
 # docker_build() - Initialize build container
 docker_build() {
+	export BUILDKIT_PROGRESS=plain
+	TEMP_OUTPUT=$(mktemp -u)
+	line_length=46
+
 	if [ -z "$project_build_context" ]; then
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")" > "$TEMP_OUTPUT" 2>&1 &
 	else
-		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
+		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile" > "$TEMP_OUTPUT" 2>&1 &
 	fi
+	container_init_command_pid=$!
+
+	if [ "$quiet" ]; then
+		# If quiet mode is enabled, we don't display the throbber
+		# and we wait for the docker build to finish
+		wait $container_init_command_pid
+		cat "$TEMP_OUTPUT"
+		rm "$TEMP_OUTPUT"
+		return 0
+	fi
+
+	# Start the throbber
+	loading_throbber $container_init_command_pid
+
+	# Wait for the docker build to finish
+	if ! wait $container_init_command_pid; then
+		printf "\r%${line_length}s\r"
+		cat "$TEMP_OUTPUT" 1>&2
+		rm "$TEMP_OUTPUT"
+		die 'Initialization of environment failed'
+	fi
+
+	# Clean up the output file and the console
+	printf "\r%${line_length}s\r"
+	rm "$TEMP_OUTPUT"
 }
 
 # docker_run() - run command in configured container
@@ -136,9 +187,8 @@ docker_build() {
 # arg$1: the command string to execute as $cqfd_user
 #
 docker_run() {
-
 	if ! docker image inspect $docker_img_name &> /dev/null; then
-		die "The docker image doesn't exist, launch 'cqfd init' to create it"
+		docker_build
 	fi
 
 	local interactive_options
@@ -454,20 +504,22 @@ has_custom_cqfdrc=false
 has_to_release=false
 while [ $# -gt 0 ]; do
 	case "$1" in
-	help|-h|"--help")
+	-h|"--help")
 		usage
 		exit 0
 		;;
-	version|-v|"--version")
+	-v|"--version")
 		echo $VERSION
 		exit 0
 		;;
-	init)
+	"--init")
 		config_load $flavor
 		docker_build
-		exit $?
+		ret=$?
+		[ "$quiet" ] || echo "$PROGNAME: Initialization of environment successful"
+		exit $ret
 		;;
-	flavors)
+	"--flavors")
 		config_load
 		echo $build_flavors
 		exit 0
@@ -492,42 +544,32 @@ while [ $# -gt 0 ]; do
 	-q)
 		quiet=true
 		;;
-	run|release)
-		if [ "$1" = "release" ]; then
-			has_to_release=true
-		fi
-
-		shift
-
-		# No more args? run default command
-		[ "$#" -eq 0 ] && break
-
-		# -c appends following args to the default command
-		if [ "$1" = "-c" ]; then
-			if [ $# -lt 2 ]; then
-				die "option -c requires arguments"
-			fi
-
-			shift
-			build_cmd_append="$*"
-			break
-		fi
-
-		# Run alternate command
-		build_cmd_alt="$@"
-		break
-		;;
-	?*)
-		echo "Unknown command: $1"
-		usage
-		exit 1
+	"--release")
+		has_to_release=true
 		;;
 	*)
-		# empty or no argument case
+		# run a command
+		break
 		;;
 	esac
 	shift
 done
+
+# No more args? run default command
+if [ "$#" -ne 0 ]; then
+	# -c appends following args to the default command
+	if [ "$1" = "-c" ]; then
+		if [ $# -lt 2 ]; then
+			die "option -c requires arguments"
+		fi
+
+		shift
+		build_cmd_append="$*"
+	else
+		# Run alternate command
+		build_cmd_alt="$@"
+	fi
+fi
 
 config_load $flavor
 

@@ -21,11 +21,11 @@ for i in 0 1; do
 	fi
 
 	if [ "$i" = "0" ]; then
-		jtest_prepare "cqfd run \"touch somefile\" creates the file"
-		$cqfd run "touch $test_file"
+		jtest_prepare "cqfd \"touch somefile\" creates the file"
+		$cqfd "touch $test_file"
 	else
-		jtest_prepare "cqfd run touch somefile (no quotes) creates the file"
-		$cqfd run touch $test_file
+		jtest_prepare "cqfd touch somefile (no quotes) creates the file"
+		$cqfd touch $test_file
 	fi
 
 	if [ $? != 0 -o ! -f "$test_file" ]; then

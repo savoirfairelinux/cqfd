@@ -16,8 +16,8 @@ cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
 ################################################################################
 # Missing all core dependencies for the launch script
 ################################################################################
-jtest_prepare "cqfd run fails when the Docker image lacks required commands"
-if $cqfd init && $cqfd run; then
+jtest_prepare "cqfd fails when the Docker image lacks required commands"
+if $cqfd --init && $cqfd; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -30,11 +30,11 @@ echo 'RUN apk add bash shadow' >> .cqfd/docker/Dockerfile
 echo 'ENV CQFD_DEBUG=1' >> .cqfd/docker/Dockerfile
 
 ################################################################################
-# cqfd run should now be happy with the required commands, using su.
+# cqfd should now be happy with the required commands, using su.
 ################################################################################
-jtest_prepare "cqfd run with satisfied command requirements, using su"
-$cqfd init && \
-    $cqfd run true \
+jtest_prepare "cqfd with satisfied command requirements, using su"
+$cqfd --init && \
+    $cqfd true \
 	| awk -v rc=1 '/Using "su"/ { rc=0 } 1; END {exit rc}' \
     && jtest_result pass || jtest_result fail
 
@@ -44,11 +44,11 @@ $cqfd init && \
 echo 'RUN apk add sudo' >> .cqfd/docker/Dockerfile
 
 ################################################################################
-# cqfd run should now be happy with the required commands, using sudo
+# cqfd should now be happy with the required commands, using sudo
 ################################################################################
-jtest_prepare "cqfd run with satisfied command requirements, using sudo"
-$cqfd init && \
-    $cqfd run true \
+jtest_prepare "cqfd with satisfied command requirements, using sudo"
+$cqfd --init && \
+    $cqfd true \
 	| awk -v rc=1 '/Using "sudo"/ { rc=0 } 1; END {exit rc}' \
     && jtest_result pass || jtest_result fail
 
@@ -56,4 +56,4 @@ $cqfd init && \
 # restore initial Dockerfile
 ################################################################################
 mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
-$cqfd init
+$cqfd --init

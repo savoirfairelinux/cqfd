@@ -3,12 +3,12 @@
 . "$(dirname $0)"/jtest.inc "$1"
 
 ################################################################################
-# 'cqfd version' shall be an accepted command
+# 'cqfd --version' shall be an accepted command
 ################################################################################
-jtest_prepare "cqfd version shall exit normally"
+jtest_prepare "cqfd --version shall exit normally"
 TEST=$(mktemp)
 
-if ! $TDIR/.cqfd/cqfd version >$TEST; then
+if ! $TDIR/.cqfd/cqfd --version >$TEST; then
 	jtest_result fail
 	rm -f $TEST
 else
@@ -16,9 +16,9 @@ else
 fi
 
 ################################################################################
-# 'cqfd version' shall produce a version message
+# 'cqfd --version' shall produce a version message
 ################################################################################
-jtest_prepare "cqfd version shall produce a version string"
+jtest_prepare "cqfd --version shall produce a version string"
 
 if grep -qE "^[0-9.]+(-[a-z]+)?\$" $TEST; then
 	jtest_result pass
@@ -29,9 +29,9 @@ cat $TEST >&2
 fi
 
 ################################################################################
-# 'cqfd version' shall match the latest documented version
+# 'cqfd --version' shall match the latest documented version
 ################################################################################
-jtest_prepare "cqfd version major number shall match the latest documented version"
+jtest_prepare "cqfd --version major number shall match the latest documented version"
 
 doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | grep -Eo '[0-9.]+(-[a-z]+)?' | head -1)
 version="$(cat $TEST)"

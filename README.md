@@ -21,14 +21,13 @@ Just follow these steps:
 * Go into your project's directory
 * Create a .cqfdrc file
 * Put a Dockerfile and save it as .cqfd/docker/Dockerfile
-* Run ``cqfd init``
 
 Examples are available in the samples/ directory.
 
 cqfd will use the provided Dockerfile to create a normalized runtime
 build environment for your project.
 
-Warning: Running cqfd init creates and names a new Docker image each
+Warning: Running cqfd --init creates and names a new Docker image each
 time the Dockerfile is modified, which may lead to a large number of
 unused images that cannot be automatically purged. Currently, cqfd
 does not have a systematic clean-up system in place.
@@ -45,8 +44,8 @@ default build command as configured in .cqfdrc, use:
 Alternatively, you may want to specify a custom build command to be
 executed from inside the build container.
 
-    $ cqfd run make clean
-    $ cqfd run "make linux-dirclean && make foobar-dirclean"
+    $ cqfd make clean
+    $ cqfd "make linux-dirclean && make foobar-dirclean"
 
 When ``cqfd`` is running, the current directory is mounted by Docker
 as a volume. As a result, all the build artefacts generated inside the
@@ -59,7 +58,7 @@ The release command behaves exactly like run, but creates a release
 tarball for your project additionally. The release files (as specified
 in your ``.cqfdrc``) will be included inside the release archive.
 
-    $ cqfd release
+    $ cqfd --release
 
 The resulting release file is then called according to the archive
 template, which defaults to ``%Po-%Pn.tar.xz``.

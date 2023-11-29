@@ -17,28 +17,28 @@ touch .cqfdrc
 # Third pass: run with non default config file and flavor
 # Fourth pass: run with flavor non default config file
 for i in 0 1 2 3; do
-	jtest_log info "cqfd run, custom cqfdrc: $confdir/mycqfdrc, pass $i"
+	jtest_log info "cqfd, custom cqfdrc: $confdir/mycqfdrc, pass $i"
 
 	case $i in
 	0)
 		test_file="a/cqfd_a.txt" # from mycqfdrc
-		jtest_prepare "cqfd run with config in $confdir/mycqfdrc"
-		$cqfd -f "$confdir"/mycqfdrc run
+		jtest_prepare "cqfd with config in $confdir/mycqfdrc"
+		$cqfd -f "$confdir"/mycqfdrc
 		;;
 	1)
 		test_file="file.$RANDOM"
-		jtest_prepare "cqfd run and override with additionnal cmd"
-		$cqfd -f "$confdir"/mycqfdrc run touch $test_file
+		jtest_prepare "cqfd and override with additionnal cmd"
+		$cqfd -f "$confdir"/mycqfdrc touch $test_file
 		;;
 	2)
 		test_file="$flavor.$RANDOM"
-		jtest_prepare "cqfd run and build a given '$flavor' flavor"
-		$cqfd -f "$confdir"/mycqfdrc -b $flavor run touch $test_file
+		jtest_prepare "cqfd and build a given '$flavor' flavor"
+		$cqfd -f "$confdir"/mycqfdrc -b $flavor touch $test_file
 		;;
 	3)
 		test_file="$flavor.$RANDOM"
-		jtest_prepare "cqfd run and build a given '$flavor' flavor (inverted args)"
-		$cqfd -b $flavor -f "$confdir"/mycqfdrc run touch $test_file
+		jtest_prepare "cqfd and build a given '$flavor' flavor (inverted args)"
+		$cqfd -b $flavor -f "$confdir"/mycqfdrc touch $test_file
 		;;
 	*)
 		;;

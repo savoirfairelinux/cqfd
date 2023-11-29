@@ -5,10 +5,10 @@
 cd $TDIR/
 
 ################################################################################
-# 'cqfd init' with a proper .cqfdrc should pass
+# 'cqfd --init' with a proper .cqfdrc should pass
 ################################################################################
-jtest_prepare "run cqfd init"
-if $TDIR/.cqfd/cqfd init; then
+jtest_prepare "run cqfd --init"
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -16,13 +16,13 @@ fi
 
 
 ################################################################################
-# 'cqfd init' with a nonexistent Dockerfile should fail
+# 'cqfd --init' with a nonexistent Dockerfile should fail
 ################################################################################
 cqfdrc_old=$(mktemp)
 jtest_prepare "init with a nonexisting dockerfile shall fail"
 cp -f .cqfdrc $cqfdrc_old
 sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -30,11 +30,11 @@ fi
 
 
 ################################################################################
-# 'cqfd init' with a proper Dockerfile should pass
+# 'cqfd --init' with a proper Dockerfile should pass
 ################################################################################
-jtest_prepare "run cqfd init with an other Dockerfile"
+jtest_prepare "run cqfd --init with an other Dockerfile"
 sed -i -e "s/thisshouldfail/centos/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -44,14 +44,14 @@ mv -f $cqfdrc_old .cqfdrc
 
 
 ################################################################################
-# 'cqfd init' with same uid/gid dummy user should pass
+# 'cqfd --init' with same uid/gid dummy user should pass
 ################################################################################
 jtest_prepare "add dummy user and dummy group with same uid/gid"
 cat <<EOF >>.cqfd/docker/Dockerfile
 RUN groupadd -og $GROUPS -f dummy && \
     useradd -s /bin/bash -ou $UID -g $GROUPS dummy
 EOF
-if $TDIR/.cqfd/cqfd init; then
+if $TDIR/.cqfd/cqfd --init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -59,10 +59,10 @@ fi
 
 
 ################################################################################
-# 'cqfd init' in quiet mode should be quiet
+# 'cqfd --init' in quiet mode should be quiet
 ################################################################################
-jtest_prepare "cqfd -q init should remain quiet"
-if ! $TDIR/.cqfd/cqfd -q init | grep -E "^sha256:"; then
+jtest_prepare "cqfd -q --init should remain quiet"
+if ! $TDIR/.cqfd/cqfd -q --init | grep -E "^sha256:"; then
 	jtest_result fail
 else
 	jtest_result pass

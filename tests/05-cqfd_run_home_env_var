@@ -7,10 +7,10 @@ cd $TDIR/
 
 
 ################################################################################
-# 'cqfd run' sets HOME environment variable for the local user
+# 'cqfd' sets HOME environment variable for the local user
 ################################################################################
 jtest_prepare "run cqfd sets HOME environment variable for the local user"
-result=$($cqfd run 'echo -n $HOME')
+result=$($cqfd 'echo -n $HOME')
 
 if [ "$result" = "$HOME" ]; then
 	jtest_result pass
@@ -20,7 +20,7 @@ fi
 
 
 ################################################################################
-# 'cqfd run' does not override HOME environment explicitely set via
+# 'cqfd' does not override HOME environment explicitely set via
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run doesn't override HOME env when set via CQFD_EXTRA_RUN_ARGS"
@@ -28,7 +28,7 @@ val1="value-$RANDOM"
 val2="value-$RANDOM"
 
 result=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e HOME=$val2" \
-	$cqfd run 'echo -n $FOO $HOME' | grep value)
+	$cqfd 'echo -n $FOO $HOME' | grep value)
 
 if [ "$result" = "$val1 $val2" ]; then
 	jtest_result pass
@@ -37,14 +37,14 @@ else
 fi
 
 ################################################################################
-# 'cqfd run' does not override HOME environment when it is the only entry in
+# 'cqfd' does not override HOME environment when it is the only entry in
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run doesn't override HOME env when the only entry in CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 
 result=$(CQFD_EXTRA_RUN_ARGS="-e HOME=$val1" \
-	$cqfd run 'echo -n $FOO $HOME' | grep value)
+	$cqfd 'echo -n $FOO $HOME' | grep value)
 
 if [ "$result" = "$val1" ]; then
 	jtest_result pass
@@ -53,7 +53,7 @@ else
 fi
 
 ################################################################################
-# 'cqfd run' does not confuse JAVA_HOME and the like with HOME when set via
+# 'cqfd' does not confuse JAVA_HOME and the like with HOME when set via
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run doesn't confuse JAVA_HOME and the like with HOME"
@@ -61,7 +61,7 @@ val1="value-$RANDOM"
 val2="value-$RANDOM"
 
 result=$(CQFD_EXTRA_RUN_ARGS="-e JAVA_HOME=$val1 -e HOME=$val2" \
-	$cqfd run 'echo -n $JAVA_HOME $HOME' | grep value)
+	$cqfd 'echo -n $JAVA_HOME $HOME' | grep value)
 
 if [ "$result" = "$val1 $val2" ]; then
 	jtest_result pass
@@ -74,8 +74,8 @@ fi
 # directory.
 ################################################################################
 jtest_prepare "the user's home in passwd == \$HOME"
-passwd_home=$($cqfd run "grep ^$(whoami): /etc/passwd |cut -d: -f6")
-user_home=$($cqfd run "echo \$HOME")
+passwd_home=$($cqfd "grep ^$(whoami): /etc/passwd |cut -d: -f6")
+user_home=$($cqfd "echo \$HOME")
 
 if [ "$passwd_home" = "$user_home" ]; then
 	jtest_result pass

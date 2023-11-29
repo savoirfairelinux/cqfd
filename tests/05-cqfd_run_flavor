@@ -14,12 +14,12 @@ for i in 0 1; do
 
 	if [ "$i" = "0" ]; then
 		test_file=$flavor
-		jtest_prepare "cqfd run build cmd for '$flavor' flavor"
-		$cqfd -b $flavor run
+		jtest_prepare "cqfd build cmd for '$flavor' flavor"
+		$cqfd -b $flavor
 	else
 		test_file="file.$RANDOM"
-		jtest_prepare "cqfd run and override with additional cmd"
-		$cqfd -b $flavor run touch $test_file
+		jtest_prepare "cqfd and override with additional cmd"
+		$cqfd -b $flavor touch $test_file
 	fi
 
 	if [ $? != 0 -o ! -f "$test_file" ]; then
