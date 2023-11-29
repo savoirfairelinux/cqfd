@@ -505,7 +505,7 @@ while [ $# -gt 0 ]; do
 
 		# -c appends following args to the default command
 		if [ "$1" = "-c" ]; then
-			if [ $# -lt 2 ]; then
+			if [ "$#" -lt 2 ]; then
 				die "option -c requires arguments"
 			fi
 
