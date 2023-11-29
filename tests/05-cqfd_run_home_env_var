@@ -2,6 +2,8 @@
 #
 # validate the behavior of run command with HOME environment variable
 
+set -o pipefail
+
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 

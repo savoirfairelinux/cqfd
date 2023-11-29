@@ -2,6 +2,8 @@
 #
 # validate the behavior of init command with flavors
 
+set -o pipefail
+
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 flavor="foo"
