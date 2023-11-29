@@ -303,7 +303,7 @@ make_launcher() {
 # create container user to match expected environment
 
 die() {
-	echo "error: \$*"
+	echo "error: \$*" >&2
 	exit 1
 }
 
@@ -316,13 +316,13 @@ debug() {
 }
 
 # Check container requirements
-test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist or is not executable"; }
-test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd"; }
-test_cmd useradd || { failed=1 && echo "error: Missing command: useradd"; }
-test_cmd usermod || { failed=1 && echo "error: Missing command: usermod"; }
-test_cmd chown || { failed=1 && echo "error: Missing command: chown"; }
+test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist or is not executable" >&2; }
+test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" >&2; }
+test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" >&2; }
+test_cmd usermod || { failed=1 && echo "error: Missing command: usermod" >&2; }
+test_cmd chown || { failed=1 && echo "error: Missing command: chown" >&2; }
 test_cmd sudo && has_sudo=1 || test_cmd su ||
-	{ failed=1 && echo "error: Missing command: su or sudo"; }
+	{ failed=1 && echo "error: Missing command: su or sudo" >&2; }
 test -n "\$failed" &&
 	die "Some dependencies are missing from the container, see above messages."
 
@@ -518,7 +518,7 @@ while [ $# -gt 0 ]; do
 		break
 		;;
 	?*)
-		echo "Unknown command: $1"
+		echo "Unknown command: $1" >&2
 		usage
 		exit 1
 		;;
