@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of run command su and sudo backends
+
+set -o pipefail
+
+. $(dirname "$0")/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+################################################################################
+# Use a custom Dockerfile with an ancient version of su.
+################################################################################
+cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
+echo "FROM ubuntu:16.04" > .cqfd/docker/Dockerfile
+echo "ENV CQFD_DEBUG=1" >> .cqfd/docker/Dockerfile
+
+################################################################################
+# cqfd run should be happy using su -c.
+################################################################################
+jtest_prepare "cqfd run with su -c"
+$cqfd init && \
+    $cqfd run true \
+	| awk -v rc=1 '/Using "su" to execute command/ { rc=0 } 1; END {exit rc}' \
+    && jtest_result pass || jtest_result fail
+
+################################################################################
+# Use another custom Dockerfile with a recent version of su.
+################################################################################
+echo "FROM ubuntu:20.04" > .cqfd/docker/Dockerfile
+echo "ENV CQFD_DEBUG=1" >> .cqfd/docker/Dockerfile
+
+################################################################################
+# cqfd run should be happy using su --session-command.
+################################################################################
+jtest_prepare "cqfd run with su --session-command"
+$cqfd init && \
+    $cqfd run true \
+	| awk -v rc=1 '/Using "su" to execute session command/ { rc=0 } 1; END {exit rc}' \
+    && jtest_result pass || jtest_result fail
+
+################################################################################
+# Install the sudo package.
+################################################################################
+echo "ENV DEBIAN_FRONTEND noninteractive" >> .cqfd/docker/Dockerfile
+echo "RUN apt-get update && apt-get install -y --no-install-recommends sudo" >> .cqfd/docker/Dockerfile
+
+################################################################################
+# cqfd run should be happy using sudo.
+################################################################################
+jtest_prepare "cqfd run with sudo"
+$cqfd init && \
+    $cqfd run true \
+	| awk -v rc=1 '/Using "sudo" to execute command/ { rc=0 } 1; END {exit rc}' \
+    && jtest_result pass || jtest_result fail
+
+################################################################################
+# Restore initial Dockerfile.
+################################################################################
+mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
+$cqfd init
