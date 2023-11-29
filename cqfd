@@ -311,6 +311,10 @@ test_cmd() {
 	command -v "\$1" > /dev/null 2>&1
 }
 
+test_su_session_command() {
+	su --session-command true > /dev/null 2>&1
+}
+
 debug() {
       test -n "\$CQFD_DEBUG" && echo "debug: \$*"
 }
@@ -325,6 +329,7 @@ test_cmd sudo && has_sudo=1 || test_cmd su ||
 	{ failed=1 && echo "error: Missing command: su or sudo" >&2; }
 test -n "\$failed" &&
 	die "Some dependencies are missing from the container, see above messages."
+test_su_session_command && has_su_session_command=1
 
 # Add the host's user and group to the container, and adjust ownership.
 groupadd -og $GROUPS -f builders || die "groupadd command failed."
@@ -351,9 +356,12 @@ cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
 	sudo -E -u $cqfd_user sh -c "\$1"
-else
+elif [ -n "\$has_su_session_command" ]; then
 	debug "Using \"su\" to execute session command \"\$1\" as user \"$cqfd_user\""
 	su $cqfd_user -p --session-command "\$1"
+else
+	debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
+	su $cqfd_user -p -c "\$1"
 fi
 EOF
 	echo $tmpfile
