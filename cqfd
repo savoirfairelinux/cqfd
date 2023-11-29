@@ -452,6 +452,7 @@ config_load() {
 
 has_custom_cqfdrc=false
 has_to_release=false
+has_alternate_command=false
 while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|"--help")
@@ -513,7 +514,7 @@ while [ $# -gt 0 ]; do
 		fi
 
 		# Run alternate command
-		build_cmd_alt=1
+		has_alternate_command=true
 		break
 		;;
 	?*)
@@ -534,7 +535,7 @@ if [ -z "$build_cmd" ]; then
 	die "No build.command defined in $cqfdrc !"
 fi
 
-if [ -n "$build_cmd_alt" ]; then
+if $has_alternate_command; then
 	build_cmd="$*"
 elif [ -n "$*" ]; then
 	build_cmd+=" $*"
