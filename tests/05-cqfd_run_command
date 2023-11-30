@@ -8,7 +8,7 @@ set -o pipefail
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="file.$RANDOM"
 
-cd $TDIR/
+cd "$TDIR/"
 
 # First pass: the command is a single argument
 # Second pass: the command is the rest of the arguments
@@ -32,13 +32,13 @@ for i in 0 1; do
 		"$cqfd" run touch $test_file
 	fi
 
-	if [ $? != 0 -o ! -f "$test_file" ]; then
+	if [ "$?" != 0 -o ! -f "$test_file" ]; then
 		jtest_log fatal "failed or test file not present after execution"
 		jtest_result fail
 	else
 		jtest_result pass
 	fi
-	rm -f $test_file
+	rm -f "$test_file"
 done
 
 jtest_prepare "cqfd run with additional argument, do not preserve the arguments"

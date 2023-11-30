@@ -6,7 +6,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="a/cqfd_a.txt"
 
-cd $TDIR/
+cd "$TDIR/"
 
 # Here we test cqfd run, which is also invoked without any argument
 for i in 0 1; do
@@ -14,7 +14,7 @@ for i in 0 1; do
 
 	if [ -f "$test_file" ]; then
 		jtest_log fatal "$test_file already present before test"
-		rm -f $test_file
+		rm -f "$test_file"
 		continue
 	fi
 
@@ -30,13 +30,13 @@ for i in 0 1; do
 	if ! grep -qw "cqfd" $test_file; then
 		jtest_log fatal "$test_file not present after test"
 		jtest_result fail
-		rm -f $test_file
+		rm -f "$test_file"
 		continue
 	else
 		jtest_result pass
 	fi
 
-	rm -f $test_file
+	rm -f "$test_file"
 done
 
 ################################################################################

@@ -5,7 +5,7 @@
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR"/.cqfd/cqfd
 
-cd $TDIR/
+cd "$TDIR/"
 
 ################################################################################
 # 'cqfd init' with a proper .cqfdrc should pass
@@ -22,7 +22,7 @@ fi
 ################################################################################
 cqfdrc_old=$(mktemp)
 jtest_prepare "init with a nonexisting dockerfile shall fail"
-cp -f .cqfdrc $cqfdrc_old
+cp -f .cqfdrc "$cqfdrc_old"
 sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
 if "$cqfd" init; then
 	jtest_result fail
@@ -41,15 +41,15 @@ else
 	jtest_result fail
 fi
 # restore cqfdrc
-mv -f $cqfdrc_old .cqfdrc
+mv -f "$cqfdrc_old" .cqfdrc
 
 ################################################################################
 # 'cqfd init' with same uid/gid dummy user should pass
 ################################################################################
 jtest_prepare "add dummy user and dummy group with same uid/gid"
 cat <<EOF >>.cqfd/docker/Dockerfile
-RUN groupadd -og $GROUPS -f dummy && \
-    useradd -s /bin/bash -ou $UID -g $GROUPS dummy
+RUN groupadd -og "${GROUPS[0]}" -f dummy && \
+    useradd -s /bin/bash -ou "$UID" -g "${GROUPS[0]}" dummy
 EOF
 if "$cqfd" init; then
 	jtest_result pass

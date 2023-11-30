@@ -5,7 +5,7 @@
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd $TDIR/
+cd "$TDIR/"
 
 cqfdrc_old=$(mktemp)
 cp -f .cqfdrc "$cqfdrc_old"
@@ -76,7 +76,7 @@ echo "tar_transform=yes" >>.cqfdrc
 "$cqfd" release
 result="pass"
 for f in $rel_files; do
-	if ! tar tf cqfd-test.tar.xz | grep -q "^$(basename $f)$"; then
+	if ! tar tf cqfd-test.tar.xz | grep -q "^$(basename "$f")$"; then
 		result="fail"
 	fi
 done
@@ -127,12 +127,12 @@ export CTEST=foobar
 d3=$(date --rfc-3339='date')
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
-if "$cqfd" release && tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
+if "$cqfd" release && tar tf "cqfd-$d3-foobar.tar.xz" >/dev/null 2>&1; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
-rm -f cqfd-$d3-foobar.tar.xz
+rm -f "cqfd-$d3-foobar.tar.xz"
 
 jtest_prepare "build.archive can template filenames (git short hash of last commit)"
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Gh-$CTEST.tar.xz!' .cqfdrc
