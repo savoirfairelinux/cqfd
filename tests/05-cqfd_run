@@ -2,7 +2,7 @@
 #
 # validate the behavior of run command
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="a/cqfd_a.txt"
 

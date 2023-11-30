@@ -2,7 +2,7 @@
 #
 # validate the behavior with skelton bring up
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 
 jtest_prepare "create a test skeleton in temporary directory"
 

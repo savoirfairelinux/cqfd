@@ -2,7 +2,7 @@
 #
 # validate the behavior of init command
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 
 cd $TDIR/
 

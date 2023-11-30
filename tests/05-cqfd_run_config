@@ -2,7 +2,7 @@
 #
 # validate the behavior of run command with alternative config file
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 confdir=$TDIR/.config/dir
 flavor="foo"

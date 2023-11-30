@@ -2,7 +2,7 @@
 #
 # validate the behavior of run command with spaces in current working directory
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
