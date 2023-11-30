@@ -24,7 +24,7 @@ else
 fi
 
 ################################################################################
-# 'cqfd init' with CQFD_EXTRA_BUILD_ARGS should lead
+# 'cqfd init' with CQFD_EXTRA_BUILD_ARGS should succeed
 ################################################################################
 jtest_prepare "cqfd init using CQFD_EXTRA_BUILD_ARGS"
 export CQFD_EXTRA_BUILD_ARGS="--build-arg FOO=foo --no-cache"
