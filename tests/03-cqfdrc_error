@@ -12,7 +12,7 @@ cp -f .cqfdrc "$cqfdrc_old"
 echo "foo	=bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with tabulation before should pass"
-if $cqfd run true; then
+if "$cqfd" run true; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -22,7 +22,7 @@ cp -f "$cqfdrc_old" .cqfdrc
 echo "foo=	bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with tabulation after should pass"
-if $cqfd run true; then
+if "$cqfd" run true; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -32,7 +32,7 @@ cp -f "$cqfdrc_old" .cqfdrc
 echo "foo =bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with space before should pass"
-if $cqfd run true; then
+if "$cqfd" run true; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -42,7 +42,7 @@ cp -f "$cqfdrc_old" .cqfdrc
 echo "foo= bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with space after should pass"
-if $cqfd run true; then
+if "$cqfd" run true; then
 	jtest_result pass
 else
 	jtest_result fail
