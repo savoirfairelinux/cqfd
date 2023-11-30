@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of release command
 
 . "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"

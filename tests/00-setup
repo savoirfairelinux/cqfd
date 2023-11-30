@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# validate the behavior with skelton bring up
 
 . "$(dirname $0)"/jtest.inc "$1"
 
