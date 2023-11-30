@@ -6,7 +6,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="a/cqfd_a.txt"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 # Here we test cqfd run, which is also invoked without any argument
 for i in 0 1; do

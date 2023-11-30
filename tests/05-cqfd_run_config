@@ -7,7 +7,7 @@ cqfd="$TDIR/.cqfd/cqfd"
 confdir=$TDIR/.config/dir
 flavor="foo"
 
-cd "$TDIR" || exit 1
+cd "$TDIR/" || exit 1
 
 # cp the default conf and replace the original with a fake one
 mkdir -p "$confdir"
