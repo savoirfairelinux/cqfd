@@ -21,7 +21,7 @@ touch .cqfdrc
 for i in 0 1 2 3; do
 	jtest_log info "cqfd run, custom cqfdrc: $confdir/mycqfdrc, pass $i"
 
-	case $i in
+	case "$i" in
 	0)
 		test_file="a/cqfd_a.txt" # from mycqfdrc
 		jtest_prepare "cqfd run with config in $confdir/mycqfdrc"
@@ -30,17 +30,17 @@ for i in 0 1 2 3; do
 	1)
 		test_file="file.$RANDOM"
 		jtest_prepare "cqfd run and override with additionnal cmd"
-		"$cqfd" -f "$confdir"/mycqfdrc run touch $test_file
+		"$cqfd" -f "$confdir"/mycqfdrc run touch "$test_file"
 		;;
 	2)
 		test_file="$flavor.$RANDOM"
 		jtest_prepare "cqfd run and build a given '$flavor' flavor"
-		"$cqfd" -f "$confdir"/mycqfdrc -b $flavor run touch $test_file
+		"$cqfd" -f "$confdir"/mycqfdrc -b "$flavor" run touch "$test_file"
 		;;
 	3)
 		test_file="$flavor.$RANDOM"
 		jtest_prepare "cqfd run and build a given '$flavor' flavor (inverted args)"
-		"$cqfd" -b $flavor -f "$confdir"/mycqfdrc run touch $test_file
+		"$cqfd" -b "$flavor" -f "$confdir"/mycqfdrc run touch "$test_file"
 		;;
 	*)
 		;;
