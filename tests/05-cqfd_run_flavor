@@ -6,7 +6,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 flavor="foo"
 
-cd $TDIR/
+cd "$TDIR/"
 
 # First pass: build a simple flavor
 # Second pass: override flavor build with an additional command
@@ -17,18 +17,18 @@ for i in 0 1; do
 	if [ "$i" = "0" ]; then
 		test_file=$flavor
 		jtest_prepare "cqfd run build cmd for '$flavor' flavor"
-		"$cqfd" -b $flavor run
+		"$cqfd" -b "$flavor" run
 	else
 		test_file="file.$RANDOM"
 		jtest_prepare "cqfd run and override with additional cmd"
-		"$cqfd" -b $flavor run touch $test_file
+		"$cqfd" -b $flavor run touch "$test_file"
 	fi
 
-	if [ $? != 0 -o ! -f "$test_file" ]; then
+	if [ "$?" != 0 ] || [ ! -f "$test_file" ]; then
 		jtest_log fatal "failed or test file not present after execution"
 		jtest_result fail
 	else
 		jtest_result pass
 	fi
-	rm -f $test_file
+	rm -f "$test_file"
 done

@@ -5,7 +5,7 @@
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd $TDIR/
+cd "$TDIR/"
 
 ################################################################################
 # 'cqfd run' passes environment variables to the container when using
