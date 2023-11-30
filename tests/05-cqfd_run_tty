@@ -8,7 +8,7 @@ set -o pipefail
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # 'cqfd run' accepts running when not in a tty

@@ -6,7 +6,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 getent_cmd="getent hosts 1.2.3.4"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 jtest_prepare "run cqfd without extra hosts"
 output=$("$cqfd" run "$getent_cmd" ; exit 0)
