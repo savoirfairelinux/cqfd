@@ -3,7 +3,6 @@
 # validate the behavior with erroneous usages
 
 . "$(dirname "$0")"/jtest.inc "$1"
-
 cqfd="$TDIR"/.cqfd/cqfd
 
 ################################################################################
@@ -33,4 +32,3 @@ fi
 # cleanup
 popd >/dev/null || exit 1
 rm -rf "$empty_dir"
-

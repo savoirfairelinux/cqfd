@@ -35,7 +35,6 @@ else
 fi
 
 jtest_prepare "default orgname-project.tar.xz archive is generated"
-
 if tar tf cqfd-test.tar.xz >/dev/null 2>&1; then
 	jtest_result pass
 else
