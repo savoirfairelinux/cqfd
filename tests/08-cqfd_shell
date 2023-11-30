@@ -81,14 +81,14 @@ else
 fi
 
 jtest_prepare "cqfd shell is usable to run shell script"
-if $cqfd shell ./whereami.sh 2>&1 | grep '^Ubuntu .* LTS$'; then
+if "$cqfd" shell ./whereami.sh 2>&1 | grep '^Ubuntu .* LTS$'; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd bash is usable to run shell script"
-if $cqfd bash ./whereami.sh 2>&1 | grep '^Ubuntu .* LTS$'; then
+if "$cqfd" bash ./whereami.sh 2>&1 | grep '^Ubuntu .* LTS$'; then
 	jtest_result pass
 else
 	jtest_result fail

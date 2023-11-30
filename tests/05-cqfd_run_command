@@ -20,7 +20,7 @@ for i in 0 1; do
 
 	if [ -f "$test_file" ]; then
 		jtest_log fatal "$test_file already present before test"
-		rm -f $test_file
+		rm -f "$test_file"
 		continue
 	fi
 
@@ -29,7 +29,7 @@ for i in 0 1; do
 		"$cqfd" run "touch $test_file"
 	else
 		jtest_prepare "cqfd run touch somefile (no quotes) creates the file"
-		"$cqfd" run touch $test_file
+		"$cqfd" run touch "$test_file"
 	fi
 
 	# shellcheck disable=SC2181
@@ -44,7 +44,7 @@ done
 
 jtest_prepare "cqfd run with additional argument, do not preserve the arguments"
 # shellcheck disable=SC2016
-if $cqfd run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
+if "$cqfd" run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=sh,\*=,#=0"; \
    test "${PIPESTATUS[0]}" -eq 2; then
 	jtest_result pass
