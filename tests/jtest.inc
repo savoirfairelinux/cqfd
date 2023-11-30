@@ -75,7 +75,7 @@ _jtest_trap_error()
 _jtest_trap_exit()
 {
 	if [ -n "$_jtest_current" ]; then
-		jtest_log fatal 'crashed during "'$_jtest_current'"'
+		jtest_log fatal 'crashed during "'"$_jtest_current"'"'
 		jtest_result fail
 	fi
 
@@ -100,7 +100,7 @@ jtest_log()
 	elif [ "$JTEST_LOGLVL" = "off" ]; then
 		# logging is off
 		return 0
-	elif [ ${_jloglevels[$level]} -lt ${_jloglevels[$JTEST_LOGLVL]} ]; then
+	elif [ "${_jloglevels[$level]}" -lt "${_jloglevels[$JTEST_LOGLVL]}" ]; then
 		# insufficient log level
 		return 0
 	fi
@@ -125,7 +125,7 @@ jtest_log()
 jtest_prepare()
 {
 	[ -n "$1" ] || return 1
-	jtest_log notice 'preparing "'$1'"'
+	jtest_log notice 'preparing "'"$1"'"'
 	_jtest_current="$1"
 }
 
@@ -142,7 +142,7 @@ jtest_result()
 		pfx="--"
 	fi
 
-	echo "$pfx|${status^^}|$_jtest_current" >>$TDIR/.jtest_results
+	echo "$pfx|${status^^}|$_jtest_current" >>"$TDIR/.jtest_results"
 
 	case "$status" in
 		pass) status=$(_colorize green "PASS") ;;
@@ -156,7 +156,7 @@ jtest_result()
 
 _jtest_log_init
 
-if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	jtest_log fatal "jtest requires a bash >4 environment"
 	exit 1
 fi

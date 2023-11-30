@@ -6,18 +6,18 @@
 cqfd="$TDIR/.cqfd/cqfd"
 flavor="foo"
 
-cd $TDIR/
+cd "$TDIR/"
 
 ################################################################################
 # 'cqfd init' with different flavor makes a different container
 ################################################################################
 cqfdrc_old=$(mktemp)
-cp -f .cqfdrc $cqfdrc_old
+cp -f .cqfdrc "$cqfdrc_old"
 sed -i -e "s/\[foo\]/[foo]\ndistro='centos'/" .cqfdrc
 
 jtest_prepare "cqfd init using '$flavor' flavor"
-if "$cqfd" -b $flavor init &&
-   "$cqfd" -b $flavor run "grep '^NAME=' /etc/*release" | grep -q 'NAME="CentOS Linux"'; then
+if "$cqfd" -b "$flavor" init &&
+   "$cqfd" -b "$flavor" run "grep '^NAME=' /etc/*release" | grep -q 'NAME="CentOS Linux"'; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -28,7 +28,7 @@ fi
 ################################################################################
 flavorPart="${flavor:0:2}"
 jtest_prepare "cqfd init using part of '$flavor' flavor should fail"
-if "$cqfd" -b $flavorPart init; then
+if "$cqfd" -b "$flavorPart" init; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -37,7 +37,7 @@ fi
 ################################################################################
 # 'cqfd init' without flavor generates our regular container
 ################################################################################
-mv -f $cqfdrc_old .cqfdrc
+mv -f "$cqfdrc_old" .cqfdrc
 
 jtest_prepare "cqfd init without flavor"
 if "$cqfd" init &&

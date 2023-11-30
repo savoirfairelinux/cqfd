@@ -3,16 +3,16 @@
 # validate the behavior of init with alternate file and external directory
 
 . "$(dirname "$0")"/jtest.inc "$1"
-cd $TDIR/
+cd "$TDIR/"
 
 ################################################################################
 # First, move every local cqfd files into an external directory and use
 # alternate filenames
 ################################################################################
 extdir="external/dir"
-mkdir -p ${extdir}
-mv .cqfd ${extdir}/cqfd
-mv .cqfdrc ${extdir}/cqfdrc
+mkdir -p "${extdir}"
+mv .cqfd "${extdir}/cqfd"
+mv .cqfdrc "${extdir}/cqfdrc"
 cqfd="$TDIR/${extdir}/cqfd/cqfd"
 
 ################################################################################
@@ -29,7 +29,7 @@ fi
 # 'cqfd init' using alternate filenames in an external directory should work
 ################################################################################
 jtest_prepare "cqfd init using alternate filenames in an external directory should work"
-if "$cqfd" -C ${extdir} -d cqfd -f cqfdrc init; then
+if "$cqfd" -C "${extdir}" -d cqfd -f cqfdrc init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -38,6 +38,6 @@ fi
 ################################################################################
 # restore local cqfd files
 ################################################################################
-mv ${extdir}/cqfdrc .cqfdrc
-mv ${extdir}/cqfd .cqfd
-rmdir -p ${extdir}
+mv "${extdir}/cqfdrc" .cqfdrc
+mv "${extdir}/cqfd" .cqfd
+rmdir -p "${extdir}"

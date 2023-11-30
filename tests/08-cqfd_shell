@@ -9,7 +9,7 @@ unset CQFD_SHELL
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd $TDIR/
+cd "$TDIR/"
 
 jtest_prepare "cqfd shell should succeed with no stdin"
 if "$cqfd" shell </dev/null; then
