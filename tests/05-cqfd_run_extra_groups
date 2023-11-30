@@ -7,7 +7,7 @@ set -o pipefile
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 cqfdrc_old=$(mktemp)
 cp -f .cqfdrc "$cqfdrc_old"

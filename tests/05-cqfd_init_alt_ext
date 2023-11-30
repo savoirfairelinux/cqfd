@@ -3,7 +3,8 @@
 # validate the behavior of init with alternate file and external directory
 
 . "$(dirname "$0")"/jtest.inc "$1"
-cd "$TDIR/"
+
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # First, move every local cqfd files into an external directory and use

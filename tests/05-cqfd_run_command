@@ -8,7 +8,7 @@ set -o pipefail
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="file.$RANDOM"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 # First pass: the command is a single argument
 # Second pass: the command is the rest of the arguments

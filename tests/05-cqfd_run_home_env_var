@@ -7,7 +7,7 @@ set -o pipefail
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # 'cqfd run' sets HOME environment variable for the local user

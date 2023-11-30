@@ -6,7 +6,7 @@
 cqfd="$TDIR/.cqfd/cqfd"
 flavor="foo"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 # First pass: build a simple flavor
 # Second pass: override flavor build with an additional command

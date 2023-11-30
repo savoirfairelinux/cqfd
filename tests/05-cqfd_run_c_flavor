@@ -8,7 +8,7 @@ flavor="foo"
 test_file="$flavor"
 test_run_c_file="test_run_c.txt"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 # concatenate flavor build with an additional option
 jtest_log info "run cqfd run -c with a given '$flavor' flavor"

@@ -25,4 +25,4 @@ tests:
 	fi
 
 check:
-	shellcheck -x jtest.inc -e SC2164 [0-9][0-9]*
+	shellcheck -x jtest.inc [0-9][0-9]*

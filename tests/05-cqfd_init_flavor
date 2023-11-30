@@ -8,7 +8,7 @@ set -o pipefail
 cqfd="$TDIR/.cqfd/cqfd"
 flavor="foo"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # 'cqfd init' with different flavor makes a different container

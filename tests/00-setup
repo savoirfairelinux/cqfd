@@ -11,7 +11,7 @@ cp -a ../cqfd "$TDIR/.cqfd/"
 cp -a test_data/. "$TDIR/."
 cqfd="$TDIR"/.cqfd/cqfd
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # running 'cqfd init' should fail, as there's no proper config

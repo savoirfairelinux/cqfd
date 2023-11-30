@@ -7,7 +7,7 @@ cqfd="$TDIR/.cqfd/cqfd"
 test_file="a/cqfd_a.txt"
 test_run_c_file="test_run_c.txt"
 
-cd "$TDIR/"
+cd "$TDIR/" || exit 1
 
 test_setup() {
 	if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
