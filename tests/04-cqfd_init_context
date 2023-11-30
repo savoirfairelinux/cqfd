@@ -11,8 +11,8 @@ cd $TDIR/
 # 'cqfd init' without context should fail the context
 ################################################################################
 jtest_prepare "cqfd init without using build_context"
-if $cqfd init &&
-   $cqfd run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
+if "$cqfd" init &&
+   "$cqfd" run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -29,8 +29,8 @@ cp -f cqfdrc-build_context .cqfdrc
 # 'cqfd init' with context changes the context
 ################################################################################
 jtest_prepare "cqfd init using build_context"
-if $cqfd init &&
-   $cqfd run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
+if "$cqfd" init &&
+   "$cqfd" run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
 	jtest_result pass
 else
 	jtest_result fail

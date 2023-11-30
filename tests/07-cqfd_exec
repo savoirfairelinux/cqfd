@@ -10,21 +10,21 @@ cqfd="$TDIR/.cqfd/cqfd"
 cd $TDIR/
 
 jtest_prepare "cqfd exec with no argument should fail"
-if ! $cqfd exec; then
+if ! "$cqfd" exec; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd exec with argument should succeed"
-if $cqfd exec true; then
+if "$cqfd" exec true; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd exec should return same status"
-if $cqfd exec exit 10;
+if "$cqfd" exec exit 10;
    test "$?" -eq 10; then
 	jtest_result pass
 else
@@ -32,7 +32,7 @@ else
 fi
 
 jtest_prepare "cqfd exec should preserve the arguments"
-if $cqfd exec /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
+if "$cqfd" exec /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=zero,\*=one two three,#=3$"; then
 	jtest_result pass
 else

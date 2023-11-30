@@ -22,7 +22,7 @@ pushd "$spaces_dir"/"$spaces_dir2" >/dev/null || exit 1
 jtest_prepare "cqfd run from a directory with spaces"
 
 file="rand.$RANDOM"
-$cqfd run touch "$file"
+"$cqfd" run touch "$file"
 
 if [ -f "$file" ]; then
     rm -f "$file"
