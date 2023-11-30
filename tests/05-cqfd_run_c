@@ -9,7 +9,6 @@ test_run_c_file="test_run_c.txt"
 
 cd $TDIR/
 
-
 test_setup() {
 	if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
 		jtest_log fatal "$test_file or $test_run_c_file already present before test"
@@ -61,4 +60,3 @@ test_cleanup
 test_setup
 test_step2
 test_cleanup
-

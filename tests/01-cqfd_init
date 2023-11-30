@@ -16,7 +16,6 @@ else
 	jtest_result fail
 fi
 
-
 ################################################################################
 # 'cqfd init' with a nonexistent Dockerfile should fail
 ################################################################################
@@ -30,7 +29,6 @@ else
 	jtest_result pass
 fi
 
-
 ################################################################################
 # 'cqfd init' with a proper Dockerfile should pass
 ################################################################################
@@ -41,9 +39,8 @@ if $TDIR/.cqfd/cqfd init; then
 else
 	jtest_result fail
 fi
-#restore cqfdrc
+# restore cqfdrc
 mv -f $cqfdrc_old .cqfdrc
-
 
 ################################################################################
 # 'cqfd init' with same uid/gid dummy user should pass
@@ -58,7 +55,6 @@ if $TDIR/.cqfd/cqfd init; then
 else
 	jtest_result fail
 fi
-
 
 ################################################################################
 # 'cqfd init' in quiet mode should be quiet
