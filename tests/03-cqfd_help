@@ -3,6 +3,7 @@
 # validate the behavior of help command
 
 . "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR"/.cqfd/cqfd
 
 ################################################################################
 # 'cqfd help' shall be an accepted command
@@ -10,7 +11,7 @@
 jtest_prepare "cqfd help shall exit normally"
 TEST=$(mktemp)
 
-if ! $TDIR/.cqfd/cqfd help >$TEST; then
+if ! "$cqfd" help >$TEST; then
 	jtest_result fail
 	rm -f $TEST
 else

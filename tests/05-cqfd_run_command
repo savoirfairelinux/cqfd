@@ -42,7 +42,7 @@ for i in 0 1; do
 done
 
 jtest_prepare "cqfd run with additional argument, do not preserve the arguments"
-if $cqfd run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
+if "$cqfd" run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=sh,\*=,#=0"; \
    test "${PIPESTATUS[0]}" -eq 2; then
 	jtest_result pass
