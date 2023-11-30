@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of run -c command with flavors
 
 . "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"

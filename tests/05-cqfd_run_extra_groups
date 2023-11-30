@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of run command with extra groups
 
 . "$(dirname $0)"/jtest.inc "$1"
 

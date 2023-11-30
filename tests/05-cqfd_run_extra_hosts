@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of run command with extra hosts in run environment variable
 
 . "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
