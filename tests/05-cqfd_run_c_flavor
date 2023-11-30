@@ -43,5 +43,5 @@ else
 	jtest_result fail
 fi
 
-rm -f $test_file
-rm -f $test_run_c_file
+rm -f "$test_file"
+rm -f "$test_run_c_file"
