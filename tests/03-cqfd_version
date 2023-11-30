@@ -26,7 +26,7 @@ if grep -qE "^[0-9.]+(-[a-z]+)?\$" $TEST; then
 	jtest_result pass
 else
 	jtest_log error "not a version message"
-cat $TEST >&2
+	cat $TEST >&2
 	jtest_result fail
 fi
 
