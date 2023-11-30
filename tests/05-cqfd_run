@@ -45,7 +45,7 @@ done
 jtest_prepare "Modifying the Dockerfile should require running 'cqfd init' again"
 dockerfile=.cqfd/docker/Dockerfile
 echo "RUN echo $RANDOM" >> $dockerfile
-if $TDIR/.cqfd/cqfd run; then
+if "$cqfd" run; then
   jtest_result fail
 else
   jtest_result pass

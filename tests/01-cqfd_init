@@ -3,6 +3,7 @@
 # validate the behavior of init command
 
 . "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR"/.cqfd/cqfd
 
 cd $TDIR/
 
@@ -10,7 +11,7 @@ cd $TDIR/
 # 'cqfd init' with a proper .cqfdrc should pass
 ################################################################################
 jtest_prepare "run cqfd init"
-if $TDIR/.cqfd/cqfd init; then
+if "$cqfd" init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -23,7 +24,7 @@ cqfdrc_old=$(mktemp)
 jtest_prepare "init with a nonexisting dockerfile shall fail"
 cp -f .cqfdrc $cqfdrc_old
 sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if "$cqfd" init; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -34,7 +35,7 @@ fi
 ################################################################################
 jtest_prepare "run cqfd init with an other Dockerfile"
 sed -i -e "s/thisshouldfail/centos/" .cqfdrc
-if $TDIR/.cqfd/cqfd init; then
+if "$cqfd" init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -50,7 +51,7 @@ cat <<EOF >>.cqfd/docker/Dockerfile
 RUN groupadd -og $GROUPS -f dummy && \
     useradd -s /bin/bash -ou $UID -g $GROUPS dummy
 EOF
-if $TDIR/.cqfd/cqfd init; then
+if "$cqfd" init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -60,7 +61,7 @@ fi
 # 'cqfd init' in quiet mode should be quiet
 ################################################################################
 jtest_prepare "cqfd -q init should remain quiet"
-if ! $TDIR/.cqfd/cqfd -q init | grep -E "^sha256:"; then
+if ! "$cqfd" -q init | grep -E "^sha256:"; then
 	jtest_result fail
 else
 	jtest_result pass
