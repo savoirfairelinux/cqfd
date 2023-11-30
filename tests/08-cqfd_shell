@@ -12,21 +12,21 @@ cqfd="$TDIR/.cqfd/cqfd"
 cd $TDIR/
 
 jtest_prepare "cqfd shell should succeed with no stdin"
-if $cqfd shell </dev/null; then
+if "$cqfd" shell </dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd shell should read commands from stdin"
-if ( ! $cqfd shell <<<"tty" ) | grep "not a tty"; then
+if ( ! "$cqfd" shell <<<"tty" ) | grep "not a tty"; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd shell should preserve the arguments"
-if $cqfd shell -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
+if "$cqfd" shell -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=zero,\*=one two three,#=3$"; then
 	jtest_result pass
 else
@@ -34,7 +34,7 @@ else
 fi
 
 jtest_prepare "cqfd shell should fail with 127 and '/bin/non-existant-shell: command not found'"
-if CQFD_SHELL=/bin/non-existant-shell $cqfd shell <<<"tty" \
+if CQFD_SHELL=/bin/non-existant-shell "$cqfd" shell <<<"tty" \
 	| tee /dev/stderr | grep -q '/bin/non-existant-shell: command not found';
                                       test "${PIPESTATUS[0]}" -eq 127; then
 	jtest_result pass
@@ -43,7 +43,7 @@ else
 fi
 
 jtest_prepare "cqfd sh should succeed and use sh"
-if $cqfd sh <<<'printf "$0"' \
+if "$cqfd" sh <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^sh$"; then
 	jtest_result pass
 else
@@ -51,7 +51,7 @@ else
 fi
 
 jtest_prepare "cqfd bash should succeed and use bash"
-if $cqfd bash <<<'printf "$0"' \
+if "$cqfd" bash <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^bash$"; then
 	jtest_result pass
 else
@@ -59,7 +59,7 @@ else
 fi
 
 jtest_prepare "cqfd dash should succeed and use dash"
-if $cqfd dash <<<'printf "$0"' \
+if "$cqfd" dash <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^dash$"; then
 	jtest_result pass
 else
@@ -67,7 +67,7 @@ else
 fi
 
 jtest_prepare "cqfd zsh should fail with 127 and 'zsh: command not found'"
-if $cqfd zsh 2>&1 <<<'printf "$0"' \
+if "$cqfd" zsh 2>&1 <<<'printf "$0"' \
 	| tee /dev/stderr | grep -q 'zsh: command not found';
    test "${PIPESTATUS[0]}" -eq 127; then
 	jtest_result pass

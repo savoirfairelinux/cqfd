@@ -10,11 +10,11 @@ cd "$TDIR/"
 cqfdrc_old=$(mktemp)
 cp -f .cqfdrc "$cqfdrc_old"
 sed -i -e "/\[build\]/,/^$/s/^command=.*$/command='tty || true'/" .cqfdrc
-$cqfd init
+"$cqfd" init
 
 jtest_prepare "cqfd without redirection should allocate a tty"
 if tty; then
-	if $cqfd | grep "/dev/pts/1" ; then
+	if "$cqfd" | grep "/dev/pts/1" ; then
 		jtest_result pass
 	else
 		jtest_result fail
@@ -24,24 +24,24 @@ else
 fi
 
 jtest_prepare "cqfd with stdin redirected to /dev/null should not allocate a pty"
-if $cqfd </dev/null | grep 'not a tty'; then
+if "$cqfd" </dev/null | grep 'not a tty'; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 jtest_prepare "cqfd with stderr redirected to /dev/null should not allocate a pty"
-if $cqfd 2>/dev/null | grep 'not a tty'; then
+if "$cqfd" 2>/dev/null | grep 'not a tty'; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
 sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='echo stdout \&\& echo stderr >\&2'," .cqfdrc
-$cqfd init
+"$cqfd" init
 
 jtest_prepare "cqfd with allocated pty should redirect stdout and stderr to same endpoint"
-if $cqfd >out; then
+if "$cqfd" >out; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -49,7 +49,7 @@ fi
 rm out
 
 jtest_prepare "cqfd without allocated pty should redirect stdout and stderr to distinct entpoints"
-if $cqfd >out 2>err && grep 'stdout' out && grep 'stderr' err; then
+if "$cqfd" >out 2>err && grep 'stdout' out && grep 'stderr' err; then
 	jtest_result pass
 else
 	jtest_result fail

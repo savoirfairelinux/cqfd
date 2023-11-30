@@ -20,10 +20,10 @@ for i in 0 1; do
 
 	if [ "$i" = "1" ]; then
 		jtest_prepare "running \"cqfd run\" makes it run"
-		$cqfd run
+		"$cqfd" run
 	else
 		jtest_prepare "running \"cqfd\" with no argument makes it run"
-		$cqfd
+		"$cqfd"
 	fi
 
 	# at the end of either test, $test_file is populated

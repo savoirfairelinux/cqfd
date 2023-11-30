@@ -19,7 +19,7 @@ cqfd="$TDIR/${extdir}/cqfd/cqfd"
 # 'cqfd init' without local files should fail
 ################################################################################
 jtest_prepare "cqfd init without local files should fail"
-if $cqfd init; then
+if "$cqfd" init; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -29,7 +29,7 @@ fi
 # 'cqfd init' using alternate filenames in an external directory should work
 ################################################################################
 jtest_prepare "cqfd init using alternate filenames in an external directory should work"
-if $cqfd -C ${extdir} -d cqfd -f cqfdrc init; then
+if "$cqfd" -C ${extdir} -d cqfd -f cqfdrc init; then
 	jtest_result pass
 else
 	jtest_result fail

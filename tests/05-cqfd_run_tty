@@ -14,7 +14,7 @@ jtest_prepare "cqfd works when not in a tty"
 cd $TDIR/
 
 # the key here is to use /dev/null as stdin
-$cqfd run cat /etc/passwd </dev/null | grep -q "^root:"
+"$cqfd" run cat /etc/passwd </dev/null | grep -q "^root:"
 if [ $? -ne 0 ]; then
 	jtest_result fail
 else

@@ -9,7 +9,7 @@ getent_cmd="getent hosts 1.2.3.4"
 cd $TDIR/
 
 jtest_prepare "run cqfd without extra hosts"
-output=$($cqfd run $getent_cmd ; exit 0)
+output=$("$cqfd" run $getent_cmd ; exit 0)
 
 if [ "$output" = "" ]; then
     jtest_result pass
@@ -19,7 +19,7 @@ fi
 
 jtest_prepare "run cqfd with extra hosts"
 output=$(CQFD_EXTRA_RUN_ARGS="--add-host testhost:1.2.3.4" \
-                            $cqfd run $getent_cmd ; exit 0)
+                            "$cqfd" run $getent_cmd ; exit 0)
 
 if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
     jtest_result pass
@@ -31,7 +31,7 @@ jtest_prepare "run cqfd with docker_run_args in config"
 # setup -- add the docker_run_args option to config
 sed '/\[build\]/adocker_run_args="--add-host testhost:1.2.3.4"'\
     -i "$TDIR/.cqfdrc"
-output=$($cqfd run $getent_cmd; exit 0)
+output=$("$cqfd" run $getent_cmd; exit 0)
 
 if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
     jtest_result pass
