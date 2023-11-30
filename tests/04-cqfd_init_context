@@ -2,7 +2,7 @@
 #
 # validate the behavior of project.build_context
 
-. $(dirname "$0")/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/

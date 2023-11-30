@@ -2,7 +2,7 @@
 #
 # validate the behavior of run from subdirectory
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
 jtest_prepare "cqfd can run from a project's sub-directory"
