@@ -704,6 +704,13 @@ while [ $# -gt 0 ]; do
 				usage
 				die "$cqfd_command -c: Missing arguments!"
 			fi
+
+			# Display a warning message if using -c with multiple arguments
+			if [ "$#" -gt 1 ]; then
+				warn "command $cqfd_command -c shall support a single argument," \
+				     "please consider the command run -c instead:"
+				echo "               cqfd $cqfd_command -c \"$*\"" >&2
+			fi
 			break
 		fi
 
