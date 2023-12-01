@@ -18,8 +18,7 @@ cp -f .cqfdrc "$cqfdrc_old"
 sed -i -e "s/\[foo\]/[foo]\ndistro='centos'/" .cqfdrc
 
 jtest_prepare "cqfd init using '$flavor' flavor"
-if "$cqfd" -b "$flavor" init &&
-   "$cqfd" -b "$flavor" run "grep '^NAME=' /etc/*release" | grep -q 'NAME="CentOS Linux"'; then
+if "$cqfd" -b "$flavor" --reinit run "grep '^NAME=' /etc/*release" | grep -q 'NAME="CentOS Linux"'; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -42,8 +41,7 @@ fi
 mv -f "$cqfdrc_old" .cqfdrc
 
 jtest_prepare "cqfd init without flavor"
-if "$cqfd" init &&
-   "$cqfd" run "grep '^NAME=' /etc/*release" | grep -q 'NAME="Ubuntu"'; then
+if "$cqfd" --reinit run "grep '^NAME=' /etc/*release" | grep -q 'NAME="Ubuntu"'; then
 	jtest_result pass
 else
 	jtest_result fail
