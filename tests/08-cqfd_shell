@@ -40,3 +40,35 @@ if CQFD_SHELL=/bin/non-existant-shell $cqfd shell <<<"tty";
 else
 	jtest_result fail
 fi
+
+jtest_prepare "cqfd sh should succeed and use sh"
+if $cqfd sh <<<'printf "$0"' \
+       | grep "^sh$"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd bash should succeed and use bash"
+if $cqfd bash <<<'printf "$0"' \
+       | grep "^bash$"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd dash should succeed and use dash"
+if $cqfd dash <<<'printf "$0"' \
+       | grep "dash"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd zsh should fail with 127"
+if $cqfd zsh <<<'printf "$0"';
+   test "$?" -eq 127; then
+	jtest_result pass
+else
+	jtest_result fail
+fi

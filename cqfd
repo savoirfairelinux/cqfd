@@ -529,7 +529,10 @@ while [ $# -gt 0 ]; do
 		build_cmd_alt="$*"
 		break
 		;;
-	shell)
+	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
+		if [ "$1" != "shell" ]; then
+			CQFD_SHELL="$1"
+		fi
 		shift
 		config_load $flavor
 		command_string="${CQFD_SHELL:-/bin/sh}"
