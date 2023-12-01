@@ -39,7 +39,7 @@ else
 fi
 
 jtest_prepare "cqfd init works using custom_img_name=$custom_image_1"
-if "$cqfd" init && "$cqfd" run "true"; then
+if "$cqfd" --reinit run "true"; then
 	jtest_result pass
 else
 	jtest_result fail
