@@ -389,8 +389,12 @@ test -n "\$failed" &&
 test_su_session_command && has_su_session_command=1
 
 # Add the host's user and group to the container, and adjust ownership.
+if ! shell=\$(command -v $cqfd_shell); then
+	echo "$cqfd_shell: command not found" >&2
+	exit 127
+fi
 groupadd -og $GROUPS -f builders || die "groupadd command failed."
-useradd -s $cqfd_shell -oN -u $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
+useradd -s \$shell -oN -u $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
 	|| die "useradd command failed."
 mkdir -p "$cqfd_user_home" || die "mkdir command failed."
 chown $UID:$GROUPS "$cqfd_user_home" || die "chown command failed."
@@ -600,7 +604,10 @@ while [ $# -gt 0 ]; do
 		has_alternate_command=true
 		break
 		;;
-	shell)
+	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
+		if [ "$1" != "shell" ]; then
+			cqfd_shell="$1"
+		fi
 		shift
 		config_load "$flavor"
 		command_string="$cqfd_shell"
