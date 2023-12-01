@@ -33,9 +33,43 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "cqfd shell should fail with 127 if \$CQFD_SHELL is not found"
-if CQFD_SHELL=/bin/non-existant-shell $cqfd shell <<<"tty";
-                                      test "$?" -eq 127; then
+jtest_prepare "cqfd shell should fail with 127 and '/bin/non-existant-shell: command not found'"
+if CQFD_SHELL=/bin/non-existant-shell $cqfd shell <<<"tty" \
+	| tee /dev/stderr | grep -q '/bin/non-existant-shell: command not found';
+                                      test "${PIPESTATUS[0]}" -eq 127; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd sh should succeed and use sh"
+if $cqfd sh <<<'printf "$0"' \
+       | tee /dev/stderr | grep -q "^sh$"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd bash should succeed and use bash"
+if $cqfd bash <<<'printf "$0"' \
+       | tee /dev/stderr | grep -q "^bash$"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd dash should succeed and use dash"
+if $cqfd dash <<<'printf "$0"' \
+       | tee /dev/stderr | grep -q "^dash$"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd zsh should fail with 127 and 'zsh: command not found'"
+if $cqfd zsh 2>&1 <<<'printf "$0"' \
+	| tee /dev/stderr | grep -q 'zsh: command not found';
+   test "${PIPESTATUS[0]}" -eq 127; then
 	jtest_result pass
 else
 	jtest_result fail
