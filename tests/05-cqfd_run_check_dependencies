@@ -20,7 +20,7 @@ cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
 # Missing all core dependencies for the launch script
 ################################################################################
 jtest_prepare "cqfd run fails when the Docker image lacks required commands"
-if "$cqfd" init && "$cqfd" run; then
+if "$cqfd" --init run; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -39,7 +39,7 @@ jtest_prepare "cqfd run with satisfied command requirements, using su"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" run true \
+	if "$cqfd" --init run true \
 		| awk -v rc=1 '/Using "su"/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
@@ -59,7 +59,7 @@ jtest_prepare "cqfd run with satisfied command requirements, using sudo"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" run true \
+	if "$cqfd" --init run true \
 		| awk -v rc=1 '/Using "sudo"/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
