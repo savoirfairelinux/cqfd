@@ -205,6 +205,13 @@ the user's ``~/.ssh`` and global ``/etc/ssh`` configurations to the
 container. This may be required if the host's ``ssh`` configuration
 is not compatible with the ``ssh`` version within the container.
 
+### Appending to the build command ###
+
+The `-c` option allows appending the command of a cqfd run for temporary developments:
+
+    $ cqfd -b centos7 -c "clean"
+    $ cqfd -b centos7 -c "TRACING=1"
+
 ### Other command-line options ###
 
 In some conditions you may want to use alternate cqfd filenames and / or an
