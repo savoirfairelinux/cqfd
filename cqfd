@@ -72,53 +72,30 @@ EOF
 #        by Andrés J. Díaz - License: MIT
 # arg$1: path to ini file
 parse_ini_config_file() {
-	# bash 4.3 and later break compatibility
-	#
-	# in posix mode, single quotes are considered special when expanding
-	# the word portion of a double-quoted ${…} parameter expansion and can
-	# be used to quote a closing brace or other special character (this is
-	# part of POSIX interpretation 221); in later versions, single quotes
-	# are not special within double-quoted word expansions
-	local BASH_COMPAT=42
-	local IFS
 	local ini
 
 	if [ ! -f "$1" ]; then
 		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
 	fi
 
-	ini="$(<"$1")"                                    # read the file
-	# shellcheck disable=SC2206
-	ini="${ini//[/\\[}"                               # escape [
-	# shellcheck disable=SC2206
-	ini="${ini//]/\\]}"                               # escape ]
-	# shellcheck disable=SC2206
-	IFS=$'\n' && ini=( ${ini} )                       # convert to line-array
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]//;*/} )                            # remove comments with ;
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/$'\t'=/=} )                        # remove tabs before =
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/=$'\t'/=} )                        # remove tabs after =
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/\ =/=} )                           # remove space before =
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/=\ /=} )                           # remove space after =
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} )        # set section prefix
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/%\\]/ \(} )                        # convert text2function (1)
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/%\(/ \( \)} )                      # close array parenthesis
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/%\\ \)/ \\} )                      # the multiline trick
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/%\( \)/\(\) \{} )                  # convert text2function (2)
-	# shellcheck disable=SC2206
-	ini=( ${ini[*]/%\} \)/\}} )                       # remove extra parenthesis
-	ini[0]=""                                         # remove first element
-	ini[${#ini[*]} + 1]='}'                           # add the last brace
-	if ! eval "${ini[*]}" 2>/dev/null; then           # eval the result
+	mapfile -t ini <"$1"
+	ini=( "${ini[@]//[/\\[}" )                   # escape [
+	ini=( "${ini[@]//]/\\]}" )                   # escape ]
+	ini=( "${ini[@]//;*/}" )                     # remove comments with ;
+	ini=( "${ini[@]/$'\t'=/=}" )                 # remove tabs before =
+	ini=( "${ini[@]/=$'\t'/=}" )                 # remove tabs after =
+	ini=( "${ini[@]/\ =/=}" )                    # remove space before =
+	ini=( "${ini[@]/=\ /=}" )                    # remove space after =
+	ini=( "${ini[@]/#\\[/\}$'\n'cfg.section.}" ) # set section prefix
+	ini=( "${ini[@]/%\\]/(}" )                   # convert text2function (1)
+	ini=( "${ini[@]/%(/()}" )                    # close array parenthesis
+	ini=( "${ini[@]/%\)/) {}" )                  # the multiline trick
+	ini=( "${ini[@]/%\( \)/\(\) \{}" )           # convert text2function (2)
+	ini=( "${ini[@]/%\} \)/\}}" )                # remove extra parenthesis
+	ini[0]="${ini[0]/\}/}"                       # remove the first brace
+	ini+=( "}" )                                 # add the last brace
+	ini=("$(printf "%s\n" "${ini[@]}")")
+	if ! eval "${ini[*]}"; then                  # eval the result
 		debug "$1: fail to evaluate shell:" "${ini[@]}"
 		die "$1: Invalid ini-file!"
 	fi
