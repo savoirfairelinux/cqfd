@@ -63,7 +63,7 @@ EOF
 }
 
 # parse_ini_config_file()
-#   Ref: http://theoldschooldevops.com/2008/02/09/bash-ini-parser/
+#   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz
 # arg$1: path to ini file
 parse_ini_config_file() {
