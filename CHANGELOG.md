@@ -2,7 +2,9 @@
 
 ## Version 5.5.0-dev (coming soon)
 
-* Stay tuned!
+* Pre-existing (custom) Docker images can now be used.
+* bash-completion config is back up to date.
+* Misc. fixes.
 
 ## Version 5.4.0 (2023-06-09)
 
