@@ -42,11 +42,22 @@ default build command as configured in .cqfdrc, use:
 
     $ cqfd
 
-Alternatively, you may want to specify a custom build command to be
+Alternatively, you may want to specify a single custom command to be
 executed from inside the build container.
 
-    $ cqfd run make clean
+    $ cqfd exec make clean
+
+Or custom commands composed with shell grammar:
+
     $ cqfd run "make linux-dirclean && make foobar-dirclean"
+
+Additionally, you may want to open an interactive shell:
+
+    $ cqfd shell
+
+Or run a shell script with arguments:
+
+    $ cqfd shell ./build.sh debug
 
 When ``cqfd`` is running, the current directory is mounted by Docker
 as a volume. As a result, all the build artefacts generated inside the
@@ -189,6 +200,8 @@ Flavors from a `.cqfdrc` file can be listed using the `flavors` argument.
 The following environment variables are supported by cqfd to provide
 the user with extra flexibility during his day-to-day development
 tasks:
+
+``CQFD_SHELL``: A string specifying the shell to run with `cqfd shell`.
 
 ``CQFD_EXTRA_RUN_ARGS``: A space-separated list of additional
 docker-run options to be append to the starting container.

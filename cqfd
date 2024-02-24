@@ -44,8 +44,10 @@ Options:
 Commands:
     init                 Initialize project build container.
     flavors              List flavors from config file to stdout.
+    exec cmd [args]      Run argument(s) inside build container.
     run [cmdstring]      Run argument(s) inside build container.
     release [cmdstring]  Run argument(s) and release software.
+    shell [shargs]       Run shell command inside build container.
     help                 Show this help text.
 
     By default, the 'run' command is assumed, with the default
@@ -141,9 +143,9 @@ docker_run() {
 		die "The docker image doesn't exist, launch 'cqfd init' to create it"
 	fi
 
-	local interactive_options
+	local interactive_options="-i"
 	if tty -s; then
-		interactive_options="-ti"
+		interactive_options+=" -t"
 	fi
 
 	# If possible, map cqfd_user from the calling user's
@@ -493,6 +495,16 @@ while [ $# -gt 0 ]; do
 	-q)
 		quiet=true
 		;;
+	exec)
+		if [ "$#" -lt 2 ]; then
+			die "command exec requires arguments"
+		fi
+		shift
+		config_load $flavor
+		command_string="${@@Q}"
+		docker_run "$command_string"
+		exit
+		;;
 	run|release)
 		if [ "$1" = "release" ]; then
 			has_to_release=true
@@ -516,6 +528,19 @@ while [ $# -gt 0 ]; do
 		# Run alternate command
 		has_alternate_command=true
 		break
+		;;
+	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
+		if [ "$1" != "shell" ]; then
+			CQFD_SHELL="$1"
+		fi
+		shift
+		config_load $flavor
+		command_string="${CQFD_SHELL:-/bin/sh}"
+		if [ "$#" -ne 0 ]; then
+			command_string+=" ${@@Q}"
+		fi
+		docker_run "$command_string"
+		exit
 		;;
 	?*)
 		echo "Unknown command: $1" >&2
