@@ -2,6 +2,7 @@
 
 ## Version 5.5.0-dev (coming soon)
 
+* Add the `shell` command.
 * Pre-existing (custom) Docker images can now be used.
 * bash-completion config is back up to date.
 * Misc. fixes.

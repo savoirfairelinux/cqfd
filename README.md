@@ -225,6 +225,17 @@ The `-c` option allows appending the command of a cqfd run for temporary develop
     $ cqfd -b centos7 -c "clean"
     $ cqfd -b centos7 -c "TRACING=1"
 
+### Running a shell in the container ###
+
+You can use the `shell` command to quickly pop a shell in your defined
+container. The shell to be launched (default `/bin/sh`) can be customized using
+the `CQFD_SHELL` environment variable.
+
+Example:
+
+    fred@host:~/project$ cqfd shell
+    fred@container:~/project$
+
 ### Other command-line options ###
 
 In some conditions you may want to use alternate cqfd filenames and / or an
