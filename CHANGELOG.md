@@ -1,5 +1,9 @@
 # ChangeLog for cqfd
 
+## Next version (coming soon)
+
+* Stay tuned!
+
 ## Version 5.5.0 (2024-02-25)
 
 * Add the `cqfd shell` command.
