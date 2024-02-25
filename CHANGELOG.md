@@ -1,6 +1,6 @@
 # ChangeLog for cqfd
 
-## Next version (coming soon)
+## Next version (5.5.1-dev, coming soon)
 
 * Stay tuned!
 

@@ -31,10 +31,10 @@ fi
 ################################################################################
 # 'cqfd version' shall match the latest documented version
 ################################################################################
-jtest_prepare "cqfd version major number shall match the latest documented version"
-
 doc=$(grep '^## Version' $TDIR/CHANGELOG.md  | head -1 | grep -Eo '[0-9.]+(-[a-z]+)?' | head -1)
 version="$(cat $TEST)"
+
+jtest_prepare "cqfd version ($version) matches latest one in CHANGELOG ($doc)"
 
 if [ "$doc" = "$version" ]; then
 	jtest_result pass
