@@ -254,7 +254,7 @@ docker_run() {
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
-	docker run "${args[@]}" 2>&1
+	docker run "${args[@]}"
 }
 
 # make_archive(): Create a release package.
