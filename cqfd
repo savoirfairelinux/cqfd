@@ -367,7 +367,7 @@ test_su_session_command && has_su_session_command=1
 
 # Add the host's user and group to the container, and adjust ownership.
 groupadd -og $GROUPS -f builders || die "groupadd command failed."
-useradd -s /bin/bash -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
+useradd -s /bin/sh -ou $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
 	|| die "useradd command failed."
 mkdir -p "$cqfd_user_home" || die "mkdir command failed."
 chown $UID:$GROUPS "$cqfd_user_home" || die "chown command failed."
