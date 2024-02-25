@@ -1,10 +1,10 @@
 # ChangeLog for cqfd
 
-## Version 5.5.0-dev (coming soon)
+## Version 5.5.0 (2024-02-25)
 
-* Add the `shell` command.
-* Pre-existing (custom) Docker images can now be used.
-* bash-completion config is back up to date.
+* Add the `cqfd shell` command.
+* Custom Docker images can now be used using `custom_img_name`.
+* Bring Bash completions back up to date.
 * Misc. fixes.
 
 ## Version 5.4.0 (2023-06-09)
