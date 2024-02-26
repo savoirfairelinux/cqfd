@@ -79,6 +79,7 @@ parse_ini_config_file() {
 	# part of POSIX interpretation 221); in later versions, single quotes
 	# are not special within double-quoted word expansions
 	local BASH_COMPAT=42
+	local IFS
 
 	if [ ! -f "$1" ]; then
 		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
@@ -453,7 +454,7 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	IFS="$IFS" parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
+	parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
