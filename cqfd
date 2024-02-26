@@ -72,11 +72,13 @@ EOF
 # arg$1: path to ini file
 parse_ini_config_file() {
 	# bash 4.3 and later break compatibility
-	local is_compatibility_mode=false
-	if [ "${BASH_VERSINFO[0]}" -ge 4 ] && [ "${BASH_VERSINFO[1]}" -gt 2 ]; then
-		is_compatibility_mode=true
-		shopt -s compat42
-	fi
+	#
+	# in posix mode, single quotes are considered special when expanding
+	# the word portion of a double-quoted ${…} parameter expansion and can
+	# be used to quote a closing brace or other special character (this is
+	# part of POSIX interpretation 221); in later versions, single quotes
+	# are not special within double-quoted word expansions
+	local BASH_COMPAT=42
 
 	if [ ! -f "$1" ]; then
 		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
@@ -101,11 +103,6 @@ parse_ini_config_file() {
 	ini[${#ini[*]} + 1]='}'                           # add the last brace
 	if ! eval "$(echo "${ini[*]}")" 2>/dev/null; then # eval the result
 		die "$1: Invalid ini-file!"
-	fi
-
-	# restore previous bash behaviour
-	if $is_compatibility_mode; then
-		shopt -u compat42
 	fi
 }
 
