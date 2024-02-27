@@ -28,4 +28,24 @@ else
 	jtest_result fail
 fi
 
+cp -f "$cqfdrc_old" .cqfdrc
+echo "foo =bar" >>.cqfdrc
+
+jtest_prepare "cqfdrc with space before should pass"
+if $cqfd run true; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+cp -f "$cqfdrc_old" .cqfdrc
+echo "foo= bar" >>.cqfdrc
+
+jtest_prepare "cqfdrc with space after should pass"
+if $cqfd run true; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
 mv -f "$cqfdrc_old" .cqfdrc
