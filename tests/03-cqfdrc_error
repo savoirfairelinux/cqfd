@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# validate the .cqfdrc syntax
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+echo "foo	=bar" >>.cqfdrc
+
+jtest_prepare "cqfdrc with tabulation before should pass"
+if $cqfd run true; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+cp -f "$cqfdrc_old" .cqfdrc
+echo "foo=	bar" >>.cqfdrc
+
+jtest_prepare "cqfdrc with tabulation after should pass"
+if $cqfd run true; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+mv -f "$cqfdrc_old" .cqfdrc

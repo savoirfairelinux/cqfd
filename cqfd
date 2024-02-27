@@ -84,8 +84,8 @@ parse_ini_config_file() {
 	ini="${ini//]/\\]}"                               # escape ]
 	IFS=$'\n' && ini=( ${ini} )                       # convert to line-array
 	ini=( ${ini[*]//;*/} )                            # remove comments with ;
-	ini=( ${ini[*]/\    =/=} )                        # remove tabs before =
-	ini=( ${ini[*]/=\   /=} )                         # remove tabs after =
+	ini=( ${ini[*]/$'\t'=/=} )                        # remove tabs before =
+	ini=( ${ini[*]/=$'\t'/=} )                        # remove tabs after =
 	ini=( ${ini[*]/\ =\ /=} )                         # remove anything with a space around =
 	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} )        # set section prefix
 	ini=( ${ini[*]/%\\]/ \(} )                        # convert text2function (1)
