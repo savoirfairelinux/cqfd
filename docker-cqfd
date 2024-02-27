@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+#
+# cqfd - a tool to wrap commands in controlled Docker containers
+#
+# Copyright (C) 2024-2025 Savoir-faire Linux, Inc.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+if [[ "$1" == "docker-cli-plugin-metadata" ]]
+then
+	cat <<EOF
+{
+	"SchemaVersion":"0.1.0",
+	"Vendor":"Savoir-faire Linux",
+	"Version":"$(cqfd --version)",
+	"ShortDescription":"A tool to wrap commands in controlled Docker containers.",
+	"URL":"https://github.com/savoirfairelinux/cqfd"
+}
+EOF
+	exit 0
+fi
+
+if [[ "$1" == "__complete" ]]
+then
+	# Called as docker-cqfd __complete cqfd
+	shift
+	shift
+
+	source /usr/share/bash-completion/bash_completion
+	source /usr/share/bash-completion/completions/cqfd
+
+	COMP_LINE="cqfd $*"
+	COMP_WORDS=(cqfd "$@")
+	COMP_CWORD="$#"
+	COMP_POINT="${#COMP_LINE}"
+	_cqfd
+	echo "${COMPREPLY[@]}"
+	exit 0
+fi
+
+if [[ "$1" == "help" ]]
+then
+	cat <<EOF
+Usage:  docker cqfd [OPTIONS] [COMMAND] [COMMAND_OPTIONS] [COMMAND_ARGUMENTS]
+
+A tool to wrap commands in controlled Docker containers.
+
+Options:
+  -f string              Use file as config file (default .cqfdrc).
+  -d string              Use directory as cqfd directory (default .cqfd).
+  -C string              Use the specified working directory.
+  -b string              Target a specific build flavor.
+  -q                     Turn on quiet mode.
+  -v or --version        Show version.
+  --verbose              Increase the script's verbosity.
+  -h or --help           Show this help text.
+
+Commands:
+  init                   Initialize project build container.
+  exec cmd [list]      Run argument(s) inside build container.
+  flavors                List flavors from config file to stdout.
+  run [list]             Run argument(s) inside build container.
+  release [list]         Run argument(s) and release software.
+  shell [list]           Run shell command inside build container.
+  help                   Show this help text.
+
+  By default, the 'run' command is assumed, with the default command string
+  configured in your .cqfdrc (see build.command).
+
+Command options for run:
+  -c list                Append command arguments to the default command
+                         string.
+
+  cqfd is Copyright (C) 2024-2025 Savoir-faire Linux, Inc.
+
+  This program comes with ABSOLUTELY NO WARRANTY. This is free
+  software, and you are welcome to redistribute it under the terms
+  of the GNU GPLv3 license; see the LICENSE for more informations.
+EOF
+	exit
+fi
+
+# Called as docker-cqfd cqfd
+shift
+exec cqfd "$@"
