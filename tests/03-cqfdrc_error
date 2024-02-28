@@ -88,6 +88,16 @@ else
 fi
 
 cp -f "$cqfdrc_old" .cqfdrc
+sed -i -e "/[build]/,/^$/s,^command=.*$,command='true; echo \"It works!\"'," .cqfdrc
+
+jtest_prepare "cqfdrc does not strip semicolons in command"
+if "$cqfd" | grep "It works!" ; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+cp -f "$cqfdrc_old" .cqfdrc
 echo "foo	=bar" >>.cqfdrc
 
 jtest_prepare "cqfdrc with tabulation before should pass"
