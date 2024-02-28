@@ -27,6 +27,7 @@ cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 cqfd_shell=${CQFD_SHELL:-/bin/bash}
+cqfd_docker="${CQFD_DOCKER:-docker}"
 
 ## usage() - print usage on stdout
 usage() {
@@ -165,14 +166,14 @@ docker_build() {
 		args+=("$project_build_context" -f "$dockerfile")
 	fi
 
-	debug executing: docker build "${args[@]}"
-	docker build "${args[@]}"
+	debug executing: "${cqfd_docker[@]:-docker}" build "${args[@]}"
+	"${cqfd_docker[@]:-docker}" build "${args[@]}"
 }
 
 # image_exists_locally(): checks if image exists in the local image store
 # arg$1: the image name to check
 image_exists_locally() {
-	docker image inspect "$1" &> /dev/null
+	"${cqfd_docker[@]:-docker}" image inspect "$1" &> /dev/null
 }
 
 # docker_run() - run command in configured container
@@ -196,7 +197,7 @@ docker_run() {
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
-			if ! docker pull "$docker_img_name" >& /dev/null; then
+			if ! "${cqfd_docker[@]:-docker}" pull "$docker_img_name" >& /dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -313,8 +314,8 @@ docker_run() {
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
-	debug executing: docker run "${args[@]}"
-	docker run "${args[@]}"
+	debug executing: "${cqfd_docker[@]:-docker}" run "${args[@]}"
+	"${cqfd_docker[@]:-docker}" run "${args[@]}"
 }
 
 # make_archive(): Create a release package.
@@ -560,6 +561,10 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
+	if [ "$docker" ]; then
+		# shellcheck disable=SC2162
+		read -a cqfd_docker <<<"$docker"
+	fi
 	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
 
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
