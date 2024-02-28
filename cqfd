@@ -237,8 +237,11 @@ docker_run() {
 		args+=(-e "$home_env_var")
 	fi
 
-	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
+	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
 		args+=(-v "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
+	fi
+
+	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
 		args+=(-v /etc/ssh:/etc/ssh)
 	fi
 
