@@ -225,6 +225,12 @@ The following environment variables are supported by cqfd to provide
 the user with extra flexibility during his day-to-day development
 tasks:
 
+``CQFD_DOCKER``: program used to invoke `docker` client.
+For example, to use docker if not in the docker group, it can be set like:
+```
+docker='sudo docker'
+```
+
 ``CQFD_EXTRA_RUN_ARGS``: A space-separated list of additional
 docker-run options to be append to the starting container.
 Format is the same as (and passed to) docker-run’s options.
