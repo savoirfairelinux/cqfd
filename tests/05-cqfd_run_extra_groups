@@ -5,6 +5,9 @@ cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
 
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+
 ################################################################################
 # 'cqfd run' should add extra_groups provided by an environment variable
 ################################################################################
@@ -30,3 +33,4 @@ else
 	jtest_result fail
 fi
 
+mv -f "$cqfdrc_old" .cqfdrc
