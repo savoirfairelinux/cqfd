@@ -172,9 +172,11 @@ docker_run() {
 
 	args+=(--rm --log-driver=none)
 
-	# interactive options if standard input is connected to a tty
+	# always keep stdin open
 	args+=(-i)
-	if tty -s; then
+
+	# allocate a pty if stdin/err are connected to a tty
+	if [ -t 0 ] && [ -t 2 ]; then
 		args+=(-t)
 	fi
 
