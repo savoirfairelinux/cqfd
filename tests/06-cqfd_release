@@ -5,6 +5,9 @@ cqfd="$TDIR/.cqfd/cqfd"
 
 cd $TDIR/
 
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+
 ################################################################################
 # The first invocation has no 'files' parameter defined,
 # hence it should fail
@@ -211,3 +214,4 @@ fi
 
 # cleanup
 rm -f tmp.$$ cqfd-$CTEST.tar.xz
+mv -f "$cqfdrc_old" .cqfdrc
