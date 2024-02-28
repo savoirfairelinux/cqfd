@@ -213,10 +213,13 @@ docker-build options to be append to the building image.
 Format is the same as (and passed to) docker-build’s options.
 See 'docker build --help'.
 
-``CQFD_NO_SSH_CONFIG``: Set to ``true`` to disable forwarding
-the user's ``~/.ssh`` and global ``/etc/ssh`` configurations to the
-container. This may be required if the host's ``ssh`` configuration
-is not compatible with the ``ssh`` version within the container.
+``CQFD_NO_SSH_CONFIG``: Set to ``true`` to disable forwarding the global
+``/etc/ssh`` configurations to the container. This may be required if
+the host's ``ssh`` configuration is not compatible with the ``ssh``
+version within the container.
+
+``CQFD_NO_USER_SSH_CONFIG``: Set to ``true`` to disable forwarding
+the user's ``~/.ssh`` configuration to the container.
 
 ### Appending to the build command ###
 
