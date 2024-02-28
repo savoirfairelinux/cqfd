@@ -86,7 +86,6 @@ parse_ini_config_file() {
 	ini="${ini//[/\\[}"                               # escape [
 	ini="${ini//]/\\]}"                               # escape ]
 	IFS=$'\n' && ini=( ${ini} )                       # convert to line-array
-	ini=( ${ini[*]//;*/} )                            # remove comments with ;
 	ini=( ${ini[*]/$'\t'=/=} )                        # remove tabs before =
 	ini=( ${ini[*]/=$'\t'/=} )                        # remove tabs after =
 	ini=( ${ini[*]/\ =/=} )                           # remove space before =
