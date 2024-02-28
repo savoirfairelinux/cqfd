@@ -35,6 +35,6 @@ else
 fi
 
 ################################################################################
-# restore initial .cqfdrc and Dockerfile
+# restore initial Dockerfile
 ################################################################################
 mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
