@@ -47,3 +47,6 @@ user-%:
 
 test tests:
 	@$(MAKE) -C tests
+
+check:
+	shellcheck cqfd
