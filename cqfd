@@ -86,23 +86,37 @@ parse_ini_config_file() {
 	fi
 
 	ini="$(<"$1")"                                    # read the file
+	# shellcheck disable=SC2206
 	ini="${ini//[/\\[}"                               # escape [
+	# shellcheck disable=SC2206
 	ini="${ini//]/\\]}"                               # escape ]
+	# shellcheck disable=SC2206
 	IFS=$'\n' && ini=( ${ini} )                       # convert to line-array
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]//;*/} )                            # remove comments with ;
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/$'\t'=/=} )                        # remove tabs before =
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/=$'\t'/=} )                        # remove tabs after =
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/\ =/=} )                           # remove space before =
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/=\ /=} )                           # remove space after =
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/#\\[/\}$'\n'cfg.section.} )        # set section prefix
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/%\\]/ \(} )                        # convert text2function (1)
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/%\(/ \( \)} )                      # close array parenthesis
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/%\\ \)/ \\} )                      # the multiline trick
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/%\( \)/\(\) \{} )                  # convert text2function (2)
+	# shellcheck disable=SC2206
 	ini=( ${ini[*]/%\} \)/\}} )                       # remove extra parenthesis
 	ini[0]=""                                         # remove first element
 	ini[${#ini[*]} + 1]='}'                           # add the last brace
-	if ! eval "$(echo "${ini[*]}")" 2>/dev/null; then # eval the result
+	if ! eval "${ini[*]}" 2>/dev/null; then           # eval the result
 		die "$1: Invalid ini-file!"
 	fi
 }
@@ -116,7 +130,7 @@ die() {
 
 ## debug() - print verbose messages
 debug() {
-	test -n "$CQFD_DEBUG" && echo "cqfd: debug: $*" || true
+	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
 # docker_build() - Initialize build container
@@ -130,6 +144,7 @@ docker_build() {
 	# Append extra args from the .cqfdrc [build] section
 	if [ "$build_docker_build_args" ]; then
 		local array
+		# shellcheck disable=SC2162
 		read -a array <<<"$build_docker_build_args"
 		args+=("${array[@]}")
 	fi
@@ -137,6 +152,7 @@ docker_build() {
 	# Append extra args from $CQFD_EXTRA_BUILD_ARGS
 	if [ "$CQFD_EXTRA_BUILD_ARGS" ]; then
 		local array
+		# shellcheck disable=SC2162
 		read -a array <<<"$CQFD_EXTRA_BUILD_ARGS"
 		args+=("${array[@]}")
 	fi
@@ -191,6 +207,7 @@ docker_run() {
 	# Append extra args from the .cqfdrc [build] section
 	if [ "$build_docker_run_args" ]; then
 		local array
+		# shellcheck disable=SC2162
 		read -a array <<<"$build_docker_run_args"
 		args+=("${array[@]}")
 	fi
@@ -198,6 +215,7 @@ docker_run() {
 	# Append extra args from $CQFD_EXTRA_RUN_ARGS
 	if [ "$CQFD_EXTRA_RUN_ARGS" ]; then
 		local array
+		# shellcheck disable=SC2162
 		read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
 		args+=("${array[@]}")
 	fi
@@ -218,7 +236,7 @@ docker_run() {
 	fi
 
 	if [ -n "$HOME" ]; then
-		cqfd_user_home="$(cd $HOME; pwd)"
+		cqfd_user_home="$(cd "$HOME"; pwd)"
 		cqfd_user_cwd="$(pwd)"
 	fi
 
@@ -291,7 +309,7 @@ docker_run() {
 	tmp_launcher=$(make_launcher)
 	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
 
-	trap "rm -f $tmp_launcher" EXIT
+	trap 'rm -f "$tmp_launcher"' EXIT
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
@@ -306,64 +324,73 @@ docker_run() {
 # archive.
 make_archive() {
 	local tar_opts
-	release_files="$(eval echo $release_files)"
+	local files
+	local git_short
+	local git_long
+	local date_rfc3339
+	local date_unix
 
-	if [ -z "$release_files" ]; then
+	eval "files=($release_files)"
+	if [ -z "${files[*]}" ]; then
 		die "No files to archive, check files in $cqfdrc"
 	fi
 
-	for file in $release_files; do
-		if [ ! -e $file ]; then
+	for file in "${files[@]}"; do
+		if [ ! -e "$file" ]; then
 			die "Unable to release: unable to find $file"
 		fi
 	done
 
 	# template the generated archive's filename
-	local git_short=$(git rev-parse --short HEAD 2>/dev/null)
-	local git_long=$(git rev-parse HEAD 2>/dev/null)
-	local date_rfc3339=$(date +"%Y-%m-%d")
-	local date_unix=$(date +%s)
+	git_short=$(git rev-parse --short HEAD 2>/dev/null || true)
+	git_long=$(git rev-parse HEAD 2>/dev/null || true)
+	date_rfc3339=$(date +%Y-%m-%d || true)
+	date_unix=$(date +%s || true)
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
 		release_archive="%Po-%Pn.tar.xz"
 	fi
 
-	release_archive=$(echo $release_archive |
+	# shellcheck disable=SC2001
+	release_archive=$(echo "$release_archive" |
 		sed -e 's!%%!%!g;
-			s!%Gh!'$git_short'!g;
-			s!%GH!'$git_long'!g;
-			s!%D3!'$date_rfc3339'!g;
-			s!%Du!'$date_unix'!g;
-			s!%Po!'$project_org'!g;
-			s!%Pn!'$project_name'!g;
-			s!%Cf!'$flavor'!g;')
+			s!%Gh!'"$git_short"'!g;
+			s!%GH!'"$git_long"'!g;
+			s!%D3!'"$date_rfc3339"'!g;
+			s!%Du!'"$date_unix"'!g;
+			s!%Po!'"$project_org"'!g;
+			s!%Pn!'"$project_name"'!g;
+			s!%Cf!'"$flavor"'!g;')
 
 	# also replace variable names - beware with eval
-	eval release_archive=$(echo $release_archive)
+	eval "release_archive=$release_archive"
 
 	# setting tar_transform=yes will move files to the root of a tar archive
 	if [ "$release_transform" = "yes" ]; then
-		tar_opts='--transform s/.*\///g'
+		tar_opts+=('--transform' 's/.*\///g')
 	fi
 
 	# setting tar_options=x will pass the options to tar
 	if [ "$release_tar_opts" ]; then
-		tar_opts+=" $release_tar_opts"
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$release_tar_opts"
+		tar_opts+=("${array[@]}")
 	fi
 
 	# support the following archive formats
 	case "$release_archive" in
 	*.tar.xz)
-		XZ_OPT=-9 tar $tar_opts -cJf \
-			"$release_archive" $release_files
+		XZ_OPT=-9 tar "${tar_opts[@]}" -cJf \
+			"$release_archive" "${files[@]}"
 		;;
 	*.tar.gz)
-		tar $tar_opts -czf \
-			"$release_archive" $release_files
+		tar "${tar_opts[@]}" -czf \
+			"$release_archive" "${files[@]}"
 		;;
 	*.zip)
-		zip -q -9 -r "$release_archive" $release_files
+		zip -q -9 -r "$release_archive" "${files[@]}"
 		;;
 	*)
 		;;
@@ -373,10 +400,11 @@ make_archive() {
 # make_launcher - generate in-container launcher script
 # return: the path to the launcher script on stdout
 make_launcher() {
-	local tmpfile=$(mktemp /tmp/tmp.XXXXXX)
+	local tmpfile
 
-	chmod 0755 $tmpfile
-	cat >$tmpfile <<EOF
+	tmpfile=$(mktemp /tmp/tmp.XXXXXX)
+	chmod 0755 "$tmpfile"
+	cat >"$tmpfile" <<EOF
 #!/bin/sh
 # create container user to match expected environment
 
@@ -410,15 +438,15 @@ test -n "\$failed" &&
 test_su_session_command && has_su_session_command=1
 
 # Add the host's user and group to the container, and adjust ownership.
-if ! shell=\$(command -v $cqfd_shell); then
+if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
 fi
-groupadd -og $GROUPS -f builders || die "groupadd command failed."
-useradd -s \$shell -oN -u $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
+groupadd -og "${GROUPS[0]}" -f builders || die "groupadd command failed."
+useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user" \
 	|| die "useradd command failed."
 mkdir -p "$cqfd_user_home" || die "mkdir command failed."
-chown $UID:$GROUPS "$cqfd_user_home" || die "chown command failed."
+chown "$UID:${GROUPS[0]}" "$cqfd_user_home" || die "chown command failed."
 
 # Add specified groups to cqfd_user
 for g in ${CQFD_GROUPS}; do
@@ -446,7 +474,7 @@ else
 	su $cqfd_user -p -c "\$1"
 fi
 EOF
-	echo $tmpfile
+	echo "$tmpfile"
 }
 
 # locate_project_dir() - locate directory with .cqfd upwards
@@ -490,35 +518,46 @@ config_load() {
 			unset 'flavors[$i]'
 		fi
 	done
-	flavors="${flavors[*]}"
 
 	cfg.section.project # load the [project] section
+	# shellcheck disable=SC2154
 	project_org="$org"
+	# shellcheck disable=SC2154
 	project_name="$name"
+	# shellcheck disable=SC2154
 	project_build_context="$build_context"
+	# shellcheck disable=SC2154
 	project_custom_img_name="$custom_img_name"
 
 	cfg.section.build # load the [build] section
-	build_flavors="$flavors"
+	build_flavors="${flavors[*]}"
 
 	# build parameters may be overriden by a flavor defined in the
 	# build section's 'flavors' parameter.
 	local flavor="$1"
 	if [ -n "$flavor" ]; then
-		if grep -qw "$flavor" <<< "$flavors"; then
+		if grep -qw "$flavor" <<< "${flavors[*]}"; then
 			cfg.section."$flavor" # load the [$flavor] section
 		else
 			die "flavor \"$flavor\" not found in flavors list"
 		fi
 	fi
 
+	# shellcheck disable=SC2154
 	build_cmd="$command"
+	# shellcheck disable=SC2154
 	build_docker_build_args="$docker_build_args"
+	# shellcheck disable=SC2154
 	build_docker_run_args="$docker_run_args"
+	# shellcheck disable=SC2154
 	cqfd_extra_groups="$user_extra_groups"
+	# shellcheck disable=SC2154
 	release_files="$files"
+	# shellcheck disable=SC2154
 	release_archive="$archive"
+	# shellcheck disable=SC2154
 	release_transform="$tar_transform"
+	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
 	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
@@ -534,9 +573,13 @@ config_load() {
 	if [ "$project_custom_img_name" ]; then
 		docker_img_name="$project_custom_img_name"
 	else
+		local format_user
+		local dockerfile_hash
+
 		# This will look like cqfd_USER_ORG_NAME_HASH
-		local format_user=$(echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g')
-		local dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
+		# shellcheck disable=SC2001
+		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
+		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
 		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
 	fi
 
@@ -563,13 +606,13 @@ while [ $# -gt 0 ]; do
 		export CQFD_DEBUG=true
 		;;
 	init)
-		config_load $flavor
+		config_load "$flavor"
 		docker_build
 		exit $?
 		;;
 	flavors)
 		config_load
-		echo $build_flavors
+		echo "$build_flavors"
 		exit 0
 		;;
 	-b)
@@ -597,8 +640,8 @@ while [ $# -gt 0 ]; do
 			die "command exec requires arguments"
 		fi
 		shift
-		config_load $flavor
-		command_string="${@@Q}"
+		config_load "$flavor"
+		command_string="${*@Q}"
 		docker_run "$command_string"
 		exit
 		;;
@@ -634,7 +677,7 @@ while [ $# -gt 0 ]; do
 		config_load "$flavor"
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
-			command_string+=" ${@@Q}"
+			command_string+=" ${*@Q}"
 		fi
 		docker_run "$command_string"
 		exit
@@ -651,7 +694,7 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-config_load $flavor
+config_load "$flavor"
 
 if $has_alternate_command; then
 	build_cmd="$*"
