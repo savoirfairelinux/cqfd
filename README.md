@@ -221,6 +221,9 @@ version within the container.
 ``CQFD_NO_USER_SSH_CONFIG``: Set to ``true`` to disable forwarding
 the user's ``~/.ssh`` configuration to the container.
 
+``CQFD_NO_USER_GIT_CONFIG``: Set to ``true`` to disable forwarding
+the user's ``~/.gitconfig`` configuration to the container.
+
 ### Appending to the build command ###
 
 The `-c` option allows appending the command of a cqfd run for temporary developments:
