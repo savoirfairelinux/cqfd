@@ -250,6 +250,10 @@ docker_run() {
 		args+=(-e "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
 
+	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ]; then
+		args+=(-v "$cqfd_user_home/.gitconfig:$cqfd_user_home/.gitconfig")
+	fi
+
 	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
 
 	tmp_launcher=$(make_launcher)
