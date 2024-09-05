@@ -40,6 +40,7 @@ Options:
     -b <flavor_name>     Target a specific build flavor.
     -q                   Turn on quiet mode.
     -v or --version      Show version.
+    --verbose            Increase the script's verbosity.
     -h or --help         Show this help text.
 
 Commands:
@@ -113,11 +114,18 @@ die() {
 	exit 1
 }
 
+## debug() - print verbose messages
+debug() {
+	test -n "$CQFD_DEBUG" && echo "cqfd: debug: $*" || true
+}
+
 # docker_build() - Initialize build container
 docker_build() {
 	if [ -z "$project_build_context" ]; then
+		debug executing: docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
 		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "$(dirname "$dockerfile")"
 	else
+		debug executing: docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
 		docker build ${quiet:+-q} $CQFD_EXTRA_BUILD_ARGS -t "$docker_img_name" "${project_build_context}" -f "$dockerfile"
 	fi
 }
@@ -264,6 +272,7 @@ docker_run() {
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
+	debug executing: docker run "${args[@]}"
 	docker run "${args[@]}"
 }
 
@@ -519,6 +528,9 @@ while [ $# -gt 0 ]; do
 	version|-v|"--version")
 		echo $VERSION
 		exit 0
+		;;
+	"--verbose")
+		export CQFD_DEBUG=true
 		;;
 	init)
 		config_load $flavor
