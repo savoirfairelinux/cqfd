@@ -26,6 +26,7 @@ cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
+cqfd_shell=${CQFD_SHELL:-/bin/bash}
 
 ## usage() - print usage on stdout
 usage() {
@@ -376,7 +377,7 @@ test_su_session_command && has_su_session_command=1
 
 # Add the host's user and group to the container, and adjust ownership.
 groupadd -og $GROUPS -f builders || die "groupadd command failed."
-useradd -s ${CQFD_SHELL:-/bin/sh} -oN -u $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
+useradd -s $cqfd_shell -oN -u $UID -g $GROUPS -d "$cqfd_user_home" $cqfd_user \
 	|| die "useradd command failed."
 mkdir -p "$cqfd_user_home" || die "mkdir command failed."
 chown $UID:$GROUPS "$cqfd_user_home" || die "chown command failed."
@@ -576,7 +577,7 @@ while [ $# -gt 0 ]; do
 	shell)
 		shift
 		config_load "$flavor"
-		command_string="${CQFD_SHELL:-/bin/sh}"
+		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${@@Q}"
 		fi
