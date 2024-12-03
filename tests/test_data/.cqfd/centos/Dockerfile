@@ -1,2 +1,2 @@
 FROM centos:centos7
-MAINTAINER The CentOS Project <cloud-ops@centos.org>
+LABEL org.opencontainers.image.authors="cloud-ops@centos.org"

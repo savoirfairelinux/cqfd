@@ -21,7 +21,7 @@ jtest_prepare "build cmd for '$flavor' flavor and concatenate with an additional
 $cqfd -b $flavor run -c --debug >> $test_run_c_file
 
 # at the end of this test, $test_run_c_file is populated
-if ! grep -qw "target \`foo'" $test_run_c_file; then
+if ! grep -qw "target 'foo'" $test_run_c_file; then
 	jtest_log fatal "$test_run_c_file not present after test"
 	jtest_result fail
 	rm -f $test_run_c_file
