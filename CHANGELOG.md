@@ -1,8 +1,14 @@
 # ChangeLog for cqfd
 
-## Next version (5.5.1-dev, coming soon)
+## Version 5.6.0 (2024-12-04)
 
-* Stay tuned!
+* New `CQFD_NO_USER_SSH_CONFIG` environment variable to disable forwarding user
+  ssh config independently of the `/etc/ssh` directory.
+* Revert to bash as the default shell.
+* Forward .gitconfig to container, with environment variable `CQFD_NO_USER_GIT_CONFIG`
+  to disable this behavior
+* Add a `--verbose` option
+* Improve Bash completions compatibility with zsh.
 
 ## Version 5.5.0 (2024-02-25)
 
