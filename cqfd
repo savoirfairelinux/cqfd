@@ -78,7 +78,7 @@ parse_ini_config_file() {
 	fi
 
 	if [ ! -f "$1" ]; then
-		die "Can't find $1 - create it or pick one using 'cqfd -f'"
+		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
 	fi
 
 	ini="$(<"$1")"               # read the file
@@ -291,7 +291,7 @@ make_archive() {
 
 	for file in $release_files; do
 		if [ ! -e $file ]; then
-			die "Cannot release: can't find $file"
+			die "Unable to release: unable to find $file"
 		fi
 	done
 
