@@ -27,7 +27,7 @@ test_step1() {
 	$cqfd run -c --debug >> $test_run_c_file
 
 	# at the end of this test, $test_run_c_file is populated
-	if ! grep -qw "target \`build'" $test_run_c_file; then
+	if ! grep -qw "target 'build'" $test_run_c_file; then
 		jtest_log fatal "$test_run_c_file not present after test"
 		jtest_result fail
 		rm -f $test_run_c_file

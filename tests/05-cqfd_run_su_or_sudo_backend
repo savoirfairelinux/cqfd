@@ -28,7 +28,7 @@ $cqfd init && \
 ################################################################################
 # Use another custom Dockerfile with a recent version of su.
 ################################################################################
-echo "FROM ubuntu:20.04" > .cqfd/docker/Dockerfile
+echo "FROM ubuntu:24.04" > .cqfd/docker/Dockerfile
 echo "ENV CQFD_DEBUG=1" >> .cqfd/docker/Dockerfile
 
 ################################################################################

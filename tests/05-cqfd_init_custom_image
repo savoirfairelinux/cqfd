@@ -25,7 +25,7 @@ EOF
 
 # Test dockerfile
 mkdir -p .cqfd/docker
-echo "FROM ubuntu:20.04" > .cqfd/docker/Dockerfile
+echo "FROM ubuntu:24.04" > .cqfd/docker/Dockerfile
 
 jtest_prepare "docker registry contains NO image named: $custom_image_1"
 if docker inspect "$custom_image_1" &>/dev/null; then
