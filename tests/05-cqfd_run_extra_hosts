@@ -38,4 +38,4 @@ else
 fi
 
 # teardown -- clear the docker_run_args option from config
-sed 's/docker_run_args.*//' -i "$TDIR/.cqfdrc"
+sed '/\[build\]/{n;d}' -i "$TDIR/.cqfdrc"
