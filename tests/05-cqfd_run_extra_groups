@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 . "$(dirname $0)"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
