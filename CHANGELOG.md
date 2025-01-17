@@ -1,5 +1,10 @@
 # ChangeLog for cqfd
 
+## Version 5.6.1-dev (coming soon)
+
+* Update tests to more recent Ubuntu versions
+* Add GitHub Actions pipeline
+
 ## Version 5.6.0 (2024-12-04)
 
 * New `CQFD_NO_USER_SSH_CONFIG` environment variable to disable forwarding user
