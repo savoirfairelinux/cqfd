@@ -299,6 +299,7 @@ make_archive() {
 	local git_short=$(git rev-parse --short HEAD 2>/dev/null)
 	local git_long=$(git rev-parse HEAD 2>/dev/null)
 	local date_rfc3339=$(date +"%Y-%m-%d")
+	local date_unix=$(date +%s)
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
@@ -310,6 +311,7 @@ make_archive() {
 			s!%Gh!'$git_short'!g;
 			s!%GH!'$git_long'!g;
 			s!%D3!'$date_rfc3339'!g;
+			s!%Du!'$date_unix'!g;
 			s!%Po!'$project_org'!g;
 			s!%Pn!'$project_name'!g;
 			s!%Cf!'$flavor'!g;')

@@ -132,6 +132,7 @@ following template marks:
 * ``%Gh`` - git short hash of last commit
 * ``%GH`` - git long hash of last commit
 * ``%D3`` - RFC3339 date (YYYY-MM-DD)
+* ``%Du`` - Unix timestamp
 * ``%Cf`` - current cqfd flavor name (if any)
 * ``%Po`` - value of the ``project.org`` configuration key
 * ``%Pn`` - value of the ``project.name`` configuration key
