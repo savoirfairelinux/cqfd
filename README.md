@@ -248,6 +248,37 @@ Example:
     fred@host:~/project$ cqfd shell
     fred@container:~/project$
 
+### Use cqfd as an interpreter for shell script ###
+
+You can use the `shell` command to write a shell script and run it in your
+defined container.
+
+Example:
+
+    fred@host:~/project$ cat get-container-pretty-name.sh 
+    #!/usr/bin/env -S cqfd shell
+    if ! test -e /.dockerenv; then
+        exit 1
+    fi
+    source /etc/os-release
+    echo "$PRETTY_NAME"
+    fred@host:~/projet$ ./get-container-pretty-name.sh 
+    Debian GNU/Linux 12 (bookworm)
+
+### Use cqfd as a standard shell for binaries ###
+
+You can even use the `shell` command to use it as a standard `$SHELL` so
+binaries honoring that variable run shell commands in your defined container.
+
+Example:
+
+    fred@host:~/project$ make SHELL="cqfd shell"
+    Available make targets:
+       help:      This help message
+       install:   Install script, doc and resources
+       uninstall: Remove script, doc and resources
+       tests:     Run functional tests
+
 ### Other command-line options ###
 
 In some conditions you may want to use alternate cqfd filenames and / or an
