@@ -854,6 +854,7 @@ while [ $# -gt 0 ]; do
 			has_to_release=true
 		fi
 
+		cqfd_command="$1"
 		shift
 
 		# No more args? run default command
@@ -865,7 +866,7 @@ while [ $# -gt 0 ]; do
 
 			if [ "$#" -lt 1 ]; then
 				usage
-				die "run -c: Missing arguments!"
+				die "$cqfd_command -c: Missing arguments!"
 			fi
 			break
 		fi
@@ -873,6 +874,24 @@ while [ $# -gt 0 ]; do
 		set_shell_histfile "$1"
 		# Run alternate command
 		has_alternate_command=true
+
+		# Display a warning message if using run with multiple arguments
+		if [ "$#" -gt 1 ]; then
+			# Rebuild the initial command with quotes only for arguments containing spaces
+			initial_command=""
+			for arg in "$@"; do
+				if [[ $arg = *" "* ]]; then
+					initial_command+="'$arg' "
+				else
+					initial_command+="$arg "
+				fi
+			done
+			initial_command=${initial_command%?}
+			warn "command '$cqfd_command' with multiple arguments is ambiguous," \
+			     "please consider the commands 'exec' or 'shell' instead:"
+			echo "               cqfd exec $initial_command" >&2
+			echo "               cqfd shell -c \"$initial_command\"" >&2
+		fi
 		break
 		;;
 	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
