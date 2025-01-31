@@ -74,3 +74,19 @@ if $cqfd zsh 2>&1 <<<'printf "$0"' \
 else
 	jtest_result fail
 fi
+
+jtest_prepare "cqfd shell is usable as a shell interpreter script"
+if ./whereami.sh 2>&1 | grep '^Ubuntu .* LTS$'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+if command -v make 2>/dev/null; then
+	jtest_prepare "cqfd shell is usable as a shell interpreter in binaries"
+	if make whereami 2>&1 | grep '^Ubuntu .* LTS$'; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
+fi

@@ -1,8 +1,10 @@
-.PHONY: all clean build
+.PHONY: all whereami clean build
 
 all:
 	@echo "make foo or bar!"
 
+whereami:
+	@./whereami.sh
 
 foo:
 	@echo making foo
