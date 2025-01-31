@@ -32,3 +32,14 @@ teardown() {
     run cqfd run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three
     assert_line --regexp "0=(\/bin\/)?sh,\*=,#=0"
 }
+
+@test "cqfd run with a quoted argument triggers a warning message" {
+    run cqfd run touch "this is a filename"
+    assert_line --partial "cqfd exec touch 'this is a filename'"
+    assert_line --partial "cqfd shell -c \"touch 'this is a filename'\""
+}
+
+@test "cqfd run without a quoted argument DOES NOT trigger a warning message" {
+    run cqfd run touch these are multiple filenames
+    refute_output
+}
