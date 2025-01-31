@@ -690,6 +690,7 @@ while [ $# -gt 0 ]; do
 			has_to_release=true
 		fi
 
+		cqfd_command="$1"
 		shift
 
 		# No more args? run default command
@@ -701,13 +702,21 @@ while [ $# -gt 0 ]; do
 
 			if [ "$#" -lt 1 ]; then
 				usage
-				die "run -c: Missing arguments!"
+				die "$cqfd_command -c: Missing arguments!"
 			fi
 			break
 		fi
 
 		# Run alternate command
 		has_alternate_command=true
+
+		# Display a warning message if using run with multiple arguments
+		if [ "$#" -gt 1 ]; then
+			warn "command $cqfd_command with multiple arguments is ambigous," \
+			     "please consider the commands exec or shell instead:"
+			echo "               cqfd exec ${*@Q}" >&2
+			echo "               cqfd shell -c \"${*@Q}\"" >&2
+		fi
 		break
 		;;
 	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
