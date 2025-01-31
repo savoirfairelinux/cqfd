@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2017-2024 Savoir-faire Linux, Inc.
+# Copyright (C) 2017-2025 Savoir-faire Linux, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
 
 if [ -z "$BASH_VERSION" ]; then
 	_init_completion() {
+		:
 	}
 	_get_first_arg() {
+		:
 	}
 fi
 
