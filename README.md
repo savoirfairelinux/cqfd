@@ -49,7 +49,7 @@ executed from inside the build container.
 
 Or custom commands composed with shell grammar:
 
-    $ cqfd run "make linux-dirclean && make foobar-dirclean"
+    $ cqfd shell -c "make linux-dirclean && make foobar-dirclean"
 
 Or run a shell script with arguments:
 
@@ -340,7 +340,7 @@ an interactive shell), as ``su`` will prevent the command executed
 from having one.
 
 ```
-$ cqfd run bash
+$ cqfd bash
 bash: cannot set terminal process group (-1): Inappropriate ioctl for device
 bash: no job control in this shell
 ```
