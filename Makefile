@@ -46,7 +46,7 @@ user-%:
 	$(MAKE) $* PREFIX=$$HOME/.local
 
 test tests:
-	@$(MAKE) -C tests
+	@$(MAKE) -C tests GIT_DIR=$(CURDIR)/.git
 
 check:
 	shellcheck cqfd
