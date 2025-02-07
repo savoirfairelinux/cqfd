@@ -179,7 +179,7 @@ docker_run() {
 
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
-		if [ "$custom_img_name" ]; then
+		if [ "$project_custom_img_name" ]; then
 			if ! docker pull "$docker_img_name" >& /dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
@@ -496,7 +496,7 @@ config_load() {
 	project_org="$org"
 	project_name="$name"
 	project_build_context="$build_context"
-	custom_img_name="$custom_img_name"
+	project_custom_img_name="$custom_img_name"
 
 	cfg.section.build # load the [build] section
 	build_flavors="$flavors"
@@ -531,8 +531,8 @@ config_load() {
 		die "$dockerfile not found"
 	fi
 
-	if [ "$custom_img_name" ]; then
-		docker_img_name="$custom_img_name"
+	if [ "$project_custom_img_name" ]; then
+		docker_img_name="$project_custom_img_name"
 	else
 		# This will look like cqfd_USER_ORG_NAME_HASH
 		local format_user=$(echo $USER | sed 's/[^0-9a-zA-Z\-]/_/g')
