@@ -1,0 +1,5 @@
+FROM debian:bookworm
+ARG DOCKER_GID
+RUN groupadd -g "${DOCKER_GID}" docker
+RUN apt-get update && apt-get install -y sudo
+RUN apt-get update && apt-get install -y docker.io

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of running docker in cqfd using host docker daemon
+
+set -o pipefail
+
+. "$(dirname "$0")/jtest.inc" "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd "$TDIR/" || exit 1
+
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+dockerfile_old=$(mktemp)
+cp -f .cqfd/docker/Dockerfile "$dockerfile_old"
+
+jtest_prepare "cqfd run docker using host docker daemon"
+if getent group docker | grep -q "$USER"; then
+	cp -f .cqfd/docker/Dockerfile.doutofd .cqfd/docker/Dockerfile
+	cat "$cqfdrc_old" - <<EOF >.cqfdrc
+
+[doutofd]
+command='docker run --rm -ti ubuntu:24.04 cat /etc/os-release'
+docker_build_args="--build-arg DOCKER_GID=$(getent group docker | cut -d: -f3)"
+docker_run_args="-v /var/run/docker.sock:/var/run/docker.sock"
+user_extra_groups='docker'
+EOF
+
+	if $cqfd -b doutofd init && $cqfd -b doutofd | grep -q 'PRETTY_NAME="Ubuntu 24.04 LTS"'; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
+else
+	jtest_result skip
+fi
+
+mv -f "$cqfdrc_old" .cqfdrc
+mv -f "$dockerfile_old" .cqfd/docker/Dockerfile
