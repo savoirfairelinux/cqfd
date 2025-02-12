@@ -232,10 +232,11 @@ the user's ``~/.gitconfig`` configuration to the container.
 
 ### Appending to the build command ###
 
-The `-c` option allows appending the command of a cqfd run for temporary developments:
+The `-c` option set immediately after the command run allows appending the
+command of a cqfd run for temporary developments:
 
-    $ cqfd -b centos7 -c "clean"
-    $ cqfd -b centos7 -c "TRACING=1"
+    $ cqfd -b centos7 run -c "clean"
+    $ cqfd -b centos7 run -c "TRACING=1"
 
 ### Running a shell in the container ###
 
