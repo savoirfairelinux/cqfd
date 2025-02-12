@@ -165,8 +165,9 @@ should be a member of in the container. You can either use the ``group:gid``
 format, or simply specify the ``group`` name if it exists either in the host or
 inside the docker image.
 
-``flavors``: the list of build flavors (see below). Each flavor has its
-own command just like `build.command`.
+``flavors`` (optional): the list of build flavors (see below). Each flavor has
+its own command just like `build.command`. This property is now automatically
+deduced from the flavors sections of .cqfdc.
 
 ``docker_run_args`` (optional): arguments used to invoke `docker run`.
 For example, to share networking with the host, it can be set like:
