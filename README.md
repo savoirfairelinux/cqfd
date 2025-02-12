@@ -95,6 +95,9 @@ Here is a sample `.cqfdrc` file:
     files='README.FOOINC output/images/sdcard.img'
     archive='cqfd-%Gh.tar.xz'
 
+Note: The property and its value must be stick to the equal sign, without using
+whitespaces: i.e. `foo =	bar` is invalid.
+
 ### Comments
 
 The `.cqfdrc` file supports Unix shell comments; the words after the character `#`
