@@ -127,6 +127,13 @@ docker_build() {
 		args+=(-q)
 	fi
 
+	# Append extra args from the .cqfdrc [build] section
+	if [ "$build_docker_build_args" ]; then
+		local array
+		read -a array <<<"$build_docker_build_args"
+		args+=("${array[@]}")
+	fi
+
 	# Append extra args from $CQFD_EXTRA_BUILD_ARGS
 	if [ "$CQFD_EXTRA_BUILD_ARGS" ]; then
 		local array
@@ -506,6 +513,7 @@ config_load() {
 	fi
 
 	build_cmd="$command"
+	build_docker_build_args="$docker_build_args"
 	build_docker_run_args="$docker_run_args"
 	cqfd_extra_groups="$user_extra_groups"
 	release_files="$files"

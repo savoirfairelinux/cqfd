@@ -168,6 +168,12 @@ inside the docker image.
 ``flavors``: the list of build flavors (see below). Each flavor has its
 own command just like `build.command`.
 
+``docker_build_args`` (optional): arguments used to invoke `docker build`.
+For example, to attempt to pull newer version of the image, it can be set like:
+```
+docker_build_args='--pull=true'
+```
+
 ``docker_run_args`` (optional): arguments used to invoke `docker run`.
 For example, to share networking with the host, it can be set like:
 ```
