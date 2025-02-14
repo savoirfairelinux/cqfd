@@ -119,7 +119,7 @@ rm -rf "${tmp_dir}"
 ################################################################################
 # Now test adding an archive filename template to the config
 ################################################################################
-jtest_prepare "build.archive can template filenames"
+jtest_prepare "build.archive can template filenames (RFC3339 date)"
 
 export CTEST=foobar
 d3=$(date --rfc-3339='date')
@@ -131,6 +131,91 @@ else
 	jtest_result fail
 fi
 rm -f cqfd-$d3-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (git short hash of last commit)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%Gh-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release &&
+   ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{4,40\}-foobar.tar.xz$" &&
+   tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-*-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (git long hash of last commit)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%GH-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release &&
+   ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{40\}-foobar.tar.xz$" &&
+   tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-*-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (Unix timestamp)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%Du-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release &&
+   ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:digit:]]\{1,20\}-foobar.tar.xz$" &&
+   tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-*-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (current cqfd flavor name unset)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%Cf-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release && tar tf cqfd--foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd--foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (current cqfd flavor name set)"
+
+if $cqfd -b foo release && tar tf cqfd-foo.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-foo.tar.xz
+
+jtest_prepare "build.archive can template filenames (value of the project.org configuration key)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%Po-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release && tar tf cqfd-cqfd-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-cqfd-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (value of the project.name configuration key)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%Pn-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release && tar tf cqfd-test-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-test-foobar.tar.xz
+
+jtest_prepare "build.archive can template filenames (litteral '%' sign)"
+sed -i -e '$ s!^archive=.*!archive=cqfd-%%-$CTEST.tar.xz!' .cqfdrc
+
+if $cqfd release && tar tf cqfd-%-foobar.tar.xz >/dev/null 2>&1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+rm -f cqfd-%-foobar.tar.xz
 
 ################################################################################
 # Now test generation of .tar.gz archives
