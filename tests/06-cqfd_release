@@ -125,10 +125,7 @@ export CTEST=foobar
 d3=$(date --rfc-3339='date')
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
-# Generate the release archive
-$cqfd release
-
-if tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
+if $cqfd release && tar tf cqfd-$d3-foobar.tar.xz >/dev/null 2>&1; then
 	jtest_result pass
 else
 	jtest_result fail
