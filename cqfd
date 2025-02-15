@@ -27,7 +27,7 @@ cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
-cqfd_shell=${CQFD_SHELL:-/bin/bash}
+cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
 
