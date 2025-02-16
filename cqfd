@@ -254,8 +254,8 @@ docker_run() {
 
 	# The user may set the user_extra_groups in the .cqfdrc
 	# file to add groups to the user in the container.
-	local group
 	if [ -n "$cqfd_extra_groups" ]; then
+		local group
 		for group in $cqfd_extra_groups; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
