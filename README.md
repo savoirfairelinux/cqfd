@@ -79,7 +79,8 @@ use another container or another build command.
 ## The .cqfdrc file ##
 
 The .cqfdrc file at the root of your project contains the information
-required to support project tooling. samples/dot-cqfdrc is an example.
+required to support project tooling. It is written in an .ini-like
+format and samples/dot-cqfdrc is an example.
 
 Here is a sample .cqfdrc file:
 
@@ -91,6 +92,12 @@ Here is a sample .cqfdrc file:
     command='make foobar_defconfig && make && asciidoc README.FOOINC'
     files='README.FOOINC output/images/sdcard.img'
     archive='cqfd-%Gh.tar.xz'
+
+### Comment ###
+
+The .cqfdrc file supports Unix shell comment; the words after the character `#`
+are ignored up to the end of line. A comment cannot be set in the first line,
+and after a section.
 
 ### The [project] section ###
 
