@@ -264,10 +264,10 @@ docker_run() {
 		for group in $cqfd_extra_groups; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
-				CQFD_GROUPS+="$group "
+				CQFD_GROUPS+=("$group")
 			else
 				id=$(awk -F: "\$1 == \"$group\" { print \$3 }" /etc/group)
-				CQFD_GROUPS+="$group:$id "
+				CQFD_GROUPS+=("$group:$id")
 			fi
 		done
 	fi
@@ -458,7 +458,7 @@ mkdir -p "$cqfd_user_home"
 chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
 # Add specified groups to cqfd_user
-for g in $CQFD_GROUPS; do
+for g in ${CQFD_GROUPS[*]}; do
 	group=\$(echo "\$g" | cut -d: -f1)
 	gid=\$(echo "\$g" | cut -d: -f2)
 
