@@ -261,7 +261,10 @@ docker_run() {
 	# file to add groups to the user in the container.
 	if [ -n "$cqfd_extra_groups" ]; then
 		local group
-		for group in $cqfd_extra_groups; do
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$user_extra_groups"
+		for group in "${array[@]}"; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
 				CQFD_GROUPS+=("$group")
