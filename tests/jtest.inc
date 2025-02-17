@@ -87,8 +87,7 @@ jtest_prepare()
 }
 
 # jtest_result() - report test result
-# arg2: "pass" or "fail"
-# arg3"
+# arg1: "pass", "fail" or "skip"
 jtest_result()
 {
 	local status="$1"
