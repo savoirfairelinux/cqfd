@@ -342,10 +342,10 @@ make_archive() {
 	done
 
 	# template the generated archive's filename
-	git_short=$(git rev-parse --short HEAD 2>/dev/null || true)
-	git_long=$(git rev-parse HEAD 2>/dev/null || true)
-	date_rfc3339=$(date +%Y-%m-%d || true)
-	date_unix=$(date +%s || true)
+	git_short=$(git rev-parse --short HEAD 2>/dev/null || echo unset)
+	git_long=$(git rev-parse HEAD 2>/dev/null || echo unset)
+	date_rfc3339=$(date +"%Y-%m-%d")
+	date_unix=$(date +%s)
 
 	# default name for the archive if not set
 	if [ -z "$release_archive" ]; then
