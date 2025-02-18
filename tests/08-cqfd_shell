@@ -82,11 +82,13 @@ else
 	jtest_result fail
 fi
 
+jtest_prepare "cqfd shell is usable as a shell interpreter in binaries"
 if command -v make 2>/dev/null; then
-	jtest_prepare "cqfd shell is usable as a shell interpreter in binaries"
 	if PATH="$TDIR/.cqfd:$PATH"; make whereami 2>&1 | grep '^Ubuntu .* LTS$'; then
 		jtest_result pass
 	else
 		jtest_result fail
 	fi
+else
+	jtest_result skip
 fi
