@@ -2,40 +2,44 @@
 
 . "$(dirname $0)"/jtest.inc "$1"
 
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd $TDIR/
+
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+
+################################################################################
+# 'cqfd run' should add extra_groups provided by an environment variable
+################################################################################
+jtest_prepare "'cqfd run' should add extra_groups provided by an env variable"
+result=$(user_extra_groups="docker newgroup:12345" $cqfd run 'groups' | grep docker | grep newgroup)
+
 if [ "$USER" != "runner" ]; then
-	cqfd="$TDIR/.cqfd/cqfd"
-
-	cd $TDIR/
-
-	cqfdrc_old=$(mktemp)
-	cp -f .cqfdrc "$cqfdrc_old"
-
-	################################################################################
-	# 'cqfd run' should add extra_groups provided by an environment variable
-	################################################################################
-	jtest_prepare "'cqfd run' should add extra_groups provided by an env variable"
-	result=$(user_extra_groups="docker newgroup:12345" $cqfd run 'groups' | grep docker | grep newgroup)
-
 	if [ -n "$result" ]; then
 		jtest_result pass
 	else
 		jtest_result fail
 	fi
-
-	################################################################################
-	# 'cqfd run' should add extra_groups provided by the config
-	################################################################################
-	jtest_prepare "'cqfd run' should add config's extra_groups to the local user"
-	echo 'user_extra_groups="docker newgroup:12345"' >> .cqfdrc
-	result=$($cqfd run 'groups' | grep docker | grep newgroup)
-
-	if [ -n "$result" ]; then
-		jtest_result pass
-	else
-		jtest_result fail
-	fi
-
-	mv -f "$cqfdrc_old" .cqfdrc
 else
-	jtest_log notice "Skip 05-cqfd_run_extra_groups tests on GitHub CI"
+	jtest_result skip
 fi
+
+################################################################################
+# 'cqfd run' should add extra_groups provided by the config
+################################################################################
+jtest_prepare "'cqfd run' should add config's extra_groups to the local user"
+echo 'user_extra_groups="docker newgroup:12345"' >> .cqfdrc
+result=$($cqfd run 'groups' | grep docker | grep newgroup)
+
+if [ "$USER" != "runner" ]; then
+	if [ -n "$result" ]; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
+else
+	jtest_result skip
+fi
+
+mv -f "$cqfdrc_old" .cqfdrc

@@ -6,6 +6,49 @@
 TDIR="$1"
 JTEST_LOGLVL=debug # all debug error fatal info off
 
+# _colorize: return colorized string
+# arg1: color name
+# arg2..: string
+_colorize()
+{
+	local color="$1"; shift
+	local text="$*"
+	local nc='\033[0m'
+	local c
+
+	if [ -n "$NO_COLOR" ]; then
+		printf "%s" "$text"
+		return
+	fi
+
+	# Only colorize a few terminal types
+	# "dumb" is the terminal type in GitHub Actions
+	case "$TERM" in
+	linux*|xterm*|screen*|tmux*|vt102|dumb) ;;
+	*) printf "%s" "$text"; return ;;
+	esac
+
+	case "$color" in
+	gray)   c='\033[1;30m' ;;
+	red)    c='\033[1;31m' ;;
+	green)  c='\033[1;32m' ;;
+	yellow) c='\033[1;33m' ;;
+	blue)   c='\033[1;34m' ;;
+	purple) c='\033[1;35m' ;;
+	cyan)   c='\033[1;36m' ;;
+
+	red2)    c='\033[1;91m' ;;
+	green2)  c='\033[1;92m' ;;
+	yellow2) c='\033[1;93m' ;;
+	blue2)   c='\033[1;94m' ;;
+	purple2) c='\033[1;95m' ;;
+	cyan2)   c='\033[1;96m' ;;
+	white2)  c='\033[1;97m' ;;
+	esac
+
+	printf "${c}${text}${nc}"
+}
+
 # _jtest_log_init() - initialize log subsystem
 declare -A _jloglevels
 _jtest_log_init()
@@ -87,8 +130,7 @@ jtest_prepare()
 }
 
 # jtest_result() - report test result
-# arg2: "pass" or "fail"
-# arg3"
+# arg1: "pass", "fail" or "skip"
 jtest_result()
 {
 	local status="$1"
@@ -96,12 +138,17 @@ jtest_result()
 
 	if [ "$status" = "fail" ]; then
 		pfx="**"
+	elif [ "$status" = "skip" ]; then
+		pfx="--"
 	fi
 
 	echo "$pfx|${status^^}|$_jtest_current" >>$TDIR/.jtest_results
 
-	[ "$status" = "pass" ] && status="\e[32mPASS"
-	[ "$status" = "fail" ] && status="\e[31mFAIL"
+	case "$status" in
+		pass) status=$(_colorize green "PASS") ;;
+		fail) status=$(_colorize red "FAIL") ;;
+		skip) status=$(_colorize yellow2 "SKIP") ;;
+	esac
 
 	jtest_log info "result: $_jtest_current: $status"
 	unset _jtest_current
