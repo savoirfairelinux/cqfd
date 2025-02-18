@@ -14,5 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Run linting
+      run: make check
+
     - name: Run tests
       run: make tests
