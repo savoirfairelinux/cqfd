@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of running podman instead of docker
+
+. "$(dirname "$0")/jtest.inc" "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd "$TDIR/" || exit 1
+
+cqfdrc_old=$(mktemp)
+cp -f .cqfdrc "$cqfdrc_old"
+
+if command -v podman; then
+	jtest_prepare "use podman to run cqfd"
+	sed -i -e "/\[project\]/adocker='podman'" \
+	       -e "/\[build\]/,/^$/s/^command=.*$/command='env'/" .cqfdrc
+	if $cqfd init && $cqfd | grep "container=podman"; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
+fi
+
+mv -f "$cqfdrc_old" .cqfdrc
