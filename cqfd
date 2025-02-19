@@ -596,11 +596,11 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	help|-h|--help)
 		usage
-		exit 0
+		exit
 		;;
 	version|-v|--version)
 		echo $VERSION
-		exit 0
+		exit
 		;;
 	--verbose)
 		export CQFD_DEBUG=true
@@ -608,12 +608,12 @@ while [ $# -gt 0 ]; do
 	init)
 		config_load "$flavor"
 		docker_build
-		exit $?
+		exit
 		;;
 	flavors)
 		config_load
 		echo "$build_flavors"
-		exit 0
+		exit
 		;;
 	-b)
 		shift
