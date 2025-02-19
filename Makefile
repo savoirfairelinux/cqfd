@@ -2,7 +2,7 @@
 
 PREFIX?=/usr/local
 
-.PHONY: all help install uninstall test tests
+.PHONY: all help install uninstall test tests check
 
 all:	help
 
