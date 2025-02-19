@@ -246,6 +246,12 @@ the user's ``~/.ssh`` configuration to the container.
 ``CQFD_NO_USER_GIT_CONFIG``: Set to ``true`` to disable forwarding
 the user's ``~/.gitconfig`` configuration to the container.
 
+``CQFD_BIND_DOCKER_SOCK``: Set to ``true`` to enable forwarding the
+docker socket to the container.
+
+``CQFD_DOCKER_GID``: The gid of the docker group in host to map to
+the cqfd group in the container.
+
 ``CQFD_SHELL``: The shell to be launched, by default ``/bin/sh``.
 
 ### Appending to the build command ###
