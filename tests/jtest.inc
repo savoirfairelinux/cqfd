@@ -46,7 +46,7 @@ _colorize()
 	white2)  c='\033[1;97m' ;;
 	esac
 
-	printf "${c}${text}${nc}"
+	printf "%s%s%s" "${c}" "${text}" "${nc}"
 }
 
 # _jtest_log_init() - initialize log subsystem
@@ -117,7 +117,7 @@ jtest_log()
 		;;
 	esac
 
-	echo -e "\e[${color}m[$(date +%T)|$level] $@\e[0m"
+	echo -e "\e[${color}m[$(date +%T)|$level] $*\e[0m"
 }
 
 # jtest_prepare() - prepare next test

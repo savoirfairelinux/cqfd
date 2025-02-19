@@ -8,17 +8,16 @@ set -o pipefail
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
+cd "$TDIR/"
+
 ################################################################################
 # 'cqfd run' accepts running when not in a tty
 ################################################################################
 jtest_prepare "cqfd works when not in a tty"
 
-cd "$TDIR/"
-
 # the key here is to use /dev/null as stdin
-"$cqfd" run cat /etc/passwd </dev/null | grep -q "^root:"
-if [ "$?" -ne 0 ]; then
-	jtest_result fail
-else
+if "$cqfd" run cat /etc/passwd </dev/null | grep -q "^root:"; then
 	jtest_result pass
+else
+	jtest_result fail
 fi

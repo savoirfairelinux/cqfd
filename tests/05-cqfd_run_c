@@ -49,8 +49,11 @@ test_step1() {
 # Build the default command with run -c
 test_step2() {
 	jtest_prepare "running \"cqfd run -c\" with no argument makes it fail"
-	"$cqfd" run -c
-	[ "$?" -eq 0 ] && jtest_result fail || jtest_result pass
+	if "$cqfd" run -c; then
+		jtest_result fail
+	else
+		jtest_result pass
+	fi
 }
 
 test_setup

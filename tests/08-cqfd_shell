@@ -26,6 +26,7 @@ else
 fi
 
 jtest_prepare "cqfd shell should preserve the arguments"
+# shellcheck disable=SC2016
 if "$cqfd" shell -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=zero,\*=one two three,#=3$"; then
 	jtest_result pass
@@ -43,6 +44,7 @@ else
 fi
 
 jtest_prepare "cqfd sh should succeed and use sh"
+# shellcheck disable=SC2016
 if "$cqfd" sh <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^sh$"; then
 	jtest_result pass
@@ -51,6 +53,7 @@ else
 fi
 
 jtest_prepare "cqfd bash should succeed and use bash"
+# shellcheck disable=SC2016
 if "$cqfd" bash <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^bash$"; then
 	jtest_result pass
@@ -59,6 +62,7 @@ else
 fi
 
 jtest_prepare "cqfd dash should succeed and use dash"
+# shellcheck disable=SC2016
 if "$cqfd" dash <<<'printf "$0"' \
        | tee /dev/stderr | grep -q "^dash$"; then
 	jtest_result pass
@@ -67,6 +71,7 @@ else
 fi
 
 jtest_prepare "cqfd zsh should fail with 127 and 'zsh: command not found'"
+# shellcheck disable=SC2016
 if "$cqfd" zsh 2>&1 <<<'printf "$0"' \
 	| tee /dev/stderr | grep -q 'zsh: command not found';
    test "${PIPESTATUS[0]}" -eq 127; then

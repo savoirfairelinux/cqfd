@@ -32,6 +32,7 @@ else
 fi
 
 jtest_prepare "cqfd exec should preserve the arguments"
+# shellcheck disable=SC2016
 if "$cqfd" exec /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=zero,\*=one two three,#=3$"; then
 	jtest_result pass
