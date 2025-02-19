@@ -28,6 +28,7 @@ cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
 cqfd_shell=${CQFD_SHELL:-/bin/bash}
+cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 
 ## usage() - print usage on stdout
 usage() {
@@ -59,7 +60,7 @@ Commands:
 Command options for run / release:
     -c <args>            Append args to the default command string.
 
-    cqfd is Copyright (C) 2015-2024 Savoir-faire Linux, Inc.
+    cqfd is Copyright (C) 2015-2025 Savoir-faire Linux, Inc.
 
     This program comes with ABSOLUTELY NO WARRANTY. This is free
     software, and you are welcome to redistribute it under the terms
@@ -220,6 +221,21 @@ docker_run() {
 		cqfd_user_cwd="$(pwd)"
 	fi
 
+	# Get the docker gid if the group exists
+	if [ "$cqfd_docker_gid" -eq 0 ]; then
+		local docker_group
+		if IFS=: read -r -a docker_group < <(getent group docker); then
+			local docker_users
+			IFS=, read -r -a docker_users <<<"${docker_group[3]}"
+			for user in "${docker_users[@]}"; do
+				if [ "$user" = "$cqfd_user" ]; then
+					cqfd_docker_gid="${docker_group[2]}"
+					break
+				fi
+			done
+		fi
+	fi
+
 	# Display a warning message if using no more supported options
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
 		die 'Warning: CQFD_EXTRA_VOLUMES is no more supported, use
@@ -282,6 +298,10 @@ docker_run() {
 
 	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ] && [ -f "$cqfd_user_home/.gitconfig" ]; then
 		args+=(--mount "type=bind,src=$cqfd_user_home/.gitconfig,dst=$cqfd_user_home/.gitconfig")
+	fi
+
+	if [ "$CQFD_BIND_DOCKER_SOCK" = true ]; then
+		args+=(-v /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
 	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
@@ -440,6 +460,12 @@ for g in ${CQFD_GROUPS}; do
 
 	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
 done
+
+# Add docker group as cqfd to cqfd_user
+if [ "${cqfd_docker_gid:-0}" -gt 0 ]; then
+	groupadd -og "$cqfd_docker_gid" -f cqfd || die "groupadd command failed."
+	usermod -a -G cqfd $cqfd_user || die "usermod command failed while adding group cqfd."
+fi	
 
 # run provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
