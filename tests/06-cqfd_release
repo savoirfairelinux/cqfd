@@ -127,6 +127,7 @@ jtest_prepare "build.archive can template filenames (RFC3339 date)"
 
 export CTEST=foobar
 d3=$(date --rfc-3339='date')
+# shellcheck disable=SC2016
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
 
 if "$cqfd" release && tar tf "cqfd-$d3-foobar.tar.xz" >/dev/null 2>&1; then
@@ -137,8 +138,10 @@ fi
 rm -f "cqfd-$d3-foobar.tar.xz"
 
 jtest_prepare "build.archive can template filenames (git short hash of last commit)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Gh-$CTEST.tar.xz!' .cqfdrc
 
+# shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{4,40\}-foobar.tar.xz$" &&
    tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
@@ -149,8 +152,10 @@ fi
 rm -f cqfd-*-foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (git long hash of last commit)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%GH-$CTEST.tar.xz!' .cqfdrc
 
+# shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{40\}-foobar.tar.xz$" &&
    tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
@@ -161,8 +166,10 @@ fi
 rm -f cqfd-*-foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (Unix timestamp)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Du-$CTEST.tar.xz!' .cqfdrc
 
+# shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:digit:]]\{1,20\}-foobar.tar.xz$" &&
    tar tf cqfd-*-foobar.tar.xz >/dev/null 2>&1; then
@@ -173,6 +180,7 @@ fi
 rm -f cqfd-*-foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (current cqfd flavor name unset)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Cf-$CTEST.tar.xz!' .cqfdrc
 
 if "$cqfd" release && tar tf cqfd--foobar.tar.xz >/dev/null 2>&1; then
@@ -192,6 +200,7 @@ fi
 rm -f cqfd-foo.tar.xz
 
 jtest_prepare "build.archive can template filenames (value of the project.org configuration key)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Po-$CTEST.tar.xz!' .cqfdrc
 
 if "$cqfd" release && tar tf cqfd-cqfd-foobar.tar.xz >/dev/null 2>&1; then
@@ -202,6 +211,7 @@ fi
 rm -f cqfd-cqfd-foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (value of the project.name configuration key)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Pn-$CTEST.tar.xz!' .cqfdrc
 
 if "$cqfd" release && tar tf cqfd-test-foobar.tar.xz >/dev/null 2>&1; then
@@ -212,6 +222,7 @@ fi
 rm -f cqfd-test-foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (litteral '%' sign)"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%%-$CTEST.tar.xz!' .cqfdrc
 
 if "$cqfd" release && tar tf cqfd-%-foobar.tar.xz >/dev/null 2>&1; then
@@ -225,6 +236,7 @@ rm -f cqfd-%-foobar.tar.xz
 # Now test generation of .tar.gz archives
 ################################################################################
 jtest_prepare "build.archive can make a .tar.gz archive"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*xz!archive=cqfd-$CTEST.tar.gz!' .cqfdrc
 "$cqfd" release
 if tar ztf cqfd-$CTEST.tar.gz >/dev/null 2>&1; then
@@ -238,6 +250,7 @@ rm -f cqfd-$CTEST.tar.gz
 # Now test generation of .zip archives
 ################################################################################
 jtest_prepare "build.archive can make a .zip archive"
+# shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*gz!archive=cqfd-$CTEST.zip!' .cqfdrc
 "$cqfd" release
 if unzip -l cqfd-$CTEST.zip >/dev/null 2>&1; then
@@ -278,6 +291,7 @@ fi
 # Now test usage of globs in the file= parameter
 ################################################################################
 jtest_prepare "cqfd resolves globs in build.files"
+# shellcheck disable=SC2016
 sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
 sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
 

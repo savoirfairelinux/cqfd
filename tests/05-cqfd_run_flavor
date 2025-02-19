@@ -24,6 +24,7 @@ for i in 0 1; do
 		"$cqfd" -b $flavor run touch "$test_file"
 	fi
 
+	# shellcheck disable=SC2181
 	if [ "$?" != 0 ] || [ ! -f "$test_file" ]; then
 		jtest_log fatal "failed or test file not present after execution"
 		jtest_result fail

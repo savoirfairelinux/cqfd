@@ -13,6 +13,7 @@ cd "$TDIR/"
 # 'cqfd run' sets HOME environment variable for the local user
 ################################################################################
 jtest_prepare "run cqfd sets HOME environment variable for the local user"
+# shellcheck disable=SC2016
 result=$("$cqfd" run 'echo -n $HOME')
 
 if [ "$result" = "$HOME" ]; then
@@ -29,6 +30,7 @@ jtest_prepare "run doesn't override HOME env when set via CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
+# shellcheck disable=SC2016
 result=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e HOME=$val2" \
 	"$cqfd" run 'echo -n $FOO $HOME' | grep value)
 
@@ -45,6 +47,7 @@ fi
 jtest_prepare "run doesn't override HOME env when the only entry in CQFD_EXTRA_RUN_ARGS"
 val1="value-$RANDOM"
 
+# shellcheck disable=SC2016
 result=$(CQFD_EXTRA_RUN_ARGS="-e HOME=$val1" \
 	"$cqfd" run 'echo -n $FOO $HOME' | grep value)
 
@@ -62,6 +65,7 @@ jtest_prepare "run doesn't confuse JAVA_HOME and the like with HOME"
 val1="value-$RANDOM"
 val2="value-$RANDOM"
 
+# shellcheck disable=SC2016
 result=$(CQFD_EXTRA_RUN_ARGS="-e JAVA_HOME=$val1 -e HOME=$val2" \
 	"$cqfd" run 'echo -n $JAVA_HOME $HOME' | grep value)
 

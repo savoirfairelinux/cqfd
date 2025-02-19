@@ -50,3 +50,4 @@ test tests:
 
 check:
 	shellcheck cqfd
+	@$(MAKE) -C tests check
