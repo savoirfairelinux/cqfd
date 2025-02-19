@@ -267,6 +267,9 @@ the cqfd group in the container.
 
 `CQFD_SHELL`: The shell to be launched, by default `/bin/sh`.
 
+`CQFD_RUN_WITH_SUDO`: Set to `true` to run `$CQFD_DOCKER` with
+`sudo`.
+
 ### Appending to the build command
 
 The `-c` option set immediately after the command run allows appending the
