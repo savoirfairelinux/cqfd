@@ -18,4 +18,4 @@ jobs:
       run: make check
 
     - name: Run tests
-      run: make tests GIT_CONFIG_GLOBAL=/dev/null
+      run: make tests
