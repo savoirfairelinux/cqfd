@@ -1,4 +1,4 @@
-.PHONY: tests
+.PHONY: tests check
 
 tests:
 	@$(eval TDIR=$(shell mktemp -d))
@@ -23,3 +23,6 @@ tests:
 		echo "Failures occured"; \
 		exit 1; \
 	fi
+
+check:
+	shellcheck -e SC1091 -e SC2164 [0-9][0-9]*

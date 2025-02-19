@@ -32,7 +32,8 @@ for i in 0 1; do
 		"$cqfd" run touch $test_file
 	fi
 
-	if [ "$?" != 0 -o ! -f "$test_file" ]; then
+	# shellcheck disable=SC2181
+	if [ "$?" != 0 ] || [ ! -f "$test_file" ]; then
 		jtest_log fatal "failed or test file not present after execution"
 		jtest_result fail
 	else
@@ -42,6 +43,7 @@ for i in 0 1; do
 done
 
 jtest_prepare "cqfd run with additional argument, do not preserve the arguments"
+# shellcheck disable=SC2016
 if $cqfd run /bin/sh -c 'printf "0=$0,*=$*,#=$#"' zero one two three \
        | grep "0=sh,\*=,#=0"; \
    test "${PIPESTATUS[0]}" -eq 2; then

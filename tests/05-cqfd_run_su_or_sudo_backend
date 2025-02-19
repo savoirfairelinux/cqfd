@@ -20,10 +20,12 @@ echo "ENV CQFD_DEBUG=1" >> .cqfd/docker/Dockerfile
 # cqfd run should be happy using su -c.
 ################################################################################
 jtest_prepare "cqfd run with su -c"
-"$cqfd" init && \
-    "$cqfd" run true \
-	| awk -v rc=1 '/Using "su" to execute command/ { rc=0 } 1; END {exit rc}' \
-    && jtest_result pass || jtest_result fail
+if "$cqfd" init && "$cqfd" run true \
+	| awk -v rc=1 '/Using "su" to execute command/ { rc=0 } 1; END {exit rc}'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
 
 ################################################################################
 # Use another custom Dockerfile with a recent version of su.
@@ -35,10 +37,12 @@ echo "ENV CQFD_DEBUG=1" >> .cqfd/docker/Dockerfile
 # cqfd run should be happy using su --session-command.
 ################################################################################
 jtest_prepare "cqfd run with su --session-command"
-"$cqfd" init && \
-    "$cqfd" run true \
-	| awk -v rc=1 '/Using "su" to execute session command/ { rc=0 } 1; END {exit rc}' \
-    && jtest_result pass || jtest_result fail
+if "$cqfd" init && "$cqfd" run true \
+	| awk -v rc=1 '/Using "su" to execute session command/ { rc=0 } 1; END {exit rc}'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
 
 ################################################################################
 # Install the sudo package.
@@ -50,10 +54,12 @@ echo "RUN apt-get update && apt-get install -y --no-install-recommends sudo" >> 
 # cqfd run should be happy using sudo.
 ################################################################################
 jtest_prepare "cqfd run with sudo"
-"$cqfd" init && \
-    "$cqfd" run true \
-	| awk -v rc=1 '/Using "sudo" to execute command/ { rc=0 } 1; END {exit rc}' \
-    && jtest_result pass || jtest_result fail
+if "$cqfd" init && "$cqfd" run true \
+	| awk -v rc=1 '/Using "sudo" to execute command/ { rc=0 } 1; END {exit rc}'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
 
 ################################################################################
 # Restore initial Dockerfile.
