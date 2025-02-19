@@ -164,6 +164,9 @@ another container or another build command.
 *CQFD_SHELL*::
 	The shell to be launched, by default _/bin/sh_.
 
+*CQFD_RUN_WITH_SUDO*::
+	Set to _true_ to run _$CQFD_DOCKER_ with _sudo_.
+
 == FILES
 
 *.cqfdrc*::

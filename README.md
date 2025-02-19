@@ -17,7 +17,6 @@ in an older Linux distribution.
 Just follow these steps:
 
 * [Install cqfd](#installingremoving-cqfd)
-* Make sure your user is a member of the `docker` group
 * Go into your project's directory
 * Create a `.cqfdrc` file
 * Create a Dockerfile and save it as `.cqfd/docker/Dockerfile`
@@ -267,6 +266,9 @@ the cqfd group in the container.
 
 `CQFD_SHELL`: The shell to be launched, by default `/bin/sh`.
 
+`CQFD_RUN_WITH_SUDO`: Set to `true` to run `$CQFD_DOCKER` with
+`sudo`.
+
 ### Appending to the build command
 
 The `-c` option set immediately after the command run allows appending the
@@ -381,14 +383,7 @@ To use cqfd, ensure the following requirements are satisfied on your
 workstation:
 
 -  Bash
-
 -  Docker
-
--  A `docker` group in your /etc/group
-
--  Your username is a member of the `docker` group
-
--  Restart your docker service if you needed to create the group.
 
 ## Installing/removing cqfd
 
