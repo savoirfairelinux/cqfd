@@ -594,26 +594,26 @@ has_to_release=false
 has_alternate_command=false
 while [ $# -gt 0 ]; do
 	case "$1" in
-	help|-h|"--help")
+	help|-h|--help)
 		usage
-		exit 0
+		exit
 		;;
-	version|-v|"--version")
+	version|-v|--version)
 		echo $VERSION
-		exit 0
+		exit
 		;;
-	"--verbose")
+	--verbose)
 		export CQFD_DEBUG=true
 		;;
 	init)
 		config_load "$flavor"
 		docker_build
-		exit $?
+		exit
 		;;
 	flavors)
 		config_load
 		echo "$build_flavors"
-		exit 0
+		exit
 		;;
 	-b)
 		shift
