@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of run command
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 test_file="a/cqfd_a.txt"
 
-cd $TDIR/
+cd "$TDIR/" || exit 1
 
 # Here we test cqfd run, which is also invoked without any argument
 for i in 0 1; do
@@ -12,29 +14,29 @@ for i in 0 1; do
 
 	if [ -f "$test_file" ]; then
 		jtest_log fatal "$test_file already present before test"
-		rm -f $test_file
+		rm -f "$test_file"
 		continue
 	fi
 
 	if [ "$i" = "1" ]; then
 		jtest_prepare "running \"cqfd run\" makes it run"
-		$cqfd run
+		"$cqfd" run
 	else
 		jtest_prepare "running \"cqfd\" with no argument makes it run"
-		$cqfd
+		"$cqfd"
 	fi
 
 	# at the end of either test, $test_file is populated
-	if ! grep -qw "cqfd" $test_file; then
+	if ! grep -qw "cqfd" "$test_file"; then
 		jtest_log fatal "$test_file not present after test"
 		jtest_result fail
-		rm -f $test_file
+		rm -f "$test_file"
 		continue
 	else
 		jtest_result pass
 	fi
 
-	rm -f $test_file
+	rm -f "$test_file"
 done
 
 ################################################################################
@@ -42,11 +44,11 @@ done
 ################################################################################
 jtest_prepare "Modifying the Dockerfile should require running 'cqfd init' again"
 dockerfile=.cqfd/docker/Dockerfile
-echo "RUN echo $RANDOM" >> $dockerfile
-if $TDIR/.cqfd/cqfd run; then
+echo "RUN echo $RANDOM" >> "$dockerfile"
+if "$cqfd" run; then
   jtest_result fail
 else
   jtest_result pass
 fi
 # restore Dockerfile
-sed -i '$d' $dockerfile
+sed -i '$d' "$dockerfile"
