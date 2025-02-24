@@ -2,10 +2,12 @@
 #
 # validate the resiliency of cqfd run against whitespaces
 
-. "$(dirname $0)"/jtest.inc "$1"
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
-cd $TDIR/
+cd "$TDIR/" || exit 1
 
 ################################################################################
 # 'cqfd run' passes environment variables to the container when using
@@ -13,7 +15,7 @@ cd $TDIR/
 ################################################################################
 jtest_prepare "run cqfd with an option containing whitespace in CQFD_EXTRA_RUN_ARGS"
 if CQFD_EXTRA_RUN_ARGS="-e FOO=bar\ baz" \
-	$cqfd run env | grep "FOO=bar baz"; then
+	"$cqfd" run env | grep "FOO=bar baz"; then
     jtest_result pass
 else
     jtest_result fail
@@ -27,7 +29,7 @@ jtest_prepare "run cqfd with an option containing whitespace in docker_run_args"
 # setup -- add the docker_run_args option to config
 sed '/\[build\]/adocker_run_args="-e FOO=bar\\ baz"'\
     -i "$TDIR/.cqfdrc"
-if $cqfd run env | grep "FOO=bar baz"; then
+if "$cqfd" run env | grep "FOO=bar baz"; then
     jtest_result pass
 else
     jtest_result fail

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+#
+# validate the behavior of version command
 
-. "$(dirname $0)"/jtest.inc "$1"
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR"/.cqfd/cqfd
 
 ################################################################################
 # 'cqfd version' shall be an accepted command
@@ -8,9 +11,9 @@
 jtest_prepare "cqfd version shall exit normally"
 TEST=$(mktemp)
 
-if ! $TDIR/.cqfd/cqfd version >$TEST; then
+if ! "$cqfd" version >"$TEST"; then
 	jtest_result fail
-	rm -f $TEST
+	rm -f "$TEST"
 else
 	jtest_result pass
 fi
@@ -20,11 +23,11 @@ fi
 ################################################################################
 jtest_prepare "cqfd version shall produce a version string"
 
-if grep -qE "^[0-9.]+(-[a-z]+)?\$" $TEST; then
+if grep -qE "^[0-9.]+(-[a-z]+)?\$" "$TEST"; then
 	jtest_result pass
 else
 	jtest_log error "not a version message"
-cat $TEST >&2
+	cat "$TEST" >&2
 	jtest_result fail
 fi
 
