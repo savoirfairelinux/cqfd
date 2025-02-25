@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set -e
+set -o pipefail
 
 PROGNAME=$(basename "$0")
 VERSION=5.6.1-dev
