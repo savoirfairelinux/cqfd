@@ -81,6 +81,7 @@ parse_ini_config_file() {
 	# are not special within double-quoted word expansions
 	local BASH_COMPAT=42
 	local IFS
+	local ini
 
 	if [ ! -f "$1" ]; then
 		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
