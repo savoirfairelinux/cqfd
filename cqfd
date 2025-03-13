@@ -305,13 +305,13 @@ docker_run() {
 
 	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
-	# Create and bind mount the launcher script
-	tmp_launcher=$(mktemp /tmp/cqfd_launcher.XXXXXX)
-	trap 'rm -f "$tmp_launcher"' EXIT
-	make_launcher "$tmp_launcher"
-	chmod 0755 "$tmp_launcher"
-	args+=(--volume "$tmp_launcher:/bin/cqfd_launch")
-	args+=(--entrypoint "/bin/cqfd_launch")
+	# Create and bind mount the entrypoint
+	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
+	trap 'rm -f "$tmp_entrypoint"' EXIT
+	make_entrypoint "$tmp_entrypoint"
+	chmod 0755 "$tmp_entrypoint"
+	args+=(--volume "$tmp_entrypoint:/bin/cqfd-entrypoint")
+	args+=(--entrypoint "/bin/cqfd-entrypoint")
 
 	# Set positional arguments
 	args+=("$docker_img_name" "$1")
@@ -401,9 +401,9 @@ make_archive() {
 	esac
 }
 
-## make_launcher - generate in-container launcher script
-# $1: the path to the launcher script
-make_launcher() {
+# make_entrypoint - generate in-container entrypoint
+# $1: the path to the entrypoint
+make_entrypoint() {
 	cat >"$1" <<EOF
 #!/bin/sh
 # create container user to match expected environment
