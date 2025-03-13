@@ -409,9 +409,15 @@ make_launcher() {
 #!/bin/sh
 # create container user to match expected environment
 
+set -e
+
 die() {
 	echo "error: \$*" >&2
 	exit 1
+}
+
+debug() {
+	test -z "\$CQFD_DEBUG" || echo "debug: \$*"
 }
 
 test_cmd() {
@@ -420,10 +426,6 @@ test_cmd() {
 
 test_su_session_command() {
 	su --session-command true > /dev/null 2>&1
-}
-
-debug() {
-      test -n "\$CQFD_DEBUG" && echo "debug: \$*"
 }
 
 # Check container requirements
