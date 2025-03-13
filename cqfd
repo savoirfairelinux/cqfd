@@ -415,7 +415,7 @@ die() {
 }
 
 debug() {
-	test -z "\$CQFD_DEBUG" || echo "debug: \$*"
+	test -z "$CQFD_DEBUG" || echo "debug: \$*"
 }
 
 test_cmd() {
