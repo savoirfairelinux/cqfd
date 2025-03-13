@@ -406,6 +406,19 @@ variables:
     $ make install PREFIX=/opt
     $ make install PREFIX=/usr DESTDIR=package
 
+## Using podman ##
+
+Podman may be used instead of Docker, but with limited functionalities,
+for example when dealing with extra groups.
+
+To use podman instead of docker, you can set in your environment,
+like your `.bashrc`, `.profile` or `.zshrc`:
+
+```bash
+CQFD_DOCKER="podman"
+PODMAN_USERNS="keep-id"
+```
+
 ## Testing cqfd (for developers) ##
 
 The codebase contains tests which can be invoked using the following
