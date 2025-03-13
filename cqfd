@@ -422,7 +422,7 @@ test_su_session_command() {
 }
 
 debug() {
-	test -n "\$CQFD_DEBUG" && echo "debug: \$*"
+	test -z "\$CQFD_DEBUG" || echo "debug: \$*"
 }
 
 # Check container requirements
