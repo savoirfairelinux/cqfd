@@ -402,7 +402,7 @@ make_archive() {
 make_launcher() {
 	local tmpfile
 
-	tmpfile=$(mktemp /tmp/tmp.XXXXXX)
+	tmpfile=$(mktemp /tmp/cqfd_launcher.XXXXXX)
 	chmod 0755 "$tmpfile"
 	cat >"$tmpfile" <<EOF
 #!/bin/sh
