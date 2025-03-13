@@ -408,6 +408,8 @@ make_launcher() {
 #!/bin/sh
 # create container user to match expected environment
 
+set -e
+
 die() {
 	echo "error: \$*" >&2
 	exit 1
@@ -442,11 +444,10 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
 fi
-groupadd -og "${GROUPS[0]}" -f builders || die "groupadd command failed."
-useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user" \
-	|| die "useradd command failed."
-mkdir -p "$cqfd_user_home" || die "mkdir command failed."
-chown "$UID:${GROUPS[0]}" "$cqfd_user_home" || die "chown command failed."
+groupadd -og "${GROUPS[0]}" -f builders
+useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+mkdir -p "$cqfd_user_home"
+chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
 # Add specified groups to cqfd_user
 for g in ${CQFD_GROUPS}; do
@@ -455,20 +456,20 @@ for g in ${CQFD_GROUPS}; do
 
 	if [ -n "\$gid" ]; then
 		# create group with provided id ("name:123")
-		groupadd -og "\$gid" -f "\$group" || die "groupadd failed for \$group."
+		groupadd -og "\$gid" -f "\$group"
 	fi
 
-	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
+	usermod -a -G \$group $cqfd_user
 done
 
 # Add docker group as cqfd to cqfd_user
 if [ "${cqfd_docker_gid:-0}" -gt 0 ]; then
-	groupadd -og "$cqfd_docker_gid" -f cqfd || die "groupadd command failed."
-	usermod -a -G cqfd $cqfd_user || die "usermod command failed while adding group cqfd."
+	groupadd -og "$cqfd_docker_gid" -f cqfd
+	usermod -a -G cqfd $cqfd_user
 fi	
 
 # run provided command in the working directory
-cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
+cd "$cqfd_user_cwd"
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
 	sudo -E -u $cqfd_user sh -c "\$1"
