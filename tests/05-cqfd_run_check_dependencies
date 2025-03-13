@@ -30,7 +30,6 @@ fi
 # Add Bash and the 'shadow' package, which provides useradd, groupadd.
 ################################################################################
 echo 'RUN apk add bash shadow' >> .cqfd/docker/Dockerfile
-echo 'ENV CQFD_DEBUG=1' >> .cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should now be happy with the required commands, using su.
@@ -39,7 +38,7 @@ jtest_prepare "cqfd run with satisfied command requirements, using su"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" run true \
+	if "$cqfd" init && "$cqfd" --verbose run true \
 		| awk -v rc=1 '/Using "su"/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
@@ -59,7 +58,7 @@ jtest_prepare "cqfd run with satisfied command requirements, using sudo"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" run true \
+	if "$cqfd" init && "$cqfd" --verbose run true \
 		| awk -v rc=1 '/Using "sudo"/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
