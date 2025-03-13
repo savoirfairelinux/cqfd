@@ -174,6 +174,10 @@ image_exists_locally() {
 docker_run() {
 	local args=(--privileged)
 
+	if [ "$cqfd_docker_executable" = "podman" ]; then
+		args+=("--userns=keep-id")
+	fi
+
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
@@ -385,7 +389,35 @@ make_launcher() {
 
 	tmpfile=$(mktemp /tmp/tmp.XXXXXX)
 	chmod 0755 "$tmpfile"
-	cat >"$tmpfile" <<EOF
+	if [ "$cqfd_docker_executable" = "podman" ]; then
+		cat >"$tmpfile" <<EOF
+#!/bin/sh
+# create container user to match expected environment
+
+die() {
+	echo "error: \$*" >&2
+	exit 1
+}
+
+debug() {
+	test -n "\$CQFD_DEBUG" && echo "debug: \$*"
+}
+
+# Check container requirements
+test -n "\$failed" &&
+	die "Some dependencies are missing from the container, see above messages."
+
+if ! shell=\$(command -v "$cqfd_shell"); then
+	echo "$cqfd_shell: command not found" >&2
+	exit 127
+fi
+
+# run provided command in the working directory
+cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
+sh -c "\$1"
+EOF
+	else
+		cat >"$tmpfile" <<EOF
 #!/bin/sh
 # create container user to match expected environment
 
@@ -403,7 +435,7 @@ test_su_session_command() {
 }
 
 debug() {
-      test -n "\$CQFD_DEBUG" && echo "debug: \$*"
+	test -n "\$CQFD_DEBUG" && echo "debug: \$*"
 }
 
 # Check container requirements
@@ -455,6 +487,7 @@ else
 	su $cqfd_user -p -c "\$1"
 fi
 EOF
+fi
 	echo "$tmpfile"
 }
 
