@@ -415,16 +415,16 @@ die() {
 	exit 1
 }
 
+debug() {
+	test -z "\$CQFD_DEBUG" || echo "debug: \$*"
+}
+
 test_cmd() {
 	command -v "\$1" > /dev/null 2>&1
 }
 
 test_su_session_command() {
 	su --session-command true > /dev/null 2>&1
-}
-
-debug() {
-	test -z "\$CQFD_DEBUG" || echo "debug: \$*"
 }
 
 # Check container requirements
