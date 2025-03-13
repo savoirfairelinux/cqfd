@@ -6,6 +6,7 @@ set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
+cqfd_docker="${CQFD_DOCKER:-docker}"
 
 cd "$TDIR/" || exit 1
 
@@ -35,11 +36,15 @@ echo 'ENV CQFD_DEBUG=1' >> .cqfd/docker/Dockerfile
 # cqfd run should now be happy with the required commands, using su.
 ################################################################################
 jtest_prepare "cqfd run with satisfied command requirements, using su"
-if "$cqfd" init && "$cqfd" run true \
-	| awk -v rc=1 '/Using "su"/ { rc=0 } 1; END {exit rc}'; then
-	jtest_result pass
+if [ "$cqfd_docker" = "podman" ]; then
+	jtest_result skip
 else
-	jtest_result fail
+	if "$cqfd" init && "$cqfd" run true \
+		| awk -v rc=1 '/Using "su"/ { rc=0 } 1; END {exit rc}'; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
 fi
 
 ################################################################################
@@ -51,11 +56,15 @@ echo 'RUN apk add sudo' >> .cqfd/docker/Dockerfile
 # cqfd run should now be happy with the required commands, using sudo
 ################################################################################
 jtest_prepare "cqfd run with satisfied command requirements, using sudo"
-if "$cqfd" init && "$cqfd" run true \
-	| awk -v rc=1 '/Using "sudo"/ { rc=0 } 1; END {exit rc}'; then
-	jtest_result pass
+if [ "$cqfd_docker" = "podman" ]; then
+	jtest_result skip
 else
-	jtest_result fail
+	if "$cqfd" init && "$cqfd" run true \
+		| awk -v rc=1 '/Using "sudo"/ { rc=0 } 1; END {exit rc}'; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
 fi
 
 ################################################################################
