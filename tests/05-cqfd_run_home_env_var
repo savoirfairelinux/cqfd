@@ -6,6 +6,7 @@ set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
+cqfd_docker="${CQFD_DOCKER:-docker}"
 
 cd "$TDIR/" || exit 1
 
@@ -80,11 +81,15 @@ fi
 # directory.
 ################################################################################
 jtest_prepare "the user's home in passwd == \$HOME"
-passwd_home=$("$cqfd" run "grep ^$(whoami): /etc/passwd |cut -d: -f6")
-user_home=$("$cqfd" run "echo \$HOME")
 
-if [ "$passwd_home" = "$user_home" ]; then
-	jtest_result pass
+if [ "$cqfd_docker" = "podman" ]; then
+	jtest_result skip
 else
-	jtest_result fail
+	passwd_home=$("$cqfd" run "grep ^$(whoami): /etc/passwd |cut -d: -f6")
+	user_home=$("$cqfd" run "echo \$HOME")
+	if [ "$passwd_home" = "$user_home" ]; then
+		jtest_result pass
+	else
+		jtest_result fail
+	fi
 fi
