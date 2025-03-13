@@ -409,6 +409,8 @@ make_launcher() {
 #!/bin/sh
 # create container user to match expected environment
 
+set -e
+
 die() {
 	echo "error: \$*" >&2
 	exit 1
