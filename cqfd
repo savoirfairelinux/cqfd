@@ -468,7 +468,7 @@ if [ "${cqfd_docker_gid:-0}" -gt 0 ]; then
 	usermod -a -G cqfd $cqfd_user
 fi	
 
-# run provided command in the working directory
+# Run provided command in the working directory
 cd "$cqfd_user_cwd"
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
