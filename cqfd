@@ -469,18 +469,24 @@ if [ "${cqfd_docker_gid:-0}" -gt 0 ]; then
 	usermod -a -G cqfd $cqfd_user
 fi	
 
-# Run provided command in the working directory
+# Change to the working directory
 cd "$cqfd_user_cwd"
+
+# Drop the root privileges and run providing command, using sudo if it exists
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
 	exec sudo -E -u $cqfd_user sh -c "\$1"
-elif [ -n "\$has_su_session_command" ]; then
+fi
+
+# Or, using su with the option --session-command to create a new session
+if [ -n "\$has_su_session_command" ]; then
 	debug "Using \"su\" to execute session command \"\$1\" as user \"$cqfd_user\""
 	exec su $cqfd_user -p --session-command "\$1"
-else
-	debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
-	exec su $cqfd_user -p -c "\$1"
 fi
+
+# Or finally, fallback using su with option -c
+debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
+exec su $cqfd_user -p -c "\$1"
 EOF
 	echo "$tmpfile"
 }
