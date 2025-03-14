@@ -434,7 +434,9 @@ test_cmd sudo && has_sudo=1 || test_cmd su ||
 	{ failed=1 && echo "error: Missing command: su or sudo" >&2; }
 test -n "\$failed" &&
 	die "Some dependencies are missing from the container, see above messages."
-test_su_session_command && has_su_session_command=1
+
+# Check is su supports --session-command if not using sudo
+test "\$has_sudo" = 1 || test_su_session_command && has_su_session_command=1
 
 # Get full path to cqfd_shell interpreter
 if ! shell=\$(command -v "$cqfd_shell"); then
