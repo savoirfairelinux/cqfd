@@ -585,6 +585,11 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
+	# check for [build] command is set and is not empty
+	if [ -z "$build_cmd" ]; then
+		die "$cqfdrc: Missing build.command property"
+	fi
+
 	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
@@ -720,10 +725,6 @@ if $has_alternate_command; then
 	build_cmd="$*"
 elif [ -n "$*" ]; then
 	build_cmd+=" $*"
-fi
-
-if [ -z "$build_cmd" ]; then
-	die "No build.command defined in ${cqfdrc}, and no command specified"
 fi
 
 docker_run "$build_cmd"
