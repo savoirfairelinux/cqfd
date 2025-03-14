@@ -1,6 +1,8 @@
 [project]
 org='fooinc'
 name='barproject'
+docker='podman'
+docker_run_args="--userns keep-id --group-add keep-groups"
 
 [hello]
 command="echo 'Hello World!'"

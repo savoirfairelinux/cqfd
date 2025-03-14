@@ -186,6 +186,12 @@ For example, to attempt to pull newer version of the image, it can be set like:
 docker_build_args='--pull=true'
 ```
 
+``docker_executable`` (optional): program used to invoke `docker` client.
+For example, to use podman instead of docker, it can be set like:
+```
+docker_executable='podman'
+```
+
 ``docker_run_args`` (optional): arguments used to invoke `docker run`.
 For example, to share networking with the host, it can be set like:
 ```

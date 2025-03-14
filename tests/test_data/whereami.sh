@@ -1,5 +1,5 @@
 #!/usr/bin/env -S cqfd shell
-if ! test -e /.dockerenv; then
+if ! [ -e /.dockerenv ] && ! [ -e /run/.containerenv ]; then
 	exit 1
 fi
 source /etc/os-release
