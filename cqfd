@@ -438,11 +438,12 @@ test -n "\$failed" &&
 	die "Some dependencies are missing from the container, see above messages."
 test_su_session_command && has_su_session_command=1
 
-# Add the host's user and group to the container, and adjust ownership.
 if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
 fi
+
+# Add the host's user and group to the container, and adjust ownership.
 groupadd -og "${GROUPS[0]}" -f builders
 useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
 mkdir -p "$cqfd_user_home"
