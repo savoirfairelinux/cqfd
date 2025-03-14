@@ -462,7 +462,7 @@ for g in ${CQFD_GROUPS}; do
 	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
 done
 
-# run provided command in the working directory
+# Run provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
