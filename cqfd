@@ -443,7 +443,7 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 	exit 127
 fi
 
-# Add the host's user and group to the container, and adjust ownership.
+# Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders
 useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
 mkdir -p "$cqfd_user_home"
