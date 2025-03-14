@@ -725,7 +725,7 @@ elif [ -n "$*" ]; then
 fi
 
 if [ -z "$build_cmd" ]; then
-	die "No build.command defined in ${cqfdrc}, and no command specified"
+	die "$cqfdrc: Missing or empty build.command property"
 fi
 
 docker_run "$build_cmd"
