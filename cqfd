@@ -406,7 +406,6 @@ debug() {
 }
 
 # Check container requirements
-test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist or is not executable" >&2; }
 test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" >&2; }
 test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" >&2; }
 test_cmd usermod || { failed=1 && echo "error: Missing command: usermod" >&2; }
@@ -415,13 +414,17 @@ test_cmd sudo && has_sudo=1 || test_cmd su ||
 	{ failed=1 && echo "error: Missing command: su or sudo" >&2; }
 test -n "\$failed" &&
 	die "Some dependencies are missing from the container, see above messages."
-test_su_session_command && has_su_session_command=1
 
-# Add the host's user and group to the container, and adjust ownership.
+# Check is su supports --session-command if not using sudo
+test "\$has_sudo" = 1 || test_su_session_command && has_su_session_command=1
+
+# Get full path to cqfd_shell interpreter
 if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
 fi
+
+# Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders || die "groupadd command failed."
 useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user" \
 	|| die "useradd command failed."
@@ -441,7 +444,7 @@ for g in ${CQFD_GROUPS}; do
 	usermod -a -G \$group $cqfd_user || die "usermod command failed while adding group \${group}."
 done
 
-# run provided command in the working directory
+# Run provided command in the working directory
 cd "$cqfd_user_cwd" || die "Changing directory to \"$cqfd_user_cwd\" failed."
 if [ -n "\$has_sudo" ]; then
 	debug "Using \"sudo\" to execute command sh -c \"\$1\" as user \"$cqfd_user\""
