@@ -55,7 +55,7 @@ fi
 echo "[build]" >>.cqfdrc
 
 jtest_prepare "cqfdrc fails if no command property set in build section"
-if "$cqfd" 2>&1 | grep "cqfd: fatal: No build.command defined in .cqfdrc, and no command specified"
+if "$cqfd" 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing or empty build.command property";
    test "${PIPESTATUS[0]}" -eq 1 -a "${PIPESTATUS[1]}" -eq 0; then
 	jtest_result pass
 else
