@@ -428,7 +428,6 @@ test_su_session_command() {
 }
 
 # Check container requirements
-test -x /bin/bash || { failed=1 && echo "error: /bin/bash does not exist or is not executable" >&2; }
 test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" >&2; }
 test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" >&2; }
 test_cmd usermod || { failed=1 && echo "error: Missing command: usermod" >&2; }
