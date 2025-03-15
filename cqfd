@@ -549,6 +549,11 @@ config_load() {
 	# shellcheck disable=SC2154
 	project_custom_img_name="$custom_img_name"
 
+	# check for [project] org and name properties are set and are not empty
+	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
+		die "$cqfdrc: Missing project.org or project.name properties"
+	fi
+
 	cfg.section.build # load the [build] section
 	build_flavors="${flavors[*]}"
 
@@ -581,11 +586,6 @@ config_load() {
 	release_tar_opts="$tar_options"
 
 	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
-
-	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
-		die "Please set project.org and project.name in .cqfdrc"
-	fi
-
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
