@@ -80,7 +80,7 @@ parse_ini_config_file() {
 		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
 	fi
 
-	mapfile -t ini <"$1"
+	mapfile -t ini <"$1"                         # convert to line-array
 	ini=( "${ini[@]//[/\\[}" )                   # escape [
 	ini=( "${ini[@]//]/\\]}" )                   # escape ]
 	ini=( "${ini[@]//;*/}" )                     # remove comments with ;
@@ -96,7 +96,7 @@ parse_ini_config_file() {
 	ini=( "${ini[@]/%\} \)/\}}" )                # remove extra parenthesis
 	ini[0]="${ini[0]/\}/}"                       # remove the first brace
 	ini+=( "}" )                                 # add the last brace
-	ini=("$(printf "%s\n" "${ini[@]}")")
+	ini=("$(printf "%s\n" "${ini[@]}")")         # reconvert to line-array
 	if ! eval "${ini[*]}"; then                  # eval the result
 		debug "$1: fail to evaluate shell:" "${ini[@]}"
 		die "$1: Invalid ini-file!"
