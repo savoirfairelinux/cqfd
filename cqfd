@@ -516,7 +516,7 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	cfg_parser "${cqfdrc_dir}${cqfdrc}"
+	cfg_parser "$cqfdrc_dir$cqfdrc"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
@@ -592,7 +592,7 @@ config_load() {
 		die "$cqfdrc: Missing build.command property"
 	fi
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="$cqfd_project_dir/$cqfddir/${distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
