@@ -144,14 +144,14 @@ docker_build() {
 		args+=("$project_build_context" -f "$dockerfile")
 	fi
 
-	debug executing: "${cqfd_docker}" build "${args[@]}"
-	"${cqfd_docker}" build "${args[@]}"
+	debug executing: "$cqfd_docker" build "${args[@]}"
+	"$cqfd_docker" build "${args[@]}"
 }
 
 # image_exists_locally(): checks if image exists in the local image store
 # arg$1: the image name to check
 image_exists_locally() {
-	"${cqfd_docker}" image inspect "$1" &> /dev/null
+	"$cqfd_docker" image inspect "$1" &> /dev/null
 }
 
 # docker_run() - run command in configured container
@@ -163,7 +163,7 @@ image_exists_locally() {
 #
 # - Your project's source directory is always mapped to $cqfd_user_cwd
 #
-# - Your ~/.ssh directory is mapped to ~${cqfd_user}/.ssh to provide
+# - Your ~/.ssh directory is mapped to ~$cqfd_user/.ssh to provide
 #   access to the ssh keys (your build may pull authenticated git
 #   repos for example).
 #
@@ -175,7 +175,7 @@ docker_run() {
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
-			if ! "${cqfd_docker}" pull "$docker_img_name" >& /dev/null; then
+			if ! "$cqfd_docker" pull "$docker_img_name" >& /dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -259,10 +259,10 @@ docker_run() {
 		for group in $cqfd_extra_groups; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
-				CQFD_GROUPS+="${group} "
+				CQFD_GROUPS+="$group "
 			else
 				id=$(awk -F: "\$1 == \"$group\" { print \$3 }" /etc/group)
-				CQFD_GROUPS+="${group}:${id} "
+				CQFD_GROUPS+="$group:$id "
 			fi
 		done
 	fi
@@ -306,8 +306,8 @@ docker_run() {
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
-	debug executing: "${cqfd_docker}" run "${args[@]}"
-	"${cqfd_docker}" run "${args[@]}"
+	debug executing: "$cqfd_docker" run "${args[@]}"
+	"$cqfd_docker" run "${args[@]}"
 }
 
 # make_archive(): Create a release package.
@@ -451,7 +451,7 @@ mkdir -p "$cqfd_user_home"
 chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
 # Add specified groups to cqfd_user
-for g in ${CQFD_GROUPS}; do
+for g in $CQFD_GROUPS; do
 	group=\$(echo "\$g" | cut -d: -f1)
 	gid=\$(echo "\$g" | cut -d: -f2)
 
@@ -515,12 +515,12 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	if [ ! -f "${cqfdrc_dir}${cqfdrc}" ]; then
-		die "Unable to find ${cqfdrc_dir}${cqfdrc} - create it or pick one using 'cqfd -f'"
+	if [ ! -f "$cqfdrc_dir$cqfdrc" ]; then
+		die "Unable to find $cqfdrc_dir$cqfdrc - create it or pick one using 'cqfd -f'"
 	fi
 
-	if ! cfg_parser "${cqfdrc_dir}${cqfdrc}"; then
-		die "${cqfdrc_dir}${cqfdrc}: Invalid ini-file!"
+	if ! cfg_parser "$cqfdrc_dir$cqfdrc"; then
+		die "$cqfdrc_dir$cqfdrc: Invalid ini-file!"
 	fi
 
 	# generate dynamically the list of flavors based on the names of shell
@@ -592,7 +592,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="$cqfd_project_dir/$cqfddir/${distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
