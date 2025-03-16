@@ -70,11 +70,11 @@ Command options for run / release:
 EOF
 }
 
-# cfg_parser() - parse ini-style config files
+## cfg_parser() - parse ini-style config files
 # Will parse a ini-style config file, and evaluate it to a bash array.
 #   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz - License: MIT
-# arg$1: path to ini file
+# $1: path to ini file
 cfg_parser() {
 	local ini
 
@@ -101,18 +101,19 @@ warn() {
 }
 
 ## die() - exit when an error occured
-# $* messages and variables shown in the error message
+# $*: messages shown in the error message
 die() {
 	echo "cqfd: fatal: $*" >&2
 	exit 1
 }
 
 ## debug() - print verbose messages
+# $*: messages shown in the debug message
 debug() {
 	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
-# docker_build() - Initialize build container
+## docker_build() - initialize build container
 docker_build() {
 	local args=()
 
@@ -148,13 +149,13 @@ docker_build() {
 	"$cqfd_docker" build "${args[@]}"
 }
 
-# image_exists_locally(): checks if image exists in the local image store
-# arg$1: the image name to check
+## image_exists_locally(): checks if image exists in the local image store
+# $1: the image name to check
 image_exists_locally() {
 	"$cqfd_docker" image inspect "$1" &>/dev/null
 }
 
-# docker_run() - run command in configured container
+## docker_run() - run command in configured container
 # A few implementation details:
 #
 # - The user executing the command string inside the container is
@@ -167,8 +168,7 @@ image_exists_locally() {
 #   access to the ssh keys (your build may pull authenticated git
 #   repos for example).
 #
-# arg$1: the command string to execute as $cqfd_user
-#
+# $1: the command string to execute as $cqfd_user
 docker_run() {
 	local args=(--privileged)
 
@@ -310,7 +310,7 @@ docker_run() {
 	"$cqfd_docker" run "${args[@]}"
 }
 
-# make_archive(): Create a release package.
+## make_archive(): create a release package
 # Note: the --transform option passed to tar allows to move all the
 # specified files at the root of the archive. Therefore, you shouldn't
 # include two files with the same name in the list of files to
@@ -390,8 +390,8 @@ make_archive() {
 	esac
 }
 
-# make_launcher - generate in-container launcher script
-# arg$1: the path to the launcher script
+## make_launcher - generate in-container launcher script
+# $1: the path to the launcher script
 make_launcher() {
 	cat >"$1" <<EOF
 #!/bin/sh
@@ -487,8 +487,8 @@ exec su $cqfd_user -p -c "\$1"
 EOF
 }
 
-# locate_project_dir() - locate directory with .cqfd upwards
-# The directory will be printed on stdout, if found.
+## locate_project_dir() - locate directory with .cqfd upwards
+# stdout: the path to the .cqfd directory
 locate_project_dir() {
 	local search_dir="$PWD"
 
@@ -503,8 +503,8 @@ locate_project_dir() {
 	return 1
 }
 
-# config_load() - load build settings from cqfdrc
-# $1: optional "flavor" of the build, is a suffix of command.
+## config_load() - load build settings from cqfdrc
+# $1: optional "flavor" of the build, is a suffix of command
 config_load() {
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
