@@ -89,7 +89,7 @@ cfg_parser() {
 	ini=("${ini[@]/=$'\t'/=}")                           # remove tabs after =
 	ini=("${ini[@]/\ =/=}")                              # remove space before =
 	ini=("${ini[@]/=\ /=}")                              # remove space after =
-	ini=("${ini[@]/#\\[/$'\n}\nfunction cfg.section.'}") # convert section to function (1)
+	ini=("${ini[@]/#\\[/$'\n}\nfunction cfg_section_'}") # convert section to function (1)
 	ini=("${ini[@]/%\\]/ { :}")                          # convert section to function (2)
 	ini+=("}")                                           # add the last brace
 	ini[0]="${ini[0]/\}/}"                               # remove the first brace
@@ -526,10 +526,10 @@ config_load() {
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
-	#  - the cfg.section. prefix is stripped
+	#  - the cfg_section_ prefix is stripped
 	#  - the build and project sections are stripped
-	mapfile -t flavors < <(compgen -A function -X '!cfg.section.*')
-	flavors=("${flavors[@]/cfg.section./}")
+	mapfile -t flavors < <(compgen -A function -X '!cfg_section_*')
+	flavors=("${flavors[@]/cfg_section_/}")
 	for i in "${!flavors[@]}"; do
 		if [[ "${flavors[$i]}" =~ ^(build|project)$ ]]; then
 			unset 'flavors[$i]'
@@ -537,7 +537,7 @@ config_load() {
 	done
 
 	# load the [project] section
-	if ! cfg.section.project 2>/dev/null; then
+	if ! cfg_section_project 2>/dev/null; then
 		die "$cqfdrc: Missing project section!"
 	fi
 
@@ -556,7 +556,7 @@ config_load() {
 	fi
 
 	# load the [build] section
-	if ! cfg.section.build 2>/dev/null; then
+	if ! cfg_section_build 2>/dev/null; then
 		die "$cqfdrc: Missing build section!"
 	fi
 
@@ -568,7 +568,7 @@ config_load() {
 	if [ -n "$flavor" ]; then
 		if grep -qw "$flavor" <<< "${flavors[*]}"; then
 			# load the [$flavor] section
-			if ! cfg.section."$flavor" 2>/dev/null; then
+			if ! cfg_section_"$flavor" 2>/dev/null; then
 				die "$cqfdrc: Missing $flavor section!"
 			fi
 		else
