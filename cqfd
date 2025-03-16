@@ -512,15 +512,15 @@ config_load() {
 
 	# unless using '-f other_cqfdrc', use base directory located above
 	if ! $has_custom_cqfdrc; then
-		local cqfdrc_dir="$cqfd_project_dir/"
+		local cqfdrc_dir="$cqfd_project_dir"
 	fi
 
-	if [ ! -f "${cqfdrc_dir}${cqfdrc}" ]; then
-		die "Unable to find ${cqfdrc_dir}${cqfdrc} - create it or pick one using 'cqfd -f'"
+	if [ ! -f "$cqfdrc_dir/$cqfdrc" ]; then
+		die "Unable to find $cqfdrc_dir/$cqfdrc - create it or pick one using 'cqfd -f'"
 	fi
 
-	if ! cfg_parser "${cqfdrc_dir}${cqfdrc}"; then
-		die "${cqfdrc_dir}${cqfdrc}: Invalid ini-file!"
+	if ! cfg_parser "$cqfdrc_dir/$cqfdrc"; then
+		die "$cqfdrc_dir/$cqfdrc: Invalid ini-file!"
 	fi
 
 	# generate dynamically the list of flavors based on the names of shell
@@ -597,7 +597,7 @@ config_load() {
 		die "$cqfdrc: Missing build.command property"
 	fi
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="$cqfd_project_dir/$cqfddir/${distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -612,7 +612,7 @@ config_load() {
 		# shellcheck disable=SC2001
 		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
+		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_$dockerfile_hash"
 	fi
 
 	# Adapt things for a specific container
