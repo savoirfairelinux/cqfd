@@ -69,11 +69,12 @@ Command options for run / release:
 EOF
 }
 
-# parse_ini_config_file()
+# cfg_parser() - parse ini-style config files
+# Will parse a ini-style config file, and evaluate it to a bash array.
 #   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz - License: MIT
 # arg$1: path to ini file
-parse_ini_config_file() {
+cfg_parser() {
 	local ini
 
 	if [ ! -f "$1" ]; then
@@ -521,7 +522,7 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
+	cfg_parser "${cqfdrc_dir}${cqfdrc}"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
