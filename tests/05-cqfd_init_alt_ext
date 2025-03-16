@@ -11,10 +11,10 @@ cd "$TDIR/" || exit 1
 # alternate filenames
 ################################################################################
 extdir="external/dir"
-mkdir -p "${extdir}"
-mv .cqfd "${extdir}/cqfd"
-mv .cqfdrc "${extdir}/cqfdrc"
-cqfd="$TDIR/${extdir}/cqfd/cqfd"
+mkdir -p "$extdir"
+mv .cqfd "$extdir/cqfd"
+mv .cqfdrc "$extdir/cqfdrc"
+cqfd="$TDIR/$extdir/cqfd/cqfd"
 
 ################################################################################
 # 'cqfd init' without local files should fail
@@ -30,7 +30,7 @@ fi
 # 'cqfd init' using alternate filenames in an external directory should work
 ################################################################################
 jtest_prepare "cqfd init using alternate filenames in an external directory should work"
-if "$cqfd" -C "${extdir}" -d cqfd -f cqfdrc init; then
+if "$cqfd" -C "$extdir" -d cqfd -f cqfdrc init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -39,6 +39,6 @@ fi
 ################################################################################
 # restore local cqfd files
 ################################################################################
-mv "${extdir}/cqfdrc" .cqfdrc
-mv "${extdir}/cqfd" .cqfd
-rmdir -p "${extdir}"
+mv "$extdir/cqfdrc" .cqfdrc
+mv "$extdir/cqfd" .cqfd
+rmdir -p "$extdir"

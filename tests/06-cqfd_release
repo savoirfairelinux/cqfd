@@ -51,7 +51,7 @@ fi
 jtest_prepare "archived files NOT at root of tar archive"
 result="pass"
 for f in $rel_files; do
-	if ! tar tf cqfd-test.tar.xz | grep -q "^${f}$"; then
+	if ! tar tf cqfd-test.tar.xz | grep -q "^$f$"; then
 		result="fail"
 	fi
 done
@@ -64,7 +64,7 @@ echo "tar_transform=no" >>.cqfdrc
 "$cqfd" release
 result="pass"
 for f in $rel_files; do
-	if ! tar tf cqfd-test.tar.xz | grep -q "^${f}$"; then
+	if ! tar tf cqfd-test.tar.xz | grep -q "^$f$"; then
 		result="fail"
 	fi
 done
@@ -101,11 +101,11 @@ echo "tar_options=-h" >>.cqfdrc
 "$cqfd" release
 result="pass"
 tmp_dir=$(mktemp -d)
-if ! tar xf cqfd-test.tar.xz -C "${tmp_dir}"; then
+if ! tar xf cqfd-test.tar.xz -C "$tmp_dir"; then
 	result="fail"
 fi
 
-if [ -L "${tmp_dir}"/link.txt ] || ! diff "${tmp_dir}"/a/cqfd_a.txt "${tmp_dir}"/link.txt; then
+if [ -L "$tmp_dir"/link.txt ] || ! diff "$tmp_dir"/a/cqfd_a.txt "$tmp_dir"/link.txt; then
 	result="fail"
 fi
 
@@ -118,7 +118,7 @@ sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files\"" >>.cqfdrc
 
 rm -f cqfd-test.tar.xz
-rm -rf "${tmp_dir}"
+rm -rf "$tmp_dir"
 
 ################################################################################
 # Now test adding an archive filename template to the config
