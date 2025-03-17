@@ -214,21 +214,6 @@ docker_run() {
 		args+=(--tty)
 	fi
 
-	# Get the docker gid if the group exists
-	if [ "$cqfd_docker_gid" -eq 0 ]; then
-		local docker_group
-		if IFS=: read -r -a docker_group < <(getent group docker); then
-			local docker_users
-			IFS=, read -r -a docker_users <<<"${docker_group[3]}"
-			for user in "${docker_users[@]}"; do
-				if [ "$user" = "$cqfd_user" ]; then
-					cqfd_docker_gid="${docker_group[2]}"
-					break
-				fi
-			done
-		fi
-	fi
-
 	# Terminate if using legacy variable
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
 		die "CQFD_EXTRA_VOLUMES is no more supported, use" \
@@ -611,6 +596,21 @@ load_config() {
 		format_user=$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
 		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+	fi
+
+	# set the docker gid if the group exists
+	if [ "$cqfd_docker_gid" -eq 0 ]; then
+		local docker_group
+		if IFS=: read -r -a docker_group < <(getent group docker); then
+			local docker_users
+			IFS=, read -r -a docker_users <<<"${docker_group[3]}"
+			for user in "${docker_users[@]}"; do
+				if [ "$user" = "$cqfd_user" ]; then
+					cqfd_docker_gid="${docker_group[2]}"
+					break
+				fi
+			done
+		fi
 	fi
 }
 
