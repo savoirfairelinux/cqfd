@@ -2,7 +2,7 @@
 #
 # validate the behavior of run command with extra groups
 
-set -o pipefile
+set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
