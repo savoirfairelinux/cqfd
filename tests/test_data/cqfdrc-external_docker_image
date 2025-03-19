@@ -1,0 +1,7 @@
+[project]
+org="cqfd"
+name="test"
+external_docker_image="ubuntu:22.04"
+
+[build]
+command="grep ^PRETTY_NAME /etc/os-release"

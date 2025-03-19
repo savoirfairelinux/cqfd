@@ -167,6 +167,12 @@ docker_build() {
 		args+=(--quiet)
 	fi
 
+	# If an external Docker image is specified, it is pulled pull by
+	# docker_run()
+	if [ "$project_external_docker_image" ]; then
+		return
+	fi
+
 	# Append extra args from the .cqfdrc [build] section
 	if [ "$build_docker_build_args" ]; then
 		local array
@@ -184,7 +190,7 @@ docker_build() {
 	fi
 
 	# Name the resulting image
-	args+=(--tag "$docker_img_name")
+	args+=(--tag "$cqfd_image")
 
 	# Set the context
 	if [ -z "$project_build_context" ]; then
@@ -210,8 +216,8 @@ docker_rmi() {
 	args=()
 
 	# Check if image is running
-	if image_is_running "$docker_img_name"; then
-		die "$docker_img_name: Image busy"
+	if image_is_running "$cqfd_image"; then
+		die "$cqfd_image: Image busy"
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -231,7 +237,7 @@ docker_rmi() {
 	fi
 
 	# Set the image to remove
-	args+=("$docker_img_name")
+	args+=("$cqfd_image")
 
 	# Run command
 	debug executing: "$cqfd_docker" rmi "${args[@]}"
@@ -256,10 +262,14 @@ docker_run() {
 	local args=(--privileged)
 
 	# The image does not exist
-	if ! image_exists_locally "$docker_img_name"; then
+	if ! image_exists_locally "$cqfd_image"; then
 		# If custom image name is used, try to pull it before dying
-		if [ "$project_custom_img_name" ]; then
-			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
+		if [ "$project_external_docker_image" ]; then
+			if ! "$cqfd_docker" pull "$cqfd_image" &>/dev/null; then
+				die "External Docker image couldn't be pulled, please build/upload it first"
+			fi
+		elif [ "$project_custom_img_name" ]; then
+			if ! "$cqfd_docker" pull "$cqfd_image" &>/dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -414,7 +424,7 @@ docker_run() {
 	fi
 
 	# Set positional arguments
-	args+=("$docker_img_name" "$1")
+	args+=("$cqfd_image" "$1")
 
 	# Run command
 	debug executing: "$cqfd_docker" run "${args[@]}"
@@ -680,6 +690,8 @@ load_config() {
 	project_build_context="$build_context"
 	# shellcheck disable=SC2154
 	project_custom_img_name="$custom_img_name"
+	# shellcheck disable=SC2154
+	project_external_docker_image="$external_docker_image"
 
 	# check for [project] org and name properties are set and are not empty
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
@@ -728,21 +740,24 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_options="$tar_options"
 
-	dockerfile=$(realpath "$cqfddir/${build_distro:-docker}/Dockerfile")
-	if [ ! -f "$dockerfile" ]; then
-		die "$dockerfile not found"
-	fi
+	cqfd_image="$project_external_docker_image"
+	if [ -z "$cqfd_image" ]; then
+		dockerfile=$(realpath "$cqfddir/${build_distro:-docker}/Dockerfile")
+		if [ ! -f "$dockerfile" ]; then
+			die "$dockerfile not found"
+		fi
 
-	if [ "$project_custom_img_name" ]; then
-		docker_img_name="$project_custom_img_name"
-	else
-		local format_user
-		local dockerfile_hash
+		if [ "$project_custom_img_name" ]; then
+			cqfd_image="$project_custom_img_name"
+		else
+			local format_user
+			local dockerfile_hash
 
-		# This will look like cqfd_USER_ORG_NAME_HASH
-		format_user=${USER//[^0-9a-zA-Z\-]/_}
-		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+			# This will look like cqfd_USER_ORG_NAME_HASH
+			format_user=${USER//[^0-9a-zA-Z\-]/_}
+			dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
+			cqfd_image="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+		fi
 	fi
 }
 
