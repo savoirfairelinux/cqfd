@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# validate the cqfd run command with no Dockerfile, using a prebuilt image
+
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+# create a temporary directory
+TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
+
+cd "$TEST_DIR"/ || exit 1
+
+################################################################################
+# 'cqfd run' succeeds with no Dockerfile using a prebuilt image (custom_img_name=debian)
+################################################################################
+
+# Test .cqfdrc
+cat >.cqfdrc <<EOF
+[project]
+org="cqfd"
+name="custom-image"
+custom_img_name="debian"
+
+[build]
+command="cat /etc/os-release"
+EOF
+mkdir -p .cqfd/docker
+
+jtest_prepare "cqfd run works with no dockerfile using a prebuilt custom image custom_img_name"
+if "$cqfd" run | grep -q debian; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+# teardown
+rm -rf "$TEST_DIR"

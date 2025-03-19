@@ -53,6 +53,29 @@ else
 fi
 
 ################################################################################
+# 'cqfd run' succeeds with no Dockerfile using a prebuilt image (custom_img_name=debian)
+################################################################################
+
+# Test .cqfdrc with debian image
+cat >.cqfdrc <<EOF
+[project]
+org="cqfd"
+name="custom-image"
+image="debian"
+
+[build]
+command="cat /etc/os-release"
+EOF
+rm -rf .cqfd/docker && mkdir -p .cqfd/docker
+
+jtest_prepare "cqfd run works with no dockerfile using image=debian"
+if "$cqfd" run | grep -q debian; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
 # cleanup
 ################################################################################
 rm -rf "$TEST_DIR"
