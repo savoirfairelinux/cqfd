@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of cqfd with image
+
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+cqfd_docker="${CQFD_DOCKER:-docker}"
+
+cd "$TDIR/" || exit 1
+
+mv -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+cp -f .cqfdrc .cqfdrc.old
+cp -f cqfdrc-image .cqfdrc
+
+################################################################################
+# 'cqfd' pulls image
+################################################################################
+image="ubuntu:16.04"
+sed -i -e "s!^image=.*\$!image='$image'!" .cqfdrc
+if "$cqfd_docker" inspect "$image" &>/dev/null; then
+	jtest_log info "$cqfd_docker registry contains image named: $image, removing..."
+	"$cqfd_docker" rmi "$image"
+fi
+
+jtest_prepare "cqfd init does not pull image $image from registry"
+if "$cqfd" init && \
+   ! "$cqfd_docker" inspect "$image" &>/dev/null; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd pulls image $image from registry"
+if "$cqfd" | grep -qE "Ubuntu 16.04(.[[:digit:]]+)? LTS" && \
+   "$cqfd_docker" inspect "$image" &>/dev/null; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# Restore initial .cqfdrc and Dockerfile
+################################################################################
+mv -f .cqfdrc.old .cqfdrc
+mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
