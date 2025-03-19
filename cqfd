@@ -306,10 +306,12 @@ docker_run() {
 
 	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
 
-	tmp_launcher=$(make_launcher)
-	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
-
+	# Create and bind mount the launcher script
+	tmp_launcher=$(mktemp /tmp/cqfd_launcher.XXXXXX)
 	trap 'rm -f "$tmp_launcher"' EXIT
+	make_launcher "$tmp_launcher"
+	chmod 0755 "$tmp_launcher"
+	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
 
 	args+=("$docker_img_name" cqfd_launch "$1")
 
@@ -398,13 +400,9 @@ make_archive() {
 }
 
 # make_launcher - generate in-container launcher script
-# return: the path to the launcher script on stdout
+# arg$1: the path to the launcher script
 make_launcher() {
-	local tmpfile
-
-	tmpfile=$(mktemp /tmp/cqfd_launcher.XXXXXX)
-	chmod 0755 "$tmpfile"
-	cat >"$tmpfile" <<EOF
+	cat >"$1" <<EOF
 #!/bin/sh
 # create container user to match expected environment
 
@@ -488,7 +486,6 @@ fi
 debug "Using \"su\" to execute command \"\$1\" as user \"$cqfd_user\""
 exec su $cqfd_user -p -c "\$1"
 EOF
-	echo "$tmpfile"
 }
 
 # locate_project_dir() - locate directory with .cqfd upwards
