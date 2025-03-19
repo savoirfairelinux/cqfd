@@ -179,8 +179,8 @@ docker_run() {
 	# The image does not exist
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
-		if [ "$project_custom_img_name" ]; then
-			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
+		if [ "$project_image" ]; then
+			if ! "$cqfd_docker" pull "$docker_img_name" >& /dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -255,6 +255,11 @@ docker_run() {
 	if [ -n "$CQFD_EXTRA_PORTS" ]; then
 		die "CQFD_EXTRA_PORTS is no more supported, use" \
 		    "CQFD_EXTRA_RUN_ARGS=\"-p <host_port>:<docker_port>\""
+	fi
+	if [ -n "$custom_img_name" ]; then
+		die "Warning: custom_img_name is no more supported, use
+		either 'tag' for naming your image or 'image' for pulling one
+		from a registry."
 	fi
 
 	# The user may set the user_extra_groups in the .cqfdrc
@@ -558,7 +563,9 @@ load_config() {
 	# shellcheck disable=SC2154
 	project_build_context="$build_context"
 	# shellcheck disable=SC2154
-	project_custom_img_name="$custom_img_name"
+	project_tag="$tag"
+	# shellcheck disable=SC2154
+	project_image="$image"
 
 	# check for [project] org and name properties are set and are not empty
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
@@ -605,14 +612,14 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfd_project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
-	if [ ! -f "$dockerfile" ]; then
-		die "$dockerfile not found"
-	fi
-
-	if [ "$project_custom_img_name" ]; then
-		docker_img_name="$project_custom_img_name"
+	# Set docker image name to project image if defined, or set default name to build from Dockerfile
+	if [ "$project_image" ]; then
+		docker_img_name="$project_image"
 	else
+		dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+		if [ ! -f "$dockerfile" ]; then
+			die "$dockerfile not found"
+		fi
 		local format_user
 		local dockerfile_hash
 
@@ -620,7 +627,19 @@ load_config() {
 		# shellcheck disable=SC2001
 		format_user=$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+		if [ "$project_tag" ]; then
+			docker_img_name="$project_tag"
+		else
+			docker_img_name="cqfd${format_user:+_%Un}${project_org:+_%Po}${project_name:+_%Pn}${dockerfile_hash:+_%Ph}${build_distro:+_%Pd}"
+		fi
+		# shellcheck disable=SC2001
+		docker_img_name=$(echo "$docker_img_name" |
+			sed -e 's!%%!%!g;
+				s!%Un!'"$format_user"'!g;
+				s!%Po!'"$project_org"'!g;
+				s!%Pn!'"$project_name"'!g;
+				s!%Ph!'"$dockerfile_hash"'!g;
+				s!%Pd!'"$build_distro"'!g;')
 	fi
 }
 
@@ -643,7 +662,9 @@ while [ $# -gt 0 ]; do
 		;;
 	init)
 		load_config "$flavor"
-		docker_build
+		if [ -z "$project_image" ]; then
+			docker_build
+		fi
 		exit
 		;;
 	flavors)
