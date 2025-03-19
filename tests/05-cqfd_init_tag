@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of cqfd with custom tag
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+cd "$TDIR/" || exit 1
+cqfd_docker="${CQFD_DOCKER:-docker}"
+
+################################################################################
+# 'cqfd init' with custom image
+################################################################################
+custom_tag_1="test_tag_1"
+
+# inject tag="test_tag_1" in the cqfdrc
+sed -i "/^\[project\]/a tag=$custom_tag_1" .cqfdrc
+
+jtest_prepare "cqfd init works using tag=$custom_tag_1"
+if "$cqfd" init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "$cqfd_docker registry contains image named: $custom_tag_1"
+if "$cqfd_docker" inspect "$custom_tag_1" &>/dev/null; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# cleanup
+################################################################################
+sed -i "/^tag=$custom_tag_1$/d" .cqfdrc
+
