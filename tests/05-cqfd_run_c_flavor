@@ -21,7 +21,7 @@ if [ -f "$test_file" ] || [ -f "$test_run_c_file" ]; then
 fi
 
 jtest_prepare "build cmd for '$flavor' flavor and concatenate with an additional option"
-"$cqfd" -b "$flavor" run -c --debug >> "$test_run_c_file"
+"$cqfd" -b "$flavor" run -c --debug >>"$test_run_c_file"
 
 # at the end of this test, $test_run_c_file is populated
 if ! grep -qw "target 'foo'" "$test_run_c_file"; then

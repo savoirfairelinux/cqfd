@@ -29,7 +29,7 @@ fi
 ################################################################################
 # Add Bash and the 'shadow' package, which provides useradd, groupadd.
 ################################################################################
-echo 'RUN apk add bash shadow' >> .cqfd/docker/Dockerfile
+echo 'RUN apk add bash shadow' >>.cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should now be happy with the required commands, using su.
@@ -49,7 +49,7 @@ fi
 ################################################################################
 # Install the sudo package.
 ################################################################################
-echo 'RUN apk add sudo' >> .cqfd/docker/Dockerfile
+echo 'RUN apk add sudo' >>.cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should now be happy with the required commands, using sudo
