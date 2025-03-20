@@ -128,7 +128,7 @@ jtest_prepare "build.archive can template filenames (RFC3339 date)"
 export CTEST=foobar
 d3=$(date --rfc-3339='date')
 # shellcheck disable=SC2016
-echo 'archive=cqfd-%D3-$CTEST.tar.xz' >> .cqfdrc
+echo 'archive=cqfd-%D3-$CTEST.tar.xz' >>.cqfdrc
 
 if "$cqfd" release && tar tf "cqfd-$d3-foobar.tar.xz" >/dev/null 2>&1; then
 	jtest_result pass

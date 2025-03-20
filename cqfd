@@ -150,7 +150,7 @@ docker_build() {
 # image_exists_locally(): checks if image exists in the local image store
 # arg$1: the image name to check
 image_exists_locally() {
-	"$cqfd_docker" image inspect "$1" &> /dev/null
+	"$cqfd_docker" image inspect "$1" &>/dev/null
 }
 
 # docker_run() - run command in configured container
@@ -408,11 +408,11 @@ debug() {
 }
 
 test_cmd() {
-	command -v "\$1" > /dev/null 2>&1
+	command -v "\$1" >/dev/null 2>&1
 }
 
 test_su_session_command() {
-	su --session-command true > /dev/null 2>&1
+	su --session-command true >/dev/null 2>&1
 }
 
 # Change to working directory

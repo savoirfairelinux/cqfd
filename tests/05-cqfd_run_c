@@ -25,7 +25,7 @@ test_cleanup() {
 # Append default command build with an additional option
 test_step1() {
 	jtest_prepare "running \"cqfd run -c\" makes it run with appended arguments"
-	"$cqfd" run -c --debug >> "$test_run_c_file"
+	"$cqfd" run -c --debug >>"$test_run_c_file"
 
 	# at the end of this test, $test_run_c_file is populated
 	if ! grep -qw "target 'build'" "$test_run_c_file"; then
