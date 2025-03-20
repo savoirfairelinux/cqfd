@@ -14,7 +14,7 @@ cd "$TDIR/" || exit 1
 # Use a custom Dockerfile with an ancient version of su.
 ################################################################################
 cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
-echo "FROM ubuntu:16.04" > .cqfd/docker/Dockerfile
+echo "FROM ubuntu:16.04" >.cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should be happy using su -c.
@@ -34,7 +34,7 @@ fi
 ################################################################################
 # Use another custom Dockerfile with a recent version of su.
 ################################################################################
-echo "FROM ubuntu:24.04" > .cqfd/docker/Dockerfile
+echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should be happy using su --session-command.
@@ -54,8 +54,8 @@ fi
 ################################################################################
 # Install the sudo package.
 ################################################################################
-echo "ENV DEBIAN_FRONTEND noninteractive" >> .cqfd/docker/Dockerfile
-echo "RUN apt-get update && apt-get install -y --no-install-recommends sudo" >> .cqfd/docker/Dockerfile
+echo "ENV DEBIAN_FRONTEND noninteractive" >>.cqfd/docker/Dockerfile
+echo "RUN apt-get update && apt-get install -y --no-install-recommends sudo" >>.cqfd/docker/Dockerfile
 
 ################################################################################
 # cqfd run should be happy using sudo.
