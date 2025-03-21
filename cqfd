@@ -580,13 +580,15 @@ config_load() {
 		die "Please set project.org and project.name in .cqfdrc"
 	fi
 
-	if [ ! -f "$dockerfile" ]; then
-		die "$dockerfile not found"
-	fi
-
 	if [ "$project_custom_img_name" ]; then
 		docker_img_name="$project_custom_img_name"
+		if [ ! -f "$dockerfile" ]; then
+			debug "Using custom prebuilt image $docker_img_name"
+		fi
 	else
+		if [ ! -f "$dockerfile" ]; then
+			die "$dockerfile not found"
+		fi
 		local format_user
 		local dockerfile_hash
 
