@@ -303,8 +303,9 @@ docker_run() {
 	make_launcher "$tmp_launcher"
 	chmod 0755 "$tmp_launcher"
 	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
+	args+=(--entrypoint "/bin/cqfd_launch")
 
-	args+=("$docker_img_name" cqfd_launch "$1")
+	args+=("$docker_img_name" "$1")
 
 	debug executing: "${cqfd_docker}" run "${args[@]}"
 	"${cqfd_docker}" run "${args[@]}"
