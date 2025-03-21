@@ -4,6 +4,7 @@
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
+cqfd_docker="${CQFD_DOCKER:-docker}"
 
 # create a temporary directory
 TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
@@ -30,8 +31,8 @@ EOF
 mkdir -p .cqfd/docker
 echo "FROM ubuntu:24.04" > .cqfd/docker/Dockerfile
 
-jtest_prepare "docker registry contains NO image named: $custom_image_1"
-if docker inspect "$custom_image_1" &>/dev/null; then
+jtest_prepare "$cqfd_docker registry contains NO image named: $custom_image_1"
+if "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -44,8 +45,8 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "docker registry contains image named: $custom_image_1"
-if docker inspect "$custom_image_1" &>/dev/null; then
+jtest_prepare "$cqfd_docker registry contains image named: $custom_image_1"
+if "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
