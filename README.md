@@ -258,6 +258,9 @@ docker socket to the container.
 ``CQFD_DOCKER_GID``: The gid of the docker group in host to map to
 the cqfd group in the container.
 
+``CQFD_RUN_WITH_SUDO``: Set to ``true`` to run `$CQFD_DOCKER` with
+``sudo``.
+
 ``CQFD_SHELL``: The shell to be launched, by default ``/bin/sh``.
 
 ### Appending to the build command ###
