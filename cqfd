@@ -175,7 +175,7 @@ docker_run() {
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
-			if ! "$cqfd_docker" pull "$docker_img_name" >&/dev/null; then
+			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
