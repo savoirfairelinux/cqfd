@@ -75,6 +75,7 @@ EOF
 #        by Andrés J. Díaz - License: MIT
 # arg$1: path to ini file
 cfg_parser() {
+	local -r PATH
 	local ini
 
 	mapfile -t ini <"$1"                                 # convert to line-array
