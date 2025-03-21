@@ -119,7 +119,7 @@ docker_build() {
 
 	# Suppress the build output
 	if [ "$quiet" ]; then
-		args+=(-q)
+		args+=(--quiet)
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -139,13 +139,13 @@ docker_build() {
 	fi
 
 	# Name the resulting image
-	args+=(-t "$docker_img_name")
+	args+=(--tag "$docker_img_name")
 
 	# Set the context
 	if [ -z "$project_build_context" ]; then
 		args+=("$(dirname "$dockerfile")")
 	else
-		args+=("$project_build_context" -f "$dockerfile")
+		args+=("$project_build_context" --file "$dockerfile")
 	fi
 
 	# Run command
@@ -207,11 +207,11 @@ docker_run() {
 	args+=(--rm --log-driver=none)
 
 	# always keep stdin open
-	args+=(-i)
+	args+=(--interactive)
 
 	# allocate a pty if stdin/err are connected to a tty
 	if [ -t 0 ] && [ -t 2 ]; then
-		args+=(-t)
+		args+=(--tty)
 	fi
 
 	# If possible, map cqfd_user from the calling user's
@@ -276,20 +276,20 @@ docker_run() {
 	# via CQFD_EXTRA_RUN_ARGS or docker_run_args
 	if ! echo "$CQFD_EXTRA_RUN_ARGS $build_docker_run_args" |
 	     grep -qE "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
-		args+=(-e "HOME=$cqfd_user_home")
+		args+=(--env "HOME=$cqfd_user_home")
 	fi
 
 	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
-		args+=(-v "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
+		args+=(--volume "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
 	fi
 
 	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
-		args+=(-v /etc/ssh:/etc/ssh)
+		args+=(--volume /etc/ssh:/etc/ssh)
 	fi
 
 	if [ "$SSH_AUTH_SOCK" ]; then
-		args+=(-v "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
-		args+=(-e "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
+		args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
+		args+=(--env "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
 
 	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ] && [ -f "$cqfd_user_home/.gitconfig" ]; then
@@ -297,17 +297,17 @@ docker_run() {
 	fi
 
 	if [ "$CQFD_BIND_DOCKER_SOCK" = true ]; then
-		args+=(-v /var/run/docker.sock:/var/run/docker.sock)
+		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
-	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
+	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
 	# Create and bind mount the launcher script
 	tmp_launcher=$(mktemp /tmp/cqfd_launcher.XXXXXX)
 	trap 'rm -f "$tmp_launcher"' EXIT
 	make_launcher "$tmp_launcher"
 	chmod 0755 "$tmp_launcher"
-	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
+	args+=(--volume "$tmp_launcher:/bin/cqfd_launch")
 
 	# Set positional arguments
 	args+=("$docker_img_name" cqfd_launch "$1")
