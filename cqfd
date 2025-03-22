@@ -113,8 +113,8 @@ debug() {
 	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
-## docker_build() - initialize build container
-docker_build() {
+## docker_pull_or_build() - initialize build container
+docker_pull_or_build() {
 	local args=()
 
 	# Suppress the build output
@@ -122,8 +122,12 @@ docker_build() {
 		args+=(--quiet)
 	fi
 
-	# If custom image name is used, it is pulled pull by docker_run()
+	# Pull the custom image
 	if [ "$project_image" ]; then
+		args+=("$cqfd_image")
+
+		debug executing: "$cqfd_docker" pull "${args[@]}"
+		"$cqfd_docker" pull "${args[@]}"
 		return
 	fi
 
@@ -183,14 +187,7 @@ docker_run() {
 
 	# The image does not exist
 	if ! image_exists_locally "$cqfd_image"; then
-		# If custom image name is used, try to pull it before dying
-		if [ "$project_image" ]; then
-			if ! "$cqfd_docker" pull "$cqfd_image" &>/dev/null; then
-				die "Custom image couldn't be pulled, please build/upload it first"
-			fi
-		else
-			die "The docker image doesn't exist, launch 'cqfd init' to create it"
-		fi
+		die "The docker image doesn't exist, launch 'cqfd init' to create it"
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -674,7 +671,7 @@ while [ $# -gt 0 ]; do
 		;;
 	init)
 		load_config "$flavor"
-		docker_build
+		docker_pull_or_build
 		exit
 		;;
 	flavors)

@@ -15,7 +15,7 @@ cp -f .cqfdrc .cqfdrc.old
 cp -f cqfdrc-image .cqfdrc
 
 ################################################################################
-# 'cqfd' pulls image
+# 'cqfd init' pulls image
 ################################################################################
 image="ubuntu:16.04"
 sed -i -e "s!^image=.*\$!image='$image'!" .cqfdrc
@@ -24,17 +24,16 @@ if "$cqfd_docker" inspect "$image" &>/dev/null; then
 	"$cqfd_docker" rmi "$image"
 fi
 
-jtest_prepare "cqfd init does not pull image $image from registry"
+jtest_prepare "cqfd init pulls image $image from registry"
 if "$cqfd" init && \
-   ! "$cqfd_docker" inspect "$image" &>/dev/null; then
+   "$cqfd_docker" inspect "$image" &>/dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
 
-jtest_prepare "cqfd pulls image $image from registry"
-if "$cqfd" | grep -qE "Ubuntu 16.04(.[[:digit:]]+)? LTS" && \
-   "$cqfd_docker" inspect "$image" &>/dev/null; then
+jtest_prepare "cqfd runs pulled image $image from registry"
+if "$cqfd" | grep -qE "Ubuntu 16.04(.[[:digit:]]+)? LTS"; then
 	jtest_result pass
 else
 	jtest_result fail
