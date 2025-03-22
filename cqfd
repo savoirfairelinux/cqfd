@@ -611,7 +611,7 @@ config_load() {
 		if [ "$project_tag" ]; then
 			docker_img_name="$project_tag"
 		else
-			docker_img_name="cqfd_%Un_%Po_%Pn_%Ph"
+			docker_img_name="cqfd_%Un_%Po_%Pn_%Ph${distro:+_%Pd}"
 		fi
 		# shellcheck disable=SC2001
 		docker_img_name=$(echo "$docker_img_name" |
@@ -619,12 +619,8 @@ config_load() {
 				s!%Un!'"$format_user"'!g;
 				s!%Po!'"$project_org"'!g;
 				s!%Pn!'"$project_name"'!g;
+				s!%Pd!'"$distro"'!g;
 				s!%Ph!'"$dockerfile_hash"'!g;')
-	fi
-
-	# Adapt things for a specific container
-	if [ -n "$distro" ]; then
-		docker_img_name+="_$distro"
 	fi
 }
 
