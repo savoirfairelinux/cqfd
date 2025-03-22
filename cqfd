@@ -117,6 +117,7 @@ debug() {
 docker_build() {
 	local args=()
 
+	# Suppress the build output
 	if [ "$quiet" ]; then
 		args+=(-q)
 	fi
@@ -137,14 +138,17 @@ docker_build() {
 		args+=("${array[@]}")
 	fi
 
+	# Name the resulting image
 	args+=(-t "$docker_img_name")
 
+	# Set the context
 	if [ -z "$project_build_context" ]; then
 		args+=("$(dirname "$dockerfile")")
 	else
 		args+=("$project_build_context" -f "$dockerfile")
 	fi
 
+	# Run command
 	debug executing: "$cqfd_docker" build "${args[@]}"
 	"$cqfd_docker" build "${args[@]}"
 }
