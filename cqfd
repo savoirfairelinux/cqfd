@@ -122,8 +122,8 @@ image_is_running() {
 	test "${#ids[@]}" -gt 0
 }
 
-## docker_build() - initialize build container
-docker_build() {
+## docker_pull_or_build() - initialize build container
+docker_pull_or_build() {
 	local args=()
 
 	# Suppress the build output
@@ -131,8 +131,12 @@ docker_build() {
 		args+=(--quiet)
 	fi
 
-	# If custom image name is used, it is pulled pull by docker_run()
+	# Pull the custom image
 	if [ "$project_docker_run_image" ]; then
+		args+=("$cqfd_image")
+
+		debug executing: "$cqfd_docker" pull "${args[@]}"
+		"$cqfd_docker" pull "${args[@]}"
 		return
 	fi
 
@@ -788,7 +792,7 @@ while [ $# -gt 0 ]; do
 		;;
 	init)
 		load_config "$flavor"
-		docker_build
+		docker_pull_or_build
 		exit
 		;;
 	deinit)
