@@ -17,19 +17,7 @@ teardown_file() {
     mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
 
-@test "cqfd pulls custom image from registry" {
-    custom_img_name="ubuntu:16.04"
-
-    # shellcheck disable=SC2154
-    if "$cqfd_docker" inspect "$custom_img_name"; then
-        "$cqfd_docker" rmi "$custom_img_name"
-    fi
-
-    run cqfd
-    assert_line --regexp "Ubuntu 16.04(.[[:digit:]]+)? LTS"
-}
-
-@test "cqfd fails pulling inexistant custom image from registry" {
+@test "cqfd init fails pulling inexistant custom image from registry" {
     custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
     sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
 
@@ -38,16 +26,15 @@ teardown_file() {
         "$cqfd_docker" rmi "$custom_img_name"
     fi
 
-    run cqfd
+    run cqfd init
     assert_failure
 
     run "$cqfd_docker" inspect "$custom_img_name"
     assert_failure
 }
 
-@test "cqfd init creates custom image" {
-    # shellcheck disable=SC2030
-    custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
+@test "cqfd init pulls custom image from registry" {
+    custom_img_name="ubuntu:16.04"
     sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
 
     # shellcheck disable=SC2154
@@ -60,18 +47,9 @@ teardown_file() {
 
     run "$cqfd_docker" inspect "$custom_img_name"
     assert_success
-
-    echo "custom_img_name=$custom_img_name" >.cqfd/docker/custom_img_name
 }
 
-@test "cqfd runs created custom image" {
-    # shellcheck disable=SC1091
-    source .cqfd/docker/custom_img_name
-
+@test "cqfd runs pulled custom image" {
     run cqfd
-    assert_line --regexp "Ubuntu 24.04(.[[:digit:]]+)? LTS"
-
-    # shellcheck disable=SC2031
-    "$cqfd_docker" rmi "$custom_img_name"
-    rm .cqfd/docker/custom_img_name
+    assert_line --regexp "Ubuntu 16.04(.[[:digit:]]+)? LTS"
 }
