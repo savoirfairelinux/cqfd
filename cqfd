@@ -176,6 +176,7 @@ image_exists_locally() {
 docker_run() {
 	local args=(--privileged)
 
+	# The image does not exist
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
@@ -308,8 +309,10 @@ docker_run() {
 	chmod 0755 "$tmp_launcher"
 	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
 
+	# Set positional arguments
 	args+=("$docker_img_name" cqfd_launch "$1")
 
+	# Run command
 	debug executing: "$cqfd_docker" run "${args[@]}"
 	"$cqfd_docker" run "${args[@]}"
 }
