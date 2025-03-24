@@ -22,7 +22,6 @@ set -o pipefail
 
 PROGNAME=$(basename "$0")
 VERSION=5.6.1-dev
-cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
@@ -334,7 +333,7 @@ make_archive() {
 
 	eval "files=($release_files)"
 	if [ -z "${files[*]}" ]; then
-		die "No files to archive, check files in $cqfdrc"
+		die "No files to archive, check files in .cqfdrc"
 	fi
 
 	for file in "${files[@]}"; do
@@ -525,12 +524,7 @@ config_load() {
 		die ".cqfd directory not found in directory tree"
 	fi
 
-	# unless using '-f other_cqfdrc', use base directory located above
-	if ! $has_custom_cqfdrc; then
-		local cqfdrc_dir="$cqfd_project_dir/"
-	fi
-
-	parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
+	parse_ini_config_file "${CQFDRC_FILE:-$cqfd_project_dir/.cqfdrc}"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
@@ -614,7 +608,6 @@ config_load() {
 	fi
 }
 
-has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
 while [ $# -gt 0 ]; do
@@ -650,8 +643,7 @@ while [ $# -gt 0 ]; do
 		;;
 	-f)
 		shift
-		has_custom_cqfdrc=true
-		cqfdrc="$1"
+		CQFDRC_FILE="$(realpath "$1")"
 		;;
 	-C)
 		shift
@@ -728,7 +720,7 @@ elif [ -n "$*" ]; then
 fi
 
 if [ -z "$build_cmd" ]; then
-	die "No build.command defined in ${cqfdrc}, and no command specified"
+	die "No build.command defined in .cqfdrc, and no command specified"
 fi
 
 docker_run "$build_cmd"
