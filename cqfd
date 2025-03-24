@@ -22,7 +22,6 @@ set -o pipefail
 
 PROGNAME=$(basename "$0")
 VERSION=5.6.1-dev
-cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
@@ -500,10 +499,15 @@ EOF
 # locate_project_dir() - locate directory with .cqfd upwards
 # The directory will be printed on stdout, if found.
 locate_project_dir() {
-	local search_dir="$PWD"
+	if [ -n "$CQFD_DIR" ]
+	then
+		realpath "$CQFD_DIR/.."
+		return
+	fi
 
+	local search_dir="$PWD"
 	while [ "$search_dir" != "/" ]; do
-		if [ -d "$search_dir"/"$cqfddir" ]; then
+		if [ -d "$search_dir/.cqfd" ]; then
 			realpath "$search_dir"
 			return 0
 		fi
@@ -516,6 +520,7 @@ locate_project_dir() {
 # config_load() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command.
 config_load() {
+	# get the project directory
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
 	fi
@@ -580,7 +585,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="${CQFD_DIR:-$cqfd_project_dir/.cqfd}/${distro:-docker}/Dockerfile"
 
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
 		die "Please set project.org and project.name in .cqfdrc"
@@ -641,7 +646,7 @@ while [ $# -gt 0 ]; do
 		;;
 	-d)
 		shift
-		cqfddir="$1"
+		CQFD_DIR="$(realpath "$1")"
 		;;
 	-f)
 		shift
