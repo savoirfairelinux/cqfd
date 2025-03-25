@@ -19,16 +19,14 @@ fi
 # Running cqfd without a .cqfdrc file in the current directory shall fail
 ################################################################################
 jtest_prepare "'cqfd run' with no config file shall fail"
-
 empty_dir=$(mktemp -d)
 pushd "$empty_dir" >/dev/null || exit 1
-
 if ! "$cqfd" run true; then
 	jtest_result pass
 else
 	jtest_result fail
 fi
+popd >/dev/null || exit 1
 
 # cleanup
-popd >/dev/null || exit 1
 rm -rf "$empty_dir"
