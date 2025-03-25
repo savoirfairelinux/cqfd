@@ -10,7 +10,6 @@ cqfd="$TDIR"/.cqfd/cqfd
 ################################################################################
 jtest_prepare "cqfd help shall exit normally"
 TEST=$(mktemp)
-
 if "$cqfd" help >"$TEST"; then
 	jtest_result pass
 else
@@ -30,7 +29,6 @@ for word in Usage Options Commands; do
 		missing=1
 	fi
 done
-
 if [ "$missing" != "1" ]; then
 	jtest_result pass
 else

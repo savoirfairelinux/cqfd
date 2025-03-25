@@ -12,14 +12,11 @@ cd "$TDIR/" || exit 1
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run cqfd with extra environment variables"
-
 val1="value-$RANDOM"
 val2="value-$RANDOM"
-
 # shellcheck disable=SC2016
 result=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e BAR=$val2" \
 	"$cqfd" run 'echo -n $FOO $BAR' | grep value)
-
 if [ "$result" = "$val1 $val2" ]; then
     jtest_result pass
 else
