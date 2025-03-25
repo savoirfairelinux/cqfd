@@ -12,7 +12,7 @@ jtest_prepare "run cqfd with docker_build_args in config"
 echo "RUN cp /etc/hosts /tmp/hosts" >>"$TDIR/.cqfd/docker/Dockerfile"
 sed '/\[build\]/adocker_build_args="--add-host testhost:1.2.3.4"'\
     -i "$TDIR/.cqfdrc"
-output=$("$cqfd" init; "$cqfd" run cat /tmp/hosts; exit 0)
+output=$("$cqfd" init; "$cqfd" run cat /tmp/hosts)
 if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
     jtest_result pass
 else
