@@ -14,16 +14,12 @@ cd "$TDIR/" || exit 1
 spaces_dir="aa bb cc dd"
 spaces_dir2="aa2 bb2 cc2 dd2"
 mkdir -p "$spaces_dir"/"$spaces_dir2"
-
 cp -a .cqfd .cqfdrc "$spaces_dir"/"$spaces_dir2"
-
 pushd "$spaces_dir"/"$spaces_dir2" >/dev/null || exit 1
 
 jtest_prepare "cqfd run from a directory with spaces"
-
 file="rand.$RANDOM"
 "$cqfd" run touch "$file"
-
 if [ -f "$file" ]; then
     rm -f "$file"
     jtest_result pass

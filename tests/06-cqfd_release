@@ -28,7 +28,6 @@ fi
 ################################################################################
 rel_files="a/cqfd_a.txt a/b/c/cqfd_c.txt a/b/cqfd_b.txt"
 echo "files=\"$rel_files\"" >>.cqfdrc
-
 jtest_prepare "cqfd release now with a files parameter"
 if "$cqfd" release; then
 	jtest_result pass
@@ -37,7 +36,6 @@ else
 fi
 
 jtest_prepare "default orgname-project.tar.xz archive is generated"
-
 if tar tf cqfd-test.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -90,7 +88,6 @@ rm -f cqfd-test.tar.xz
 # cqfd follows the symlinks of the files, only if tar_options=-h,
 # only for tar archive.
 ################################################################################
-
 jtest_prepare "symlink files are copied in the tar archive"
 "$cqfd" run ln -s a/cqfd_a.txt link.txt
 rel_files_link="a/cqfd_a.txt link.txt"
@@ -124,12 +121,10 @@ rm -rf "$tmp_dir"
 # Now test adding an archive filename template to the config
 ################################################################################
 jtest_prepare "build.archive can template filenames (RFC3339 date)"
-
 export CTEST=foobar
 d3=$(date --rfc-3339='date')
 # shellcheck disable=SC2016
 echo 'archive=cqfd-%D3-$CTEST.tar.xz' >>.cqfdrc
-
 if "$cqfd" release && tar tf "cqfd-$d3-foobar.tar.xz" &>/dev/null; then
 	jtest_result pass
 else
@@ -140,7 +135,6 @@ rm -f "cqfd-$d3-foobar.tar.xz"
 jtest_prepare "build.archive can template filenames (git short hash of last commit)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Gh-$CTEST.tar.xz!' .cqfdrc
-
 # shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{4,40\}-foobar.tar.xz$" &&
@@ -154,7 +148,6 @@ rm -f cqfd-*-foobar.tar.xz
 jtest_prepare "build.archive can template filenames (git long hash of last commit)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%GH-$CTEST.tar.xz!' .cqfdrc
-
 # shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{40\}-foobar.tar.xz$" &&
@@ -168,7 +161,6 @@ rm -f cqfd-*-foobar.tar.xz
 jtest_prepare "build.archive can template filenames (Unix timestamp)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Du-$CTEST.tar.xz!' .cqfdrc
-
 # shellcheck disable=SC2010
 if "$cqfd" release &&
    ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:digit:]]\{1,20\}-foobar.tar.xz$" &&
@@ -182,7 +174,6 @@ rm -f cqfd-*-foobar.tar.xz
 jtest_prepare "build.archive can template filenames (current cqfd flavor name unset)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Cf-$CTEST.tar.xz!' .cqfdrc
-
 if "$cqfd" release && tar tf cqfd--foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -191,7 +182,6 @@ fi
 rm -f cqfd--foobar.tar.xz
 
 jtest_prepare "build.archive can template filenames (current cqfd flavor name set)"
-
 if "$cqfd" -b foo release && tar tf cqfd-foo.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -202,7 +192,6 @@ rm -f cqfd-foo.tar.xz
 jtest_prepare "build.archive can template filenames (value of the project.org configuration key)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Po-$CTEST.tar.xz!' .cqfdrc
-
 if "$cqfd" release && tar tf cqfd-cqfd-foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -213,7 +202,6 @@ rm -f cqfd-cqfd-foobar.tar.xz
 jtest_prepare "build.archive can template filenames (value of the project.name configuration key)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%Pn-$CTEST.tar.xz!' .cqfdrc
-
 if "$cqfd" release && tar tf cqfd-test-foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -224,7 +212,6 @@ rm -f cqfd-test-foobar.tar.xz
 jtest_prepare "build.archive can template filenames (litteral '%' sign)"
 # shellcheck disable=SC2016
 sed -i -e '$ s!^archive=.*!archive=cqfd-%%-$CTEST.tar.xz!' .cqfdrc
-
 if "$cqfd" release && tar tf cqfd-%-foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -294,7 +281,6 @@ jtest_prepare "cqfd resolves globs in build.files"
 # shellcheck disable=SC2016
 sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
 sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
-
 # cqfd release must work witout error
 if "$cqfd" release; then
 	jtest_result pass
