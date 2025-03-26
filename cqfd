@@ -37,6 +37,8 @@ usage() {
 Usage: $PROGNAME [OPTIONS] [COMMAND] [COMMAND OPTIONS] [ARGUMENTS]
 
 Options:
+    --init               Initialize build container.
+    --release            Release software.
     -f <file>            Use file as config file (default .cqfdrc).
     -d <directory>       Use directory as cqfd directory (default .cqfd).
     -C <directory>       Use the specified working directory.
@@ -610,6 +612,7 @@ config_load() {
 }
 
 has_custom_cqfdrc=false
+has_to_init=false
 has_to_release=false
 has_alternate_command=false
 while [ $# -gt 0 ]; do
@@ -655,6 +658,12 @@ while [ $# -gt 0 ]; do
 	-q)
 		quiet=true
 		;;
+	--init)
+		has_to_init=true
+		;;
+	--release)
+		has_to_release=true
+		;;
 	exec)
 		if [ "$#" -lt 2 ]; then
 			die "command exec requires arguments"
@@ -662,6 +671,9 @@ while [ $# -gt 0 ]; do
 		shift
 		config_load "$flavor"
 		command_string="${*@Q}"
+		if $has_to_init; then
+			docker_build
+		fi
 		docker_run "$command_string"
 		exit
 		;;
@@ -695,6 +707,9 @@ while [ $# -gt 0 ]; do
 		fi
 		shift
 		config_load "$flavor"
+		if $has_to_init; then
+			docker_build
+		fi
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${*@Q}"
@@ -715,6 +730,10 @@ while [ $# -gt 0 ]; do
 done
 
 config_load "$flavor"
+
+if $has_to_init; then
+	docker_build
+fi
 
 if $has_alternate_command; then
 	build_cmd="$*"
