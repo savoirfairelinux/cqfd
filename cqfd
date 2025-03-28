@@ -22,8 +22,6 @@ set -o pipefail
 
 PROGNAME=$(basename "$0")
 VERSION=5.6.1-dev
-cqfddir=".cqfd"
-cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
@@ -335,7 +333,7 @@ make_archive() {
 
 	eval "files=($release_files)"
 	if [ -z "${files[*]}" ]; then
-		die "No files to archive, check files in $cqfdrc"
+		die "No files to archive, check files in .cqfdrc"
 	fi
 
 	for file in "${files[@]}"; do
@@ -500,10 +498,15 @@ EOF
 # locate_project_dir() - locate directory with .cqfd upwards
 # The directory will be printed on stdout, if found.
 locate_project_dir() {
-	local search_dir="$PWD"
+	if [ -n "$CQFD_DIR" ]
+	then
+		realpath "$CQFD_DIR/.."
+		return
+	fi
 
+	local search_dir="$PWD"
 	while [ "$search_dir" != "/" ]; do
-		if [ -d "$search_dir"/"$cqfddir" ]; then
+		if [ -d "$search_dir/.cqfd" ]; then
 			realpath "$search_dir"
 			return 0
 		fi
@@ -516,16 +519,12 @@ locate_project_dir() {
 # config_load() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command.
 config_load() {
+	# get the project directory
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
 	fi
 
-	# unless using '-f other_cqfdrc', use base directory located above
-	if ! $has_custom_cqfdrc; then
-		local cqfdrc_dir="$cqfd_project_dir/"
-	fi
-
-	parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
+	parse_ini_config_file "${CQFDRC_FILE:-$cqfd_project_dir/.cqfdrc}"
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
@@ -580,7 +579,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="${CQFD_DIR:-$cqfd_project_dir/.cqfd}/${distro:-docker}/Dockerfile"
 
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
 		die "Please set project.org and project.name in .cqfdrc"
@@ -609,7 +608,6 @@ config_load() {
 	fi
 }
 
-has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
 while [ $# -gt 0 ]; do
@@ -641,12 +639,11 @@ while [ $# -gt 0 ]; do
 		;;
 	-d)
 		shift
-		cqfddir="$1"
+		CQFD_DIR="$(realpath "$1")"
 		;;
 	-f)
 		shift
-		has_custom_cqfdrc=true
-		cqfdrc="$1"
+		CQFDRC_FILE="$(realpath "$1")"
 		;;
 	-C)
 		shift
@@ -723,7 +720,7 @@ elif [ -n "$*" ]; then
 fi
 
 if [ -z "$build_cmd" ]; then
-	die "No build.command defined in ${cqfdrc}, and no command specified"
+	die "No build.command defined in .cqfdrc, and no command specified"
 fi
 
 docker_run "$build_cmd"
