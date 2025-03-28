@@ -103,6 +103,12 @@ parse_ini_config_file() {
 	fi
 }
 
+## warn() - output warning
+# $* messages and variables shown in the message
+warn() {
+	echo "cqfd: warning: $*" >&2
+}
+
 ## die() - exit when an error occured
 # $* messages and variables shown in the error message
 die() {
@@ -680,13 +686,27 @@ while [ $# -gt 0 ]; do
 			if [ "$#" -lt 2 ]; then
 				die "option -c requires arguments"
 			fi
-
 			shift
+
+			# Display a warning message if using run -c with multiple arguments
+			if [ "$#" -gt 1 ]; then
+				warn "command run -c shall support a single argument," \
+				     "please consider the command run -c instead:"
+				echo "               cqfd run -c \"$*\"" >&2
+			fi
 			break
 		fi
 
 		# Run alternate command
 		has_alternate_command=true
+
+		# Display a warning message if using run with multiple arguments
+		if [ "$#" -ne 1 ]; then
+			warn "command run with multiple arguments is ambigous," \
+			     "please consider the commands exec or shell instead:"
+			echo "               cqfd exec $*" >&2
+			echo "               cqfd shell -c \"$*\"" >&2
+		fi
 		break
 		;;
 	sh|ash|dash|bash|ksh|zsh|csh|tcsh|fish|shell)
