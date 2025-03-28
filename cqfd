@@ -600,12 +600,7 @@ config_load() {
 		# shellcheck disable=SC2001
 		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_${format_user}}_${project_org}_${project_name}_${dockerfile_hash}"
-	fi
-
-	# Adapt things for a specific container
-	if [ -n "$distro" ]; then
-		docker_img_name+="_$distro"
+		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${distro:+_$distro}"
 	fi
 }
 
