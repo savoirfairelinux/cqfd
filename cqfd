@@ -69,38 +69,28 @@ Command options for run / release:
 EOF
 }
 
-# parse_ini_config_file()
+# cfg_parser() - parse ini-style config files
+# Will parse a ini-style config file, and evaluate it to a bash array.
 #   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz - License: MIT
 # arg$1: path to ini file
-parse_ini_config_file() {
+cfg_parser() {
 	local ini
 
-	if [ ! -f "$1" ]; then
-		die "Unable to find $1 - create it or pick one using 'cqfd -f'"
-	fi
-
-	mapfile -t ini <"$1"
-	ini=( "${ini[@]//[/\\[}" )                   # escape [
-	ini=( "${ini[@]//]/\\]}" )                   # escape ]
-	ini=( "${ini[@]//;*/}" )                     # remove comments with ;
-	ini=( "${ini[@]/$'\t'=/=}" )                 # remove tabs before =
-	ini=( "${ini[@]/=$'\t'/=}" )                 # remove tabs after =
-	ini=( "${ini[@]/\ =/=}" )                    # remove space before =
-	ini=( "${ini[@]/=\ /=}" )                    # remove space after =
-	ini=( "${ini[@]/#\\[/\}$'\n'cfg.section.}" ) # set section prefix
-	ini=( "${ini[@]/%\\]/(}" )                   # convert text2function (1)
-	ini=( "${ini[@]/%(/()}" )                    # close array parenthesis
-	ini=( "${ini[@]/%\)/) {}" )                  # the multiline trick
-	ini=( "${ini[@]/%\( \)/\(\) \{}" )           # convert text2function (2)
-	ini=( "${ini[@]/%\} \)/\}}" )                # remove extra parenthesis
-	ini[0]="${ini[0]/\}/}"                       # remove the first brace
-	ini+=( "}" )                                 # add the last brace
-	ini=("$(printf "%s\n" "${ini[@]}")")
-	if ! eval "${ini[*]}"; then                  # eval the result
-		debug "$1: fail to evaluate shell:" "${ini[@]}"
-		die "$1: Invalid ini-file!"
-	fi
+	mapfile -t ini <"$1"                                 # convert to line-array
+	ini=("${ini[@]//[/\\[}")                             # escape [
+	ini=("${ini[@]//]/\\]}")                             # escape ]
+	ini=("${ini[@]//;*/}")                               # remove comments with ;
+	ini=("${ini[@]/$'\t'=/=}")                           # remove tabs before =
+	ini=("${ini[@]/=$'\t'/=}")                           # remove tabs after =
+	ini=("${ini[@]/\ =/=}")                              # remove space before =
+	ini=("${ini[@]/=\ /=}")                              # remove space after =
+	ini=("${ini[@]/#\\[/$'\n}\nfunction cfg_section_'}") # convert section to function (1)
+	ini=("${ini[@]/%\\]/ { :}")                          # convert section to function (2)
+	ini+=("}")                                           # add the last brace
+	ini[0]="${ini[0]/\}/}"                               # remove the first brace
+	ini=("$(printf "%s\n" "${ini[@]}")")                 # reconvert to line-array
+	eval "${ini[*]}"                                     # eval the result
 }
 
 ## die() - exit when an error occured
@@ -525,21 +515,31 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	parse_ini_config_file "${cqfdrc_dir}${cqfdrc}"
+	if [ ! -f "${cqfdrc_dir}${cqfdrc}" ]; then
+		die "Unable to find ${cqfdrc_dir}${cqfdrc} - create it or pick one using 'cqfd -f'"
+	fi
+
+	if ! cfg_parser "${cqfdrc_dir}${cqfdrc}"; then
+		die "${cqfdrc_dir}${cqfdrc}: Invalid ini-file!"
+	fi
 
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the buildtin:
-	#  - the cfg.section. prefix is stripped
+	#  - the cfg_section_ prefix is stripped
 	#  - the build and project sections are stripped
-	mapfile -t flavors < <(compgen -A function -X '!cfg.section.*')
-	flavors=("${flavors[@]/cfg.section./}")
+	mapfile -t flavors < <(compgen -A function -X '!cfg_section_*')
+	flavors=("${flavors[@]/cfg_section_/}")
 	for i in "${!flavors[@]}"; do
 		if [[ "${flavors[$i]}" =~ ^(build|project)$ ]]; then
 			unset 'flavors[$i]'
 		fi
 	done
 
-	cfg.section.project # load the [project] section
+	# load the [project] section
+	if ! cfg_section_project 2>/dev/null; then
+		die "$cqfdrc: Missing project section!"
+	fi
+
 	# shellcheck disable=SC2154
 	project_org="$org"
 	# shellcheck disable=SC2154
@@ -549,7 +549,16 @@ config_load() {
 	# shellcheck disable=SC2154
 	project_custom_img_name="$custom_img_name"
 
-	cfg.section.build # load the [build] section
+	# check for [project] org and name properties are set and are not empty
+	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
+		die "$cqfdrc: Missing project.org or project.name properties"
+	fi
+
+	# load the [build] section
+	if ! cfg_section_build 2>/dev/null; then
+		die "$cqfdrc: Missing build section!"
+	fi
+
 	build_flavors="${flavors[*]}"
 
 	# build parameters may be overriden by a flavor defined in the
@@ -557,7 +566,10 @@ config_load() {
 	local flavor="$1"
 	if [ -n "$flavor" ]; then
 		if grep -qw "$flavor" <<< "${flavors[*]}"; then
-			cfg.section."$flavor" # load the [$flavor] section
+			# load the [$flavor] section
+			if ! cfg_section_"$flavor" 2>/dev/null; then
+				die "$cqfdrc: Missing $flavor section!"
+			fi
 		else
 			die "flavor \"$flavor\" not found in flavors list"
 		fi
@@ -580,12 +592,12 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
-
-	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
-		die "Please set project.org and project.name in .cqfdrc"
+	# check for [build] command is set and is not empty
+	if [ -z "$build_cmd" ]; then
+		die "$cqfdrc: Missing build.command property"
 	fi
 
+	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -720,10 +732,6 @@ if $has_alternate_command; then
 	build_cmd="$*"
 elif [ -n "$*" ]; then
 	build_cmd+=" $*"
-fi
-
-if [ -z "$build_cmd" ]; then
-	die "No build.command defined in ${cqfdrc}, and no command specified"
 fi
 
 docker_run "$build_cmd"
