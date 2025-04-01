@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of cqfd with custom image
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+# create a temporary directory
+TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
+
+cd "$TEST_DIR"/ || exit 1
+
+################################################################################
+# 'cqfd init' with custom image
+################################################################################
+
+# Test .cqfdrc
+cat >.cqfdrc <<EOF
+[project]
+org="cqfd"
+name="custom-image"
+image="debian:bookworm"
+
+[build]
+command="cat /etc/os-release"
+EOF
+
+mkdir -p .cqfd
+
+jtest_prepare "cqfd init pulls the custom image and cqfd run it"
+if "$cqfd" init && "$cqfd" | grep -q 'PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"'; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# cleanup
+################################################################################
+rm -rf "$TEST_DIR"
