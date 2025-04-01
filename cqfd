@@ -589,6 +589,8 @@ config_load() {
 	# shellcheck disable=SC2154
 	build_docker_run_args="$docker_run_args"
 	# shellcheck disable=SC2154
+	build_distro="$distro"
+	# shellcheck disable=SC2154
 	cqfd_extra_groups="$user_extra_groups"
 	# shellcheck disable=SC2154
 	release_files="$files"
@@ -599,7 +601,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfd_project_dir/$cqfddir/${distro:-docker}/Dockerfile"
+	dockerfile="$cqfd_project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -614,7 +616,7 @@ config_load() {
 		# shellcheck disable=SC2001
 		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${distro:+_$distro}"
+		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
 	fi
 }
 
