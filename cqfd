@@ -586,7 +586,7 @@ config_load() {
 	fi
 
 	# shellcheck disable=SC2154
-	build_cmd="$command"
+	build_command="$command"
 	# shellcheck disable=SC2154
 	build_docker_build_args="$docker_build_args"
 	# shellcheck disable=SC2154
@@ -733,21 +733,21 @@ done
 
 config_load "$flavor"
 
-if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_cmd" ]; then
+if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_command" ]; then
 	warn "$cqfdrc: Missing or empty build.command property"
 fi
 
 if $has_alternate_command; then
-	build_cmd="$*"
+	build_command="$*"
 elif [ -n "$*" ]; then
-	build_cmd+=" $*"
+	build_command+=" $*"
 fi
 
-if [ -z "$build_cmd" ]; then
+if [ -z "$build_command" ]; then
 	die "$cqfdrc: Missing or empty build.command property"
 fi
 
-docker_run "$build_cmd"
+docker_run "$build_command"
 
 if $has_to_release; then
 	make_archive
