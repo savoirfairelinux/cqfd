@@ -23,7 +23,7 @@ jtest_prepare "cqfd run with su -c"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" --verbose run true \
+	if "$cqfd" --reinit --verbose run true \
 		| awk -v rc=1 '/Using "su" to execute command/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
@@ -43,7 +43,7 @@ jtest_prepare "cqfd run with su --session-command"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" --verbose run true \
+	if "$cqfd" --reinit --verbose run true \
 		| awk -v rc=1 '/Using "su" to execute session command/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
@@ -64,7 +64,7 @@ jtest_prepare "cqfd run with sudo"
 if [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	if "$cqfd" init && "$cqfd" --verbose run true \
+	if "$cqfd" --reinit --verbose run true \
 		| awk -v rc=1 '/Using "sudo" to execute command/ { rc=0 } 1; END {exit rc}'; then
 		jtest_result pass
 	else
