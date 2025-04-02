@@ -167,9 +167,8 @@ For tar archives:
   the tar command. For example, setting ``tar_options=-h`` will copy
   all symlink files as hardlinks, which is desired in some scenarios.
 
-``distro``: the name of the directory containing the Dockerfile. By
-default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is
-used.
+``distro`` (optional): the name of the directory containing the Dockerfile. By
+default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is used.
 
 ``user_extra_groups``: an optional, space-separated list of groups the user
 should be a member of in the container. You can either use the ``group:gid``
