@@ -27,6 +27,7 @@ for word in Usage Options Commands; do
 		jtest_log error "cannot find $word in help message"
 		rm -f "$TEST"
 		missing=1
+		break
 	fi
 done
 if [ "$missing" != "1" ]; then
