@@ -26,7 +26,7 @@ else
 fi
 
 ################################################################################
-# 'cqfd run' does not override HOME environment explicitely set via
+# 'cqfd run' does not override HOME environment explicitly set via
 # CQFD_EXTRA_RUN_ARGS
 ################################################################################
 jtest_prepare "run doesn't override HOME env when set via CQFD_EXTRA_RUN_ARGS"
