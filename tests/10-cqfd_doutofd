@@ -16,7 +16,9 @@ dockerfile_old=$(mktemp)
 cp -f .cqfd/docker/Dockerfile "$dockerfile_old"
 
 jtest_prepare "cqfd run docker using host docker daemon"
-if [ "$cqfd_docker" = "docker" ] && getent group docker | grep -q "$USER"; then
+if [ "$cqfd_docker" != "docker" ] || ! getent group docker | grep -q "$USER"; then
+	jtest_result skip
+else
 	cp -f .cqfd/docker/Dockerfile.doutofd .cqfd/docker/Dockerfile
 	sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='docker run --rm -ti ubuntu:24.04 cat /etc/os-release'," .cqfdrc
 
@@ -25,8 +27,6 @@ if [ "$cqfd_docker" = "docker" ] && getent group docker | grep -q "$USER"; then
 	else
 		jtest_result fail
 	fi
-else
-	jtest_result skip
 fi
 
 mv -f "$cqfdrc_old" .cqfdrc
