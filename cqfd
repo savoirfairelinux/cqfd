@@ -259,11 +259,11 @@ docker_run() {
 
 	# The user may set the user_extra_groups in the .cqfdrc
 	# file to add groups to the user in the container.
-	if [ -n "$cqfd_extra_groups" ]; then
+	if [ -n "$build_user_extra_groups" ]; then
 		local group
 		local array
 		# shellcheck disable=SC2162
-		read -a array <<<"$user_extra_groups"
+		read -a array <<<"$build_user_extra_groups"
 		for group in "${array[@]}"; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
@@ -594,7 +594,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	build_distro="$distro"
 	# shellcheck disable=SC2154
-	cqfd_extra_groups="$user_extra_groups"
+	build_user_extra_groups="$user_extra_groups"
 	# shellcheck disable=SC2154
 	release_files="$files"
 	# shellcheck disable=SC2154
