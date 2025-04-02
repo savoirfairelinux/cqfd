@@ -20,8 +20,8 @@ jtest_prepare "'cqfd run' should add extra_groups provided by an env variable"
 if [ "$USER" = "runner" ] || [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
-	result=$(user_extra_groups="docker newgroup:12345" "$cqfd" run groups | grep docker | grep newgroup)
-	if [ -n "$result" ]; then
+	output=$(user_extra_groups="docker newgroup:12345" "$cqfd" run groups | grep docker | grep newgroup)
+	if [ -n "$output" ]; then
 		jtest_result pass
 	else
 		jtest_result fail
@@ -36,8 +36,8 @@ if [ "$USER" = "runner" ] || [ "$cqfd_docker" = "podman" ]; then
 	jtest_result skip
 else
 	echo 'user_extra_groups="docker newgroup:12345"' >>.cqfdrc
-	result=$("$cqfd" run groups | grep docker | grep newgroup)
-	if [ -n "$result" ]; then
+	output=$("$cqfd" run groups | grep docker | grep newgroup)
+	if [ -n "$output" ]; then
 		jtest_result pass
 	else
 		jtest_result fail
