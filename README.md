@@ -137,9 +137,8 @@ named `cqfd_$username_$org_$name_$hash`, using the following variables:
 string will be passed as an argument to a classical ``sh -c "commands"``,
 within the build container, to generate the build artefacts.
 
-``distro``: the name of the directory containing the Dockerfile. By
-default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is
-used.
+``distro`` (optional): the name of the directory containing the Dockerfile. By
+default, cqfd uses ``"docker"``, and ``.cqfd/docker/Dockerfile` is used.
 
 ``user_extra_groups``: an optional, space-separated list of groups the user
 should be a member of in the container. You can either use the ``group:gid``
