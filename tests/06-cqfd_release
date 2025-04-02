@@ -281,7 +281,7 @@ jtest_prepare "cqfd resolves globs in build.files"
 # shellcheck disable=SC2016
 sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
 sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
-# cqfd release must work witout error
+# cqfd release must work without error
 if "$cqfd" release; then
 	jtest_result pass
 else
