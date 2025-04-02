@@ -15,14 +15,14 @@ sed -i -e "/\[build\]/,/^$/s/^command=.*$/command='tty || true'/" .cqfdrc
 "$cqfd" init
 
 jtest_prepare "cqfd without redirection should allocate a tty"
-if tty; then
+if ! tty; then
+	jtest_result skip
+else
 	if "$cqfd" | grep "/dev/pts/" ; then
 		jtest_result pass
 	else
 		jtest_result fail
 	fi
-else
-	jtest_result skip
 fi
 
 jtest_prepare "cqfd with stdin redirected to /dev/null should not allocate a pty"
