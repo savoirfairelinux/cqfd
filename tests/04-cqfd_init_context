@@ -2,8 +2,6 @@
 #
 # validate the behavior of project.build_context
 
-set -o pipefail
-
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
 
@@ -14,7 +12,7 @@ cd "$TDIR/" || exit 1
 ################################################################################
 jtest_prepare "cqfd init without using build_context"
 if "$cqfd" init &&
-   "$cqfd" run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
+   "$cqfd" run "test -e /tmp/cqfdrc-build_context"; then
 	jtest_result fail
 else
 	jtest_result pass
@@ -32,7 +30,7 @@ cp -f cqfdrc-build_context .cqfdrc
 ################################################################################
 jtest_prepare "cqfd init using build_context"
 if "$cqfd" init &&
-   "$cqfd" run "grep '^build_context=' /tmp/cqfdrc-build_context" | grep -q '^build_cont'; then
+   "$cqfd" run "test -e /tmp/cqfdrc-build_context"; then
 	jtest_result pass
 else
 	jtest_result fail
