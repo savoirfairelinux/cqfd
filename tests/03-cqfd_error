@@ -9,10 +9,10 @@ cqfd="$TDIR"/.cqfd/cqfd
 # Running cqfd with an unknown argument shall fail
 ################################################################################
 jtest_prepare "run a bad cqfd command-line shall fail"
-if "$cqfd" invalid_arg_should_fail; then
-	jtest_result fail
-else
+if ! "$cqfd" invalid_arg_should_fail; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
@@ -23,10 +23,10 @@ jtest_prepare "'cqfd run' with no config file shall fail"
 empty_dir=$(mktemp -d)
 pushd "$empty_dir" >/dev/null || exit 1
 
-if "$cqfd" run true; then
-	jtest_result fail
-else
+if ! "$cqfd" run true; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 # cleanup

@@ -14,10 +14,10 @@ cd "$TDIR/" || exit 1
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
 jtest_prepare "create a test skeleton in temporary directory"
-if "$cqfd" init; then
-	jtest_result fail
-else
+if ! "$cqfd" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
@@ -25,10 +25,10 @@ fi
 ################################################################################
 jtest_prepare "cqfd init complains with an empty .cqfdrc"
 touch "$TDIR/.cqfdrc"
-if "$cqfd" init; then
-	jtest_result fail
-else
+if ! "$cqfd" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
@@ -36,10 +36,10 @@ fi
 ################################################################################
 jtest_prepare "cqfd init complains with an incomplete .cqfdrc"
 echo '[project]' >"$TDIR/.cqfdrc"
-if "$cqfd" init; then
-	jtest_result fail
-else
+if ! "$cqfd" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################

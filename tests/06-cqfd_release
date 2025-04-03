@@ -296,10 +296,10 @@ sed -i -e 's!^archive=.*$!archive=cqfd-$CTEST.tar.xz!' .cqfdrc
 sed -i -e 's!^files=.*$!files=".cq*rc Ma*"!' .cqfdrc
 
 # cqfd release must work witout error
-if ! "$cqfd" release; then
-	jtest_result fail
-else
+if "$cqfd" release; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 # the generated archive should contain our expanded globs
