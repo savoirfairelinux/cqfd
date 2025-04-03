@@ -20,10 +20,10 @@ cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
 # Missing all core dependencies for the launch script
 ################################################################################
 jtest_prepare "cqfd run fails when the Docker image lacks required commands"
-if "$cqfd" init && "$cqfd" run; then
-	jtest_result fail
-else
+if "$cqfd" init && ! "$cqfd" run; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################

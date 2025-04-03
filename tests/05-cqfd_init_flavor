@@ -30,10 +30,10 @@ fi
 ################################################################################
 flavorPart="${flavor:0:2}"
 jtest_prepare "cqfd init using part of '$flavor' flavor should fail"
-if "$cqfd" -b "$flavorPart" init; then
-	jtest_result fail
-else
+if ! "$cqfd" -b "$flavorPart" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################

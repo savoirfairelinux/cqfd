@@ -30,12 +30,12 @@ if ! grep -qw "target 'foo'" "$test_run_c_file"; then
 fi
 
 # at the end of either test, $test_file is populated
-if ! grep -qw "cqfd" "$test_file"; then
+if grep -qw "cqfd" "$test_file"; then
+	jtest_result pass
+else
 	jtest_log fatal "$test_file not present after test"
 	jtest_result fail
 	rm -f "$test_file"
-else
-	jtest_result pass
 fi
 
 rm -f $test_file
