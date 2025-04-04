@@ -12,10 +12,10 @@ cd "$TDIR/" || exit 1
 ################################################################################
 jtest_prepare "cqfd init without using build_context"
 if "$cqfd" init &&
-   "$cqfd" run "test -e /tmp/cqfdrc-build_context"; then
-	jtest_result fail
-else
+   "$cqfd" run "! test -e /tmp/cqfdrc-build_context"; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
