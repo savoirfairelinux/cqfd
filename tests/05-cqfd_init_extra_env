@@ -17,10 +17,10 @@ cp -f .cqfd/docker/Dockerfile.init_extra_env .cqfd/docker/Dockerfile
 # 'cqfd init' without CQFD_EXTRA_BUILD_ARGS should fail
 ################################################################################
 jtest_prepare "cqfd init without using CQFD_EXTRA_BUILD_ARGS"
-if "$cqfd" init; then
-	jtest_result fail
-else
+if ! "$cqfd" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
