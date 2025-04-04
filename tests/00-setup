@@ -4,7 +4,8 @@
 
 . "$(dirname "$0")"/jtest.inc "$1"
 mkdir -p "$TDIR/.cqfd/docker"
-cp -a ../cqfd "$TDIR/.cqfd/"
+cp -a ../cqfd "$TDIR/.cqfd/cqfd-$CQFD_COMPAT"
+ln -sf "cqfd-$CQFD_COMPAT" "$TDIR/.cqfd/cqfd"
 cp -a test_data/. "$TDIR/."
 cqfd="$TDIR"/.cqfd/cqfd
 
