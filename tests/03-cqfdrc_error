@@ -69,6 +69,14 @@ else
 	jtest_result fail
 fi
 
+jtest_prepare "cqfdrc succeeds even if no command property set in build section using run -c"
+if "$cqfd" run -c true 2>&1 | grep "cqfd: warning: .cqfdrc: Missing or empty build.command property";
+   test "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
 cp -f "$cqfdrc_old" .cqfdrc
 echo "foo	=bar" >>.cqfdrc
 

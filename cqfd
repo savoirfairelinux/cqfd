@@ -93,6 +93,12 @@ cfg_parser() {
 	eval "${ini[*]}"                                     # eval the result
 }
 
+## warn() - output warning
+# $* messages and variables shown in the message
+warn() {
+	echo "cqfd: warning: $*" >&2
+}
+
 ## die() - exit when an error occured
 # $* messages and variables shown in the error message
 die() {
@@ -681,6 +687,10 @@ while [ $# -gt 0 ]; do
 		if [ "$1" = "-c" ]; then
 			if [ "$#" -lt 2 ]; then
 				die "option -c requires arguments"
+			fi
+
+			if [ -z "$build_cmd" ]; then
+				warn "$cqfdrc: Missing or empty build.command property"
 			fi
 
 			shift
