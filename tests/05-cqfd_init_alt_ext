@@ -20,10 +20,10 @@ cqfd="$TDIR/${extdir}/cqfd/cqfd"
 # 'cqfd init' without local files should fail
 ################################################################################
 jtest_prepare "cqfd init without local files should fail"
-if "$cqfd" init; then
-	jtest_result fail
-else
+if ! "$cqfd" init; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 ################################################################################
