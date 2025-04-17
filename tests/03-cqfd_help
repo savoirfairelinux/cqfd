@@ -11,11 +11,11 @@ cqfd="$TDIR"/.cqfd/cqfd
 jtest_prepare "cqfd help shall exit normally"
 TEST=$(mktemp)
 
-if ! "$cqfd" help >"$TEST"; then
+if "$cqfd" help >"$TEST"; then
+	jtest_result pass
+else
 	jtest_result fail
 	rm -f "$TEST"
-else
-	jtest_result pass
 fi
 
 ################################################################################
@@ -31,10 +31,10 @@ for word in Usage Options Commands; do
 	fi
 done
 
-if [ "$missing" = "1" ]; then
-	jtest_result fail
-else
+if [ "$missing" != "1" ]; then
 	jtest_result pass
+else
+	jtest_result fail
 fi
 
 rm -f "$TEST"

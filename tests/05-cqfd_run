@@ -27,13 +27,13 @@ for i in 0 1; do
 	fi
 
 	# at the end of either test, $test_file is populated
-	if ! grep -qw "cqfd" $test_file; then
+	if grep -qw "cqfd" $test_file; then
+		jtest_result pass
+	else
 		jtest_log fatal "$test_file not present after test"
 		jtest_result fail
 		rm -f "$test_file"
 		continue
-	else
-		jtest_result pass
 	fi
 
 	rm -f "$test_file"
@@ -45,10 +45,10 @@ done
 jtest_prepare "Modifying the Dockerfile should require running 'cqfd init' again"
 dockerfile=.cqfd/docker/Dockerfile
 echo "RUN echo $RANDOM" >> $dockerfile
-if "$cqfd" run; then
-  jtest_result fail
-else
+if ! "$cqfd" run; then
   jtest_result pass
+else
+  jtest_result fail
 fi
 # restore Dockerfile
 sed -i '$d' $dockerfile
