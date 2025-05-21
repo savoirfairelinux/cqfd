@@ -423,8 +423,8 @@ To use podman instead of docker, you can set in your environment,
 like your `.bashrc`, `.profile` or `.zshrc`:
 
 ```bash
-CQFD_DOCKER="podman"
-PODMAN_USERNS="keep-id"
+export CQFD_DOCKER="podman"
+export PODMAN_USERNS="keep-id"
 ```
 
 ## Testing cqfd (for developers)
