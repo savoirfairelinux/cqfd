@@ -47,11 +47,11 @@ for i in 0 1 2 3; do
 	esac
 
 	# shellcheck disable=SC2181
-	if [ "$?" -ne 0 ] || [ ! -f "$test_file" ]; then
+	if [ "$?" -eq 0 ] && [ -f "$test_file" ]; then
+		jtest_result pass
+	else
 		jtest_log fatal "failed or test file not present after execution"
 		jtest_result fail
-	else
-		jtest_result pass
 	fi
 	rm -f "$test_file"
 done
