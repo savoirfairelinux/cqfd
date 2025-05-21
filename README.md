@@ -16,7 +16,7 @@ in an older Linux distribution.
 
 Just follow these steps:
 
-* Install cqfd (see below)
+* [Install cqfd](#installingremoving-cqfd)
 * Make sure your user is a member of the `docker` group
 * Go into your project's directory
 * Create a .cqfdrc file
@@ -387,17 +387,13 @@ workstation:
 
 ## Installing/removing cqfd
 
-If you use the [GNU Guix](https://gnu.org/software/guix) package
-manager, you can install `cqfd` via:
+### From source
 
-```sh
-guix install cqfd
-```
+First clone this repository:
 
-Otherwise, the following describes how you can install it system-wide
-from source.
+    $ git clone https://github.com/savoirfairelinux/cqfd.git
 
-Install or remove the script and its resources:
+Then, install or remove the script and its resources:
 
     $ make install
     $ make uninstall
@@ -407,6 +403,15 @@ variables:
 
     $ make install PREFIX=/opt
     $ make install PREFIX=/usr DESTDIR=package
+
+### GNU Guix
+
+If you use the [GNU Guix](https://gnu.org/software/guix) package
+manager, you can install `cqfd` via:
+
+```sh
+guix install cqfd
+```
 
 ## Using podman
 
