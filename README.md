@@ -16,7 +16,7 @@ in an older Linux distribution.
 
 Just follow these steps:
 
-* Install cqfd (see below)
+* [Install cqfd](#installingremoving-cqfd)
 * Make sure your user is a member of the `docker` group
 * Go into your project's directory
 * Create a .cqfdrc file
