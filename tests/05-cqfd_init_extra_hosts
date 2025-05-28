@@ -14,9 +14,9 @@ sed '/\[build\]/adocker_build_args="--add-host testhost:1.2.3.4"'\
     -i "$TDIR/.cqfdrc"
 output=$("$cqfd" init; "$cqfd" run cat /tmp/hosts)
 if [[ "$output" == *"1.2.3.4"*"testhost"* ]]; then
-    jtest_result pass
+	jtest_result pass
 else
-    jtest_result fail
+	jtest_result fail
 fi
 
 # teardown -- clear the command and docker_build_args option from config

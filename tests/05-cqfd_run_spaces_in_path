@@ -21,10 +21,10 @@ jtest_prepare "cqfd run from a directory with spaces"
 file="rand.$RANDOM"
 "$cqfd" run touch "$file"
 if [ -f "$file" ]; then
-    rm -f "$file"
-    jtest_result pass
+	rm -f "$file"
+	jtest_result pass
 else
-    jtest_result fail
+	jtest_result fail
 fi
 
 # Teardown
