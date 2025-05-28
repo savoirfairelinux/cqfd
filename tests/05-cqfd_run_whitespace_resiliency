@@ -16,9 +16,9 @@ cd "$TDIR/" || exit 1
 jtest_prepare "run cqfd with an option containing whitespace in CQFD_EXTRA_RUN_ARGS"
 if CQFD_EXTRA_RUN_ARGS="-e FOO=bar\ baz" \
 	"$cqfd" run env | grep "FOO=bar baz"; then
-    jtest_result pass
+	jtest_result pass
 else
-    jtest_result fail
+	jtest_result fail
 fi
 
 ################################################################################
@@ -30,9 +30,9 @@ jtest_prepare "run cqfd with an option containing whitespace in docker_run_args"
 sed '/\[build\]/adocker_run_args="-e FOO=bar\\ baz"'\
     -i "$TDIR/.cqfdrc"
 if "$cqfd" run env | grep "FOO=bar baz"; then
-    jtest_result pass
+	jtest_result pass
 else
-    jtest_result fail
+	jtest_result fail
 fi
 
 # teardown -- clear the docker_run_args option from config

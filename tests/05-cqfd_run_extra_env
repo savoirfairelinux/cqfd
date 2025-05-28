@@ -18,7 +18,7 @@ val2="value-$RANDOM"
 output=$(CQFD_EXTRA_RUN_ARGS="-e FOO=$val1 -e BAR=$val2" \
 	"$cqfd" run 'echo -n $FOO $BAR' | grep value)
 if [ "$output" = "$val1 $val2" ]; then
-    jtest_result pass
+	jtest_result pass
 else
-    jtest_result fail
+	jtest_result fail
 fi
