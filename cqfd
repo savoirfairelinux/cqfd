@@ -686,10 +686,6 @@ while [ $# -gt 0 ]; do
 				die "option -c requires arguments"
 			fi
 
-			if [ -z "$build_cmd" ]; then
-				warn "$cqfdrc: Missing or empty build.command property"
-			fi
-
 			shift
 			break
 		fi
@@ -724,6 +720,10 @@ while [ $# -gt 0 ]; do
 done
 
 config_load "$flavor"
+
+if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_cmd" ]; then
+	warn "$cqfdrc: Missing or empty build.command property"
+fi
 
 if $has_alternate_command; then
 	build_cmd="$*"
