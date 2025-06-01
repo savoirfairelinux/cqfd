@@ -722,9 +722,8 @@ while [ $# -gt 0 ]; do
 		exit
 		;;
 	*)
-		echo "Unknown command: $1" >&2
 		usage
-		exit 1
+		die "$1: Invalid command"
 		;;
 	esac
 	shift
