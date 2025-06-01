@@ -673,10 +673,11 @@ while [ $# -gt 0 ]; do
 		has_to_release=true
 		;;
 	exec)
-		if [ "$#" -lt 2 ]; then
-			die "command exec requires arguments"
-		fi
 		shift
+		if [ "$#" -lt 1 ]; then
+			usage
+			die "exec: Missing arguments!"
+		fi
 		config_load "$flavor"
 		command_string="${*@Q}"
 		docker_run "$command_string"
@@ -694,11 +695,12 @@ while [ $# -gt 0 ]; do
 
 		# -c appends following args to the default command
 		if [ "$1" = "-c" ]; then
-			if [ "$#" -lt 2 ]; then
-				die "option -c requires arguments"
-			fi
-
 			shift
+
+			if [ "$#" -lt 1 ]; then
+				usage
+				die "run -c: Missing arguments!"
+			fi
 			break
 		fi
 
