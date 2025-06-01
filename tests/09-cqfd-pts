@@ -12,7 +12,6 @@ cd "$TDIR/" || exit 1
 cqfdrc_old=$(mktemp)
 cp -f .cqfdrc "$cqfdrc_old"
 sed -i -e "/\[build\]/,/^$/s/^command=.*$/command='tty || true'/" .cqfdrc
-"$cqfd" init
 
 jtest_prepare "cqfd without redirection should allocate a tty"
 if ! tty; then
@@ -40,7 +39,6 @@ else
 fi
 
 sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='echo stdout \&\& echo stderr >\&2'," .cqfdrc
-"$cqfd" init
 
 jtest_prepare "cqfd with allocated pty should redirect stdout and stderr to same endpoint"
 if "$cqfd" >out; then
