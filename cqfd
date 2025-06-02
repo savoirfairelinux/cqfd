@@ -241,20 +241,20 @@ docker_run() {
 
 	# Terminate if using legacy variable
 	if [ -n "$CQFD_EXTRA_VOLUMES" ]; then
-		die 'CQFD_EXTRA_VOLUMES is no more supported, use' \
-		    'CQFD_EXTRA_RUN_ARGS="-v <local_dir>:<container_dir>"'
+		die "CQFD_EXTRA_VOLUMES is no more supported, use" \
+		    "CQFD_EXTRA_RUN_ARGS=\"-v <local_dir>:<container_dir>\""
 	fi
 	if [ -n "$CQFD_EXTRA_HOSTS" ]; then
-		die 'CQFD_EXTRA_HOSTS is no more supported, use '\
-		    'CQFD_EXTRA_RUN_ARGS="--add-host <hostname>:<IP_address>"'
+		die "CQFD_EXTRA_HOSTS is no more supported, use" \
+		    "CQFD_EXTRA_RUN_ARGS=\"--add-host <hostname>:<IP_address>\""
 	fi
 	if [ -n "$CQFD_EXTRA_ENV" ]; then
-		die 'CQFD_EXTRA_ENV is no more supported, use' \
-		    'CQFD_EXTRA_RUN_ARGS="-e <var_name>=<value>"'
+		die "CQFD_EXTRA_ENV is no more supported, use" \
+		    "CQFD_EXTRA_RUN_ARGS=\"-e <var_name>=<value>\""
 	fi
 	if [ -n "$CQFD_EXTRA_PORTS" ]; then
-		die 'CQFD_EXTRA_PORTS is no more supported, use' \
-		    'CQFD_EXTRA_RUN_ARGS="-p <host_port>:<docker_port>"'
+		die "CQFD_EXTRA_PORTS is no more supported, use" \
+		    "CQFD_EXTRA_RUN_ARGS=\"-p <host_port>:<docker_port>\""
 	fi
 
 	# The user may set the user_extra_groups in the .cqfdrc
