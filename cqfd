@@ -28,7 +28,7 @@ compat() {
 	compat="${compat#cqfd-}"
 	if [[ "$compat" = "cqfd" ]]
 	then
-		IFS=. read M m _ <<<"$1"
+		IFS=. read -r M m _ <<<"$1"
 		compat="$M${m:-0}"
 	fi
 	COMPAT="$compat"
