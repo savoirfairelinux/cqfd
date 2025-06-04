@@ -20,8 +20,24 @@
 set -e
 set -o pipefail
 
+compat() {
+	local compat
+
+	compat="$(realpath "$0")"
+	compat="${compat##*/}"
+	compat="${compat#cqfd-}"
+	if [[ "$compat" = "cqfd" ]]
+	then
+		IFS=. read -r M m _ <<<"$1"
+		compat="$M${m:-0}"
+	fi
+	COMPAT="$compat"
+	echo "$compat"
+}
+
 PROGNAME=$(basename "$0")
-VERSION=5.6.1-dev
+VERSION=5.7.1-dev
+COMPAT="${CQFD_COMPAT:-$(compat "$VERSION")}"
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
@@ -44,6 +60,7 @@ Options:
     -b <flavor_name>     Target a specific build flavor.
     -q                   Turn on quiet mode.
     -v or --version      Show version.
+    --compatibility      Show compatibility level.
     --verbose            Increase the script's verbosity.
     -h or --help         Show this help text.
 
@@ -81,11 +98,14 @@ cfg_parser() {
 	mapfile -t ini <"$1"                                 # convert to line-array
 	ini=("${ini[@]//[/\\[}")                             # escape [
 	ini=("${ini[@]//]/\\]}")                             # escape ]
-	ini=("${ini[@]//;*/}")                               # remove comments with ;
-	ini=("${ini[@]/$'\t'=/=}")                           # remove tabs before =
-	ini=("${ini[@]/=$'\t'/=}")                           # remove tabs after =
-	ini=("${ini[@]/\ =/=}")                              # remove space before =
-	ini=("${ini[@]/=\ /=}")                              # remove space after =
+	# Remove comments and whitespaces (before 5.6)
+	if [ "$COMPAT" -le 56 ]; then
+		ini=("${ini[@]//;*/}")                       # remove comments with ;
+		ini=("${ini[@]/$'\t'=/=}")                   # remove tabs before =
+		ini=("${ini[@]/=$'\t'/=}")                   # remove tabs after =
+		ini=("${ini[@]/\ =/=}")                      # remove space before =
+		ini=("${ini[@]/=\ /=}")                      # remove space after =
+	fi
 	ini=("${ini[@]/#\\[/$'\n}\nfunction cfg_section_'}") # convert section to function (1)
 	ini=("${ini[@]/%\\]/ { :}")                          # convert section to function (2)
 	ini+=("}")                                           # add the last brace
@@ -116,24 +136,38 @@ debug() {
 docker_build() {
 	local args=()
 
+	# Append extra args not preserving whitespaces (until 5.4)
+	if [ "$COMPAT" -lt 55 ]; then
+		# Append extra args from $CQFD_EXTRA_BUILD_ARGS
+		if [ "$CQFD_EXTRA_BUILD_ARGS" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$CQFD_EXTRA_BUILD_ARGS"
+			args+=("${array[@]}")
+		fi
+	fi
+
 	if [ "$quiet" ]; then
 		args+=(-q)
 	fi
 
-	# Append extra args from the .cqfdrc [build] section
-	if [ "$build_docker_build_args" ]; then
-		local array
-		# shellcheck disable=SC2162
-		read -a array <<<"$build_docker_build_args"
-		args+=("${array[@]}")
-	fi
+	# Append extra args preserving whitespaces (since 5.5)
+	if [ "$COMPAT" -ge 55 ]; then
+		# Append extra args from the .cqfdrc [build] section
+		if [ "$build_docker_build_args" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$build_docker_build_args"
+			args+=("${array[@]}")
+		fi
 
-	# Append extra args from $CQFD_EXTRA_BUILD_ARGS
-	if [ "$CQFD_EXTRA_BUILD_ARGS" ]; then
-		local array
-		# shellcheck disable=SC2162
-		read -a array <<<"$CQFD_EXTRA_BUILD_ARGS"
-		args+=("${array[@]}")
+		# Append extra args from $CQFD_EXTRA_BUILD_ARGS
+		if [ "$CQFD_EXTRA_BUILD_ARGS" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$CQFD_EXTRA_BUILD_ARGS"
+			args+=("${array[@]}")
+		fi
 	fi
 
 	args+=(-t "$docker_img_name")
@@ -183,20 +217,38 @@ docker_run() {
 		fi
 	fi
 
-	# Append extra args from the .cqfdrc [build] section
-	if [ "$build_docker_run_args" ]; then
-		local array
-		# shellcheck disable=SC2162
-		read -a array <<<"$build_docker_run_args"
-		args+=("${array[@]}")
+	# Append extra args not preserving whitespaces (until 5.4)
+	if [ "$COMPAT" -lt 55 ]; then
+		# Append extra args from the [build] section
+		if [ "$build_docker_run_args" ]; then
+			# shellcheck disable=SC2206
+			args+=($build_docker_run_args)
+		fi
+
+		# Append extra args from $CQFD_EXTRA_BUILD_ARGS
+		if [ "$CQFD_EXTRA_RUN_ARGS" ]; then
+			# shellcheck disable=SC2206
+			args+=($CQFD_EXTRA_RUN_ARGS)
+		fi
 	fi
 
-	# Append extra args from $CQFD_EXTRA_RUN_ARGS
-	if [ "$CQFD_EXTRA_RUN_ARGS" ]; then
-		local array
-		# shellcheck disable=SC2162
-		read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
-		args+=("${array[@]}")
+	# Append extra args preserving whitespaces (since 5.5)
+	if [ "$COMPAT" -ge 55 ]; then
+		# Append extra args from the .cqfdrc [build] section
+		if [ "$build_docker_run_args" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$build_docker_run_args"
+			args+=("${array[@]}")
+		fi
+
+		# Append extra args from $CQFD_EXTRA_RUN_ARGS
+		if [ "$CQFD_EXTRA_RUN_ARGS" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
+			args+=("${array[@]}")
+		fi
 	fi
 
 	args+=(--rm --log-driver=none)
@@ -611,6 +663,7 @@ config_load() {
 	fi
 }
 
+debug Compatibility level "$COMPAT"
 has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
@@ -622,6 +675,10 @@ while [ $# -gt 0 ]; do
 		;;
 	version|-v|--version)
 		echo $VERSION
+		exit
+		;;
+	--compatibility)
+		echo "$COMPAT"
 		exit
 		;;
 	--verbose)
