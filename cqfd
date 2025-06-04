@@ -513,9 +513,9 @@ locate_project_dir() {
 	return 1
 }
 
-## config_load() - load build settings from cqfdrc
+## load_config() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command
-config_load() {
+load_config() {
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
 	fi
@@ -640,12 +640,12 @@ while [ $# -gt 0 ]; do
 		export CQFD_DEBUG=true
 		;;
 	init)
-		config_load "$flavor"
+		load_config "$flavor"
 		docker_build
 		exit
 		;;
 	flavors)
-		config_load
+		load_config
 		echo "$build_flavors"
 		exit
 		;;
@@ -678,7 +678,7 @@ while [ $# -gt 0 ]; do
 			usage
 			die "exec: Missing arguments!"
 		fi
-		config_load "$flavor"
+		load_config "$flavor"
 		command_string="${*@Q}"
 		docker_run "$command_string"
 		exit
@@ -713,7 +713,7 @@ while [ $# -gt 0 ]; do
 			cqfd_shell="$1"
 		fi
 		shift
-		config_load "$flavor"
+		load_config "$flavor"
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${*@Q}"
@@ -733,7 +733,7 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-config_load "$flavor"
+load_config "$flavor"
 
 if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_command" ]; then
 	warn "$cqfdrc: Missing or empty build.command property"
