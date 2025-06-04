@@ -27,7 +27,7 @@ cqfdrc=".cqfdrc"
 cqfd_user='builder'
 cqfd_user_home='/home/builder'
 cqfd_user_cwd="$cqfd_user_home/src"
-cqfd_shell=${CQFD_SHELL:-/bin/bash}
+cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
 
@@ -70,11 +70,11 @@ Command options for run / release:
 EOF
 }
 
-# cfg_parser() - parse ini-style config files
+## cfg_parser() - parse ini-style config files
 # Will parse a ini-style config file, and evaluate it to a bash array.
 #   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz - License: MIT
-# arg$1: path to ini file
+# $1: path to ini file
 cfg_parser() {
 	local ini
 
@@ -101,23 +101,25 @@ warn() {
 }
 
 ## die() - exit when an error occured
-# $* messages and variables shown in the error message
+# $*: messages shown in the error message
 die() {
 	echo "cqfd: fatal: $*" >&2
 	exit 1
 }
 
 ## debug() - print verbose messages
+# $*: messages shown in the debug message
 debug() {
 	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
-# docker_build() - Initialize build container
+## docker_build() - initialize build container
 docker_build() {
 	local args=()
 
+	# Suppress the build output
 	if [ "$quiet" ]; then
-		args+=(-q)
+		args+=(--quiet)
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -136,25 +138,28 @@ docker_build() {
 		args+=("${array[@]}")
 	fi
 
-	args+=(-t "$docker_img_name")
+	# Name the resulting image
+	args+=(--tag "$docker_img_name")
 
+	# Set the context
 	if [ -z "$project_build_context" ]; then
 		args+=("$(dirname "$dockerfile")")
 	else
-		args+=("$project_build_context" -f "$dockerfile")
+		args+=("$project_build_context" --file "$dockerfile")
 	fi
 
-	debug executing: "${cqfd_docker}" build "${args[@]}"
-	"${cqfd_docker}" build "${args[@]}"
+	# Run command
+	debug executing: "$cqfd_docker" build "${args[@]}"
+	"$cqfd_docker" build "${args[@]}"
 }
 
-# image_exists_locally(): checks if image exists in the local image store
-# arg$1: the image name to check
+## image_exists_locally(): checks if image exists in the local image store
+# $1: the image name to check
 image_exists_locally() {
-	"${cqfd_docker}" image inspect "$1" &> /dev/null
+	"$cqfd_docker" image inspect "$1" &>/dev/null
 }
 
-# docker_run() - run command in configured container
+## docker_run() - run command in configured container
 # A few implementation details:
 #
 # - The user executing the command string inside the container is
@@ -163,19 +168,19 @@ image_exists_locally() {
 #
 # - Your project's source directory is always mapped to $cqfd_user_cwd
 #
-# - Your ~/.ssh directory is mapped to ~${cqfd_user}/.ssh to provide
+# - Your ~/.ssh directory is mapped to ~$cqfd_user/.ssh to provide
 #   access to the ssh keys (your build may pull authenticated git
 #   repos for example).
 #
-# arg$1: the command string to execute as $cqfd_user
-#
+# $1: the command string to execute as $cqfd_user
 docker_run() {
 	local args=(--privileged)
 
+	# The image does not exist
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
-			if ! "${cqfd_docker}" pull "$docker_img_name" >& /dev/null; then
+			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -202,11 +207,11 @@ docker_run() {
 	args+=(--rm --log-driver=none)
 
 	# always keep stdin open
-	args+=(-i)
+	args+=(--interactive)
 
 	# allocate a pty if stdin/err are connected to a tty
 	if [ -t 0 ] && [ -t 2 ]; then
-		args+=(-t)
+		args+=(--tty)
 	fi
 
 	# If possible, map cqfd_user from the calling user's
@@ -254,15 +259,18 @@ docker_run() {
 
 	# The user may set the user_extra_groups in the .cqfdrc
 	# file to add groups to the user in the container.
-	local group
-	if [ -n "$cqfd_extra_groups" ]; then
-		for group in $cqfd_extra_groups; do
+	if [ -n "$build_user_extra_groups" ]; then
+		local group
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$build_user_extra_groups"
+		for group in "${array[@]}"; do
 			# optional groupd id specified ("name:123")
 			if echo "$group" | grep -qE ":[0-9]+$"; then
-				CQFD_GROUPS+="${group} "
+				CQFD_GROUPS+=("$group")
 			else
 				id=$(awk -F: "\$1 == \"$group\" { print \$3 }" /etc/group)
-				CQFD_GROUPS+="${group}:${id} "
+				CQFD_GROUPS+=("$group:$id")
 			fi
 		done
 	fi
@@ -271,20 +279,20 @@ docker_run() {
 	# via CQFD_EXTRA_RUN_ARGS or docker_run_args
 	if ! echo "$CQFD_EXTRA_RUN_ARGS $build_docker_run_args" |
 	     grep -qE "(-e[[:blank:]]*|--env[[:blank:]]+)HOME="; then
-		args+=(-e "HOME=$cqfd_user_home")
+		args+=(--env "HOME=$cqfd_user_home")
 	fi
 
 	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
-		args+=(-v "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
+		args+=(--volume "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
 	fi
 
 	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
-		args+=(-v /etc/ssh:/etc/ssh)
+		args+=(--volume /etc/ssh:/etc/ssh)
 	fi
 
 	if [ "$SSH_AUTH_SOCK" ]; then
-		args+=(-v "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
-		args+=(-e "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
+		args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
+		args+=(--env "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
 
 	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ] && [ -f "$cqfd_user_home/.gitconfig" ]; then
@@ -292,25 +300,27 @@ docker_run() {
 	fi
 
 	if [ "$CQFD_BIND_DOCKER_SOCK" = true ]; then
-		args+=(-v /var/run/docker.sock:/var/run/docker.sock)
+		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
-	args+=(-v "$cqfd_project_dir:$cqfd_project_dir")
+	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
 	# Create and bind mount the launcher script
 	tmp_launcher=$(mktemp /tmp/cqfd_launcher.XXXXXX)
 	trap 'rm -f "$tmp_launcher"' EXIT
 	make_launcher "$tmp_launcher"
 	chmod 0755 "$tmp_launcher"
-	args+=(-v "$tmp_launcher:/bin/cqfd_launch")
+	args+=(--volume "$tmp_launcher:/bin/cqfd_launch")
 
+	# Set positional arguments
 	args+=("$docker_img_name" cqfd_launch "$1")
 
-	debug executing: "${cqfd_docker}" run "${args[@]}"
-	"${cqfd_docker}" run "${args[@]}"
+	# Run command
+	debug executing: "$cqfd_docker" run "${args[@]}"
+	"$cqfd_docker" run "${args[@]}"
 }
 
-# make_archive(): Create a release package.
+## make_archive(): create a release package
 # Note: the --transform option passed to tar allows to move all the
 # specified files at the root of the archive. Therefore, you shouldn't
 # include two files with the same name in the list of files to
@@ -390,8 +400,8 @@ make_archive() {
 	esac
 }
 
-# make_launcher - generate in-container launcher script
-# arg$1: the path to the launcher script
+## make_launcher - generate in-container launcher script
+# $1: the path to the launcher script
 make_launcher() {
 	cat >"$1" <<EOF
 #!/bin/sh
@@ -409,11 +419,11 @@ debug() {
 }
 
 test_cmd() {
-	command -v "\$1" > /dev/null 2>&1
+	command -v "\$1" >/dev/null 2>&1
 }
 
 test_su_session_command() {
-	su --session-command true > /dev/null 2>&1
+	su --session-command true >/dev/null 2>&1
 }
 
 # Change to working directory
@@ -451,7 +461,7 @@ mkdir -p "$cqfd_user_home"
 chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
 # Add specified groups to cqfd_user
-for g in ${CQFD_GROUPS}; do
+for g in ${CQFD_GROUPS[*]}; do
 	group=\$(echo "\$g" | cut -d: -f1)
 	gid=\$(echo "\$g" | cut -d: -f2)
 
@@ -487,8 +497,8 @@ exec su $cqfd_user -p -c "\$1"
 EOF
 }
 
-# locate_project_dir() - locate directory with .cqfd upwards
-# The directory will be printed on stdout, if found.
+## locate_project_dir() - locate directory with .cqfd upwards
+# stdout: the path to the .cqfd directory
 locate_project_dir() {
 	local search_dir="$PWD"
 
@@ -503,9 +513,9 @@ locate_project_dir() {
 	return 1
 }
 
-# config_load() - load build settings from cqfdrc
-# $1: optional "flavor" of the build, is a suffix of command.
-config_load() {
+## load_config() - load build settings from cqfdrc
+# $1: optional "flavor" of the build, is a suffix of command
+load_config() {
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
 	fi
@@ -515,12 +525,12 @@ config_load() {
 		local cqfdrc_dir="$cqfd_project_dir/"
 	fi
 
-	if [ ! -f "${cqfdrc_dir}${cqfdrc}" ]; then
-		die "Unable to find ${cqfdrc_dir}${cqfdrc} - create it or pick one using 'cqfd -f'"
+	if [ ! -f "$cqfdrc_dir$cqfdrc" ]; then
+		die "Unable to find $cqfdrc_dir$cqfdrc - create it or pick one using 'cqfd -f'"
 	fi
 
-	if ! cfg_parser "${cqfdrc_dir}${cqfdrc}"; then
-		die "${cqfdrc_dir}${cqfdrc}: Invalid ini-file!"
+	if ! cfg_parser "$cqfdrc_dir$cqfdrc"; then
+		die "$cqfdrc_dir$cqfdrc: Invalid ini-file!"
 	fi
 
 	# generate dynamically the list of flavors based on the names of shell
@@ -576,13 +586,15 @@ config_load() {
 	fi
 
 	# shellcheck disable=SC2154
-	build_cmd="$command"
+	build_command="$command"
 	# shellcheck disable=SC2154
 	build_docker_build_args="$docker_build_args"
 	# shellcheck disable=SC2154
 	build_docker_run_args="$docker_run_args"
 	# shellcheck disable=SC2154
-	cqfd_extra_groups="$user_extra_groups"
+	build_distro="$distro"
+	# shellcheck disable=SC2154
+	build_user_extra_groups="$user_extra_groups"
 	# shellcheck disable=SC2154
 	release_files="$files"
 	# shellcheck disable=SC2154
@@ -592,7 +604,7 @@ config_load() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="${cqfd_project_dir}/${cqfddir}/${distro:-docker}/Dockerfile"
+	dockerfile="$cqfd_project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -605,9 +617,9 @@ config_load() {
 
 		# This will look like cqfd_USER_ORG_NAME_HASH
 		# shellcheck disable=SC2001
-		format_user=$(echo "$USER" | sed 's/[^0-9a-zA-Z\-]/_/g')
+		format_user=$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${distro:+_$distro}"
+		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
 	fi
 }
 
@@ -621,19 +633,19 @@ while [ $# -gt 0 ]; do
 		exit
 		;;
 	version|-v|--version)
-		echo $VERSION
+		echo "$VERSION"
 		exit
 		;;
 	--verbose)
 		export CQFD_DEBUG=true
 		;;
 	init)
-		config_load "$flavor"
+		load_config "$flavor"
 		docker_build
 		exit
 		;;
 	flavors)
-		config_load
+		load_config
 		echo "$build_flavors"
 		exit
 		;;
@@ -661,11 +673,12 @@ while [ $# -gt 0 ]; do
 		has_to_release=true
 		;;
 	exec)
-		if [ "$#" -lt 2 ]; then
-			die "command exec requires arguments"
-		fi
 		shift
-		config_load "$flavor"
+		if [ "$#" -lt 1 ]; then
+			usage
+			die "exec: Missing arguments!"
+		fi
+		load_config "$flavor"
 		command_string="${*@Q}"
 		docker_run "$command_string"
 		exit
@@ -682,11 +695,12 @@ while [ $# -gt 0 ]; do
 
 		# -c appends following args to the default command
 		if [ "$1" = "-c" ]; then
-			if [ "$#" -lt 2 ]; then
-				die "option -c requires arguments"
-			fi
-
 			shift
+
+			if [ "$#" -lt 1 ]; then
+				usage
+				die "run -c: Missing arguments!"
+			fi
 			break
 		fi
 
@@ -699,7 +713,7 @@ while [ $# -gt 0 ]; do
 			cqfd_shell="$1"
 		fi
 		shift
-		config_load "$flavor"
+		load_config "$flavor"
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${*@Q}"
@@ -719,23 +733,23 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-config_load "$flavor"
+load_config "$flavor"
 
-if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_cmd" ]; then
+if ! $has_alternate_command && [ -n "$*" ] && [ -z "$build_command" ]; then
 	warn "$cqfdrc: Missing or empty build.command property"
 fi
 
 if $has_alternate_command; then
-	build_cmd="$*"
+	build_command="$*"
 elif [ -n "$*" ]; then
-	build_cmd+=" $*"
+	build_command+=" $*"
 fi
 
-if [ -z "$build_cmd" ]; then
+if [ -z "$build_command" ]; then
 	die "$cqfdrc: Missing or empty build.command property"
 fi
 
-docker_run "$build_cmd"
+docker_run "$build_command"
 
 if $has_to_release; then
 	make_archive
