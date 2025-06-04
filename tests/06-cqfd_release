@@ -112,7 +112,7 @@ fi
 jtest_result $result
 
 # revert the changes in .cqfdrc file
-"$cqfd" run rm link.txt
+rm -f link.txt
 sed -i '/tar_options/d' .cqfdrc
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files\"" >>.cqfdrc
