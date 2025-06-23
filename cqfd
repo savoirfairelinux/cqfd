@@ -95,7 +95,7 @@ cfg_parser() {
 }
 
 ## warn() - output warning
-# $* messages and variables shown in the message
+# $*: messages and variables shown in the message
 warn() {
 	echo "cqfd: warning: $*" >&2
 }
