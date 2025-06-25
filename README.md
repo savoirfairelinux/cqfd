@@ -43,17 +43,18 @@ default build command as configured in `.cqfdrc`, use:
 
     $ cqfd
 
-Alternatively, you may want to specify a single custom command to be
+Alternatively, you may want to specify a custom command to be
 executed from inside the build container.
 
+    $ cqfd run make clean
+    $ cqfd run "make linux-dirclean && make foobar-dirclean"
+
+The `run` command is broken in some situations, and it is then recommended to
+use `exec` for a single command, `shell -c` for a command composed with shell
+grammar, or `shell` to run a shell script with or without arguments:
+
     $ cqfd exec make clean
-
-Or custom commands composed with shell grammar:
-
     $ cqfd shell -c "make linux-dirclean && make foobar-dirclean"
-
-Or run a shell script with arguments:
-
     $ cqfd shell ./build.sh debug
 
 When `cqfd` is running, the current directory is mounted by Docker
