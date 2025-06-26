@@ -418,6 +418,22 @@ manager, you can install `cqfd` via:
 guix install cqfd
 ```
 
+### RedHat Linux or Fedora
+
+If you use a RPM based distribution, you can build the latest released version
+of the `cqfd` package via:
+
+```sh
+rpmdev-setuptree
+cp cqfd.spec ~/rpmbuild/SPECS/
+cd ~/rpmbuild/SPECS
+rpmbuild --undefine=_disable_source_fetch -ba cqfd.spec "$@"
+cp ~/rpmbuild/SRPMS/*.src.rpm ~/rpmbuild/RPMS/*/*.rpm "$OLDPWD"
+```
+
+_Note_: The artefacts are available in `~/rpmbuild/RPMS` and `~/rpmbuild/SRPMS`
+directories.
+
 ## Using podman
 
 Podman may be used instead of Docker, but with limited functionalities,
