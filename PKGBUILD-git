@@ -1,0 +1,38 @@
+# Maintainer: Gaël PORTAY <gael.portay@gmail.com>
+
+pkgname=cqfd-git
+pkgver=master
+pkgrel=1
+pkgdesc='Run commands in the current directory within a container defined in a per-project config file.'
+arch=('any')
+url="https://github.com/savoirfairelinux/$pkgname"
+license=('GPL-3.0-only')
+depends=('bash' 'docker')
+checkdepends=('shellcheck')
+source=("$pkgname::git+https://github.com/savoirfairelinux/${pkgname%-git}.git")
+sha256sums=('SKIP')
+validpgpkeys=('8F3491E60E62695ED780AC672FA122CA0501CA71')
+
+pkgver() {
+	cd "$srcdir/$pkgname"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd "$srcdir/$pkgname"
+	make doc SHELL="/bin/sh"
+}
+
+check() {
+	cd "$srcdir/$pkgname"
+	make -k check
+}
+
+package() {
+	provides=("${pkgname%-git}")
+	conflicts=("${pkgname%-git}")
+
+	cd "$srcdir/$pkgname"
+	make DESTDIR="$pkgdir" PREFIX="/usr" install
+	install -D -m 644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
