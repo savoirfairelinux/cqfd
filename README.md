@@ -476,24 +476,23 @@ _Note_: Uninstall it using the package manager:
 
 ### From source
 
-First clone this repository:
+First clone this repository, then checkout the stable version, and install cqfd
+and its resources:
 
-    $ git clone https://github.com/savoirfairelinux/cqfd.git
-    $ git submodule update --init --recursive
+    git clone --recurse-submodules https://github.com/savoirfairelinux/cqfd.git
+    cd cqfd
+    git checkout v5.8.0
+    sudo make install
 
-Then, install the script and its resources:
+To uninstall the script and its resources, run:
 
-    $ make install
-
-Finally, uninstall the script and its resources:
-
-    $ make uninstall
+    sudo make uninstall
 
 Makefile honors both **PREFIX** (__/usr/local__) and **DESTDIR** (__[empty]__)
 variables:
 
-    $ make install PREFIX=/opt
-    $ make install PREFIX=/usr DESTDIR=package
+    make install PREFIX=/opt
+    make install PREFIX=/usr DESTDIR=package
 
 ### GNU Guix
 
