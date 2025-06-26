@@ -1,0 +1,36 @@
+name: Deploy RPM package to GitHub Release
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:42
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        dnf install -y asciidoctor bash-completion-devel git make pkgconf rpmdevtools rpmlint shellcheck
+    - name: Build package
+      run: |
+        rpmdev-setuptree
+        ver="$(bash ${{ github.event.repository.name }} --version)"
+        tar czf "../v$ver.tar.gz" --transform "s/./${{ github.event.repository.name }}-$ver/" .
+        mv "../v$ver.tar.gz" ~/rpmbuild/SOURCES/
+        cp ${{ github.event.repository.name }}.spec ~/rpmbuild/SPECS/
+        cd ~/rpmbuild/SPECS/
+        rpmbuild --undefine=_disable_source_fetch -ba ${{ github.event.repository.name }}.spec
+        cd -
+        cp ~/rpmbuild/SRPMS/*.rpm ~/rpmbuild/RPMS/*/*.rpm .
+    - name: Lint package
+      run: |
+        rpmlint ${{ github.event.repository.name }}.spec ${{ github.event.repository.name }}*.rpm
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: |
+          ${{ github.event.repository.name }}*.rpm
