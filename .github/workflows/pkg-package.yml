@@ -1,0 +1,33 @@
+name: Deploy Arch Linux package to GitHub Release
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:base-devel
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        pacman -Sy --noconfirm asciidoctor bash-completion git namcap shellcheck
+    - name: Build package
+      run: |
+        ver="$(bash ${{ github.event.repository.name }} --version)"
+        tar czf "../${{ github.event.repository.name }}-$ver.tar.gz" --transform "s/./${{ github.event.repository.name }}-$ver/" .
+        mv "../${{ github.event.repository.name }}-$ver.tar.gz" .
+        chown -R nobody .
+        runuser -u nobody -- makepkg --force --skipchecksums
+    - name: Lint package
+      run: |
+        shellcheck --shell=bash --exclude=SC2034,SC2154,SC2164 PKGBUILD*
+        runuser -u nobody -- namcap PKGBUILD* ${{ github.event.repository.name }}*.pkg.tar*
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: |
+          ${{ github.event.repository.name }}*.pkg.tar*
