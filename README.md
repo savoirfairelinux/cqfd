@@ -394,20 +394,24 @@ workstation:
 
 ### From source
 
-First clone this repository:
+First clone this repository, then checkout the stable version, and then install
+cqfd:
 
-    $ git clone https://github.com/savoirfairelinux/cqfd.git
+    git clone https://github.com/savoirfairelinux/cqfd.git
+    cd cqfd
+    CQFD_VERSION=$(curl -s "https://api.github.com/repos/savoirfairelinux/cqfd/releases/latest" | \grep -Po '"tag_name": *"v\K[^"]*')
+    git checkout v${CQFD_VERSION}
+    sudo make install
 
-Then, install or remove the script and its resources:
+To remove the script and its resources, run:
 
-    $ make install
-    $ make uninstall
+    sudo make uninstall
 
 Makefile honors both **PREFIX** (__/usr/local__) and **DESTDIR** (__[empty]__)
 variables:
 
-    $ make install PREFIX=/opt
-    $ make install PREFIX=/usr DESTDIR=package
+    make install PREFIX=/opt
+    make install PREFIX=/usr DESTDIR=package
 
 ### GNU Guix
 
