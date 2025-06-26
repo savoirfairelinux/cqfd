@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+override_dh_auto_test:
+	$(MAKE) check
+
+override_dh_auto_build:
+	$(MAKE) cqfd.1.gz cqfdrc.5.gz
+
+%:
+	PREFIX=/usr dh $@

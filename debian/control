@@ -1,0 +1,13 @@
+Source: cqfd
+Maintainer: Jérôme Oufella <jerome.oufella@savoirfairelinux.com>
+Section: utils
+Priority: optional
+Standards-Version: 4.6.2
+Build-Depends: debhelper-compat (= 13)
+
+Package: cqfd
+Architecture: all
+Depends: ${misc:Depends}
+Description: Wrap commands in controlled Docker containers using docker.
+ cqfd provides a quick and convenient way to run commands in the current
+ directory, but within a Docker container defined in a per-project config file.

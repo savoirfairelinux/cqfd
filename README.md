@@ -418,6 +418,17 @@ manager, you can install `cqfd` via:
 guix install cqfd
 ```
 
+### Debian or Ubuntu
+
+If you use an Debian derivative distribution based on the dpkg package manager,
+you can build the latest released version of the `cqfd` package via:
+
+```sh
+dpkg-buildpackage -us -uc
+```
+
+_Note_: The artefacts are available in the parent directory.
+
 ### RedHat Linux or Fedora
 
 If you use a RPM based distribution, you can build the latest released version
