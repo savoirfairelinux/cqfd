@@ -1,0 +1,32 @@
+name: Deploy Debian package to GitHub Release
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        path: ${{ github.event.repository.name }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install asciidoctor bash-completion build-essential debhelper devscripts pkgconf shellcheck
+    - name: Build package
+      run: |
+        cd ${{ github.event.repository.name }}
+        dpkg-buildpackage -us -uc
+        cd ..
+    - name: Lint package
+      run: |
+        lintian ${{ github.event.repository.name }}*.dsc ${{ github.event.repository.name }}*.deb
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: |
+          ${{ github.event.repository.name }}*.dsc
+          ${{ github.event.repository.name }}*.deb
