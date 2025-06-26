@@ -418,6 +418,23 @@ manager, you can install `cqfd` via:
 guix install cqfd
 ```
 
+### Arch Linux or Manjaro
+
+If you use an Arch Linux derivative distribution based on pacman package
+manager, you can build the latest released version of the `cqfd` package via:
+
+```sh
+makepkg
+```
+
+Or, the current unreleased version of the `cqfd-git` package via:
+
+```sh
+makepkg -f PKGBUILD-git
+```
+
+_Note_: The artefacts are available in the current directory.
+
 ### Debian or Ubuntu
 
 If you use an Debian derivative distribution based on the dpkg package manager,
