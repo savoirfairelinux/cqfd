@@ -290,7 +290,7 @@ docker_run() {
 		args+=(--volume /etc/ssh:/etc/ssh)
 	fi
 
-	if [ "$SSH_AUTH_SOCK" ]; then
+	if [ "$CQFD_NO_SSH_AUTH_SOCK" != true ] && [ "$SSH_AUTH_SOCK" ]; then
 		args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
 		args+=(--env "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
