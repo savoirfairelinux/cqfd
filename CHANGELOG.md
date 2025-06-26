@@ -1,9 +1,23 @@
-# ChangeLog for cqfd
+# Changelog for cqfd
 
-## Version 5.6.1-dev (coming soon)
+## Version 5.7.0 (2025-06-27)
 
-* Update tests to more recent Ubuntu versions
+* Many tests improvements
 * Add GitHub Actions pipeline
+* Lint code with shellcheck
+* Add `cqfd exec` command
+* Enable overriding the HOME environment using build option `docker_run_args`
+* Fix tabulation and space removal in variable expansions
+* Cleanup main cqfd codebase
+* Add basic Podman support
+* Add `CQFD_DOCKER` option to customize the command used to invoke Docker
+* Add `CQFD_DOCKER_SOCK` to enable binding the host’s Docker socket
+* Add support for the 'docker_build_args' build option as a declarative
+  complement to CQFD_EXTRA_BUILD_ARGS
+* Add `%Du` option for unix timestamp in release archive name
+* Add `CQFD_NO_SSH_AUTH_SOCK` to disable mounting the SSH authentication socket
+  to the container. This fixes an issue on macOS.
+* Cleanup the README
 
 ## Version 5.6.0 (2024-12-04)
 
