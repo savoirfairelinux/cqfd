@@ -256,6 +256,9 @@ the user's `~/.ssh` configuration to the container.
 `CQFD_NO_USER_GIT_CONFIG`: Set to `true` to disable forwarding
 the user's `~/.gitconfig` configuration to the container.
 
+`CQFD_NO_SSH_AUTH_SOCK`: Set to `true` to disable forwarding the
+SSH authentication socket to the container.
+
 `CQFD_BIND_DOCKER_SOCK`: Set to `true` to enable forwarding the
 docker socket to the container.
 
