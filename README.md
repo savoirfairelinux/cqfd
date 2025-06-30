@@ -392,6 +392,38 @@ workstation:
 
 ## Installing/removing cqfd
 
+### From packages
+
+#### Arch Linux or Manjaro
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1-any.pkg.tar.zst
+
+Then, install using the package manager:
+
+    $ sudo pacman -U ./cqfd-5.7.0-1-any.pkg.tar.zst
+
+#### Debian or Ubuntu
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd_5.7.0_all.deb
+
+Then, install using the package manager:
+
+    $ sudo dpkg -i ./cqfd_5.7.0_all.deb
+
+#### RedHat Linux or Fedora
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1.noarch.rpm
+
+Then, install using the package manager:
+
+    $ sudo dnf install ./cqfd-5.7.0-1.noarch.rpm
+
 ### From source
 
 First clone this repository:
