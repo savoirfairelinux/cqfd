@@ -14,3 +14,8 @@ files='CHANGELOG.md \
        cqfdrc.5.gz \
        cqfd.1.gz \
        cqfd'
+
+[rpm]
+distro='rpm'
+docker_run_args="--volume $PWD/rpmbuild:$HOME/rpmbuild --volume $PWD/cqfd.spec:$HOME/rpmbuild/SPECS/cqfd.spec"
+command='sh make-rpm.sh'
