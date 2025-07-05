@@ -14,3 +14,7 @@ files='CHANGELOG.md \
        cqfdrc.5.gz \
        cqfd.1.gz \
        cqfd'
+
+[rpm]
+distro='rpm'
+command='sh make-rpm.sh'
