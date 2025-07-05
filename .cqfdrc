@@ -19,6 +19,10 @@ files='CHANGELOG.md \
 distro='deb'
 command='sh make-deb.sh'
 
+[pkg]
+distro='pkg'
+command='sh make-pkg.sh'
+
 [rpm]
 distro='rpm'
 command='sh make-rpm.sh'
