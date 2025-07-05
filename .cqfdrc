@@ -20,6 +20,10 @@ distro='deb'
 docker_run_args="--volume $HOME:$HOME"
 command='sh make-deb.sh'
 
+[pkg]
+distro='pkg'
+command='sh make-pkg.sh'
+
 [rpm]
 distro='rpm'
 docker_run_args="--volume $PWD/rpmbuild:$HOME/rpmbuild --volume $PWD/cqfd.spec:$HOME/rpmbuild/SPECS/cqfd.spec"
