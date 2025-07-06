@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of run with working directory
+
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
+
+cd "$TDIR/" || exit 1
+
+################################################################################
+# First, move every local cqfd files into an external directory and use
+# alternate filenames
+################################################################################
+workdir="workingdir"
+mkdir -p "$workdir"
+mv .cqfd "$workdir/.cqfd"
+mv .cqfdrc "$workdir/.cqfdrc"
+cqfd="$TDIR/$workdir/.cqfd/cqfd"
+cd "$workdir" || exit 1
+
+################################################################################
+# 'cqfd run' using nonexistent working directory should fail
+################################################################################
+jtest_prepare "cqfd run using inexistant working directory should fail"
+if ! "$cqfd" -w "nonexistentdir" run; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd run' using default working directory should work
+################################################################################
+jtest_prepare "cqfd run using default working directory should work"
+if "$cqfd" run "stat -c '%u' ." | grep -q "$UID" && \
+   "$cqfd" run "stat -c '%u' .." | grep -q "0"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd run' using alternate working directory should work
+################################################################################
+jtest_prepare "cqfd run using working directory should work"
+if "$cqfd" -w ".." run "stat -c '%u' ." | grep -q "$UID" && \
+   "$cqfd" -w ".." run "stat -c '%u' .." | grep -q "0"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# restore local cqfd files
+################################################################################
+cd "$OLDPWD" || exit 1
+mv "$workdir/.cqfdrc" .cqfdrc
+mv "$workdir/.cqfd" .cqfd
+rmdir -p "$workdir"
