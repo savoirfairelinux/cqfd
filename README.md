@@ -529,6 +529,14 @@ command, if the above requirements are met on the system:
 
     $ make tests
 
+## Patches
+
+Submit patches at *https://github.com/savoirfairelinux/cqfd/pulls*
+
+## Bugs
+
+Report bugs at *https://github.com/savoirfairelinux/cqfd/issues*
+
 ## Trivia
 
 CQFD stands for "ce qu'il fallait Dockeriser", French for "what needed
