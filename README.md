@@ -392,6 +392,38 @@ workstation:
 
 ## Installing/removing cqfd
 
+### From packages
+
+#### Arch Linux or Manjaro
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1-any.pkg.tar.zst
+
+Then, install using the package manager:
+
+    $ sudo pacman -U ./cqfd-5.7.0-1-any.pkg.tar.zst
+
+#### Debian or Ubuntu
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd_5.7.0_all.deb
+
+Then, install using the package manager:
+
+    $ sudo dpkg -i ./cqfd_5.7.0_all.deb
+
+#### RedHat Linux or Fedora
+
+First download the package:
+
+    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1.noarch.rpm
+
+Then, install using the package manager:
+
+    $ sudo dnf install ./cqfd-5.7.0-1.noarch.rpm
+
 ### From source
 
 First clone this repository:
@@ -417,6 +449,50 @@ manager, you can install `cqfd` via:
 ```sh
 guix install cqfd
 ```
+
+### Arch Linux or Manjaro
+
+If you use an Arch Linux derivative distribution based on pacman package
+manager, you can build the latest released version of the `cqfd` package via:
+
+```sh
+makepkg
+```
+
+Or, the current unreleased version of the `cqfd-git` package via:
+
+```sh
+makepkg -f PKGBUILD-git
+```
+
+_Note_: The artifacts are available in the current directory.
+
+### Debian or Ubuntu
+
+If you use an Debian derivative distribution based on the dpkg package manager,
+you can build the latest released version of the `cqfd` package via:
+
+```sh
+dpkg-buildpackage -us -uc
+```
+
+_Note_: The artefacts are available in the parent directory.
+
+### RedHat Linux or Fedora
+
+If you use a RPM based distribution, you can build the latest released version
+of the `cqfd` package via:
+
+```sh
+rpmdev-setuptree
+cp cqfq.spec ~/rpmbuild/SPECS/
+cd ~/rpmbuild/SPECS
+rpmbuild --undefine=_disable_source_fetch --undefine=dist -ba cqfd.spec "$@"
+cp ~/rpmbuild/SRPMS/*.src.rpm ~/rpmbuild/RPMS/*/*.rpm "$OLDPWD"
+```
+
+_Note_: The artefacts are available in `~/rpmbuild/RPMS` and `~/rpmbuild/SRPMS`
+directories.
 
 ## Using podman
 
