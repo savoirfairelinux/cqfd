@@ -17,6 +17,7 @@ files='CHANGELOG.md \
 
 [deb]
 distro='deb'
+docker_run_args="--volume $HOME:$HOME"
 command='sh make-deb.sh'
 
 [pkg]
