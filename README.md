@@ -131,6 +131,16 @@ named `cqfd_$username_$org_$name_$hash`, using the following variables:
 * `$name`: The `name` variable in the `[project]` section of your `.cqfdrc`.
 * `$hash`: A hash of the local Dockerfile.
 
+### Docker image cleaning
+
+Since the images built by cqfd have a predictable name, and are produced in
+great quantity, it is possible to free disk space by cleaning those images:
+
+  cqfd_docker="${CQFD_DOCKER:-docker}"
+  $cqfd_docker rmi $($cqfd_docker images "cqfd_*" -q)
+
+You can add `-f` to the last command to force removal of all images.
+
 ### The [build] section
 
 #### `cqfd run`
