@@ -398,7 +398,7 @@ workstation:
 
 First download the package:
 
-    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1-any.pkg.tar.zst
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1-any.pkg.tar.zst
 
 Then, install it using the package manager:
 
@@ -412,7 +412,7 @@ _Note_: Uninstall it using the package manager:
 
 First download the package:
 
-    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd_5.7.0_all.deb
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd_5.7.0_all.deb
 
 Then, install it using the package manager:
 
@@ -426,7 +426,7 @@ _Note_: Uninstall it using the package manager:
 
 First download the package:
 
-    $ curl https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1.noarch.rpm
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.0/cqfd-5.7.0-1.noarch.rpm
 
 Then, install it using the package manager:
 
