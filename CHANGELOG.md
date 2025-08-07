@@ -1,5 +1,9 @@
 # Changelog for cqfd
 
+## Version 5.7.1 (2025-08-07)
+
+* Override container entrypoint
+
 ## Version 5.7.0 (2025-06-27)
 
 * Many tests improvements

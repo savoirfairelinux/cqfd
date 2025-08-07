@@ -1,5 +1,5 @@
 Name:           cqfd
-Version:        5.7.0
+Version:        5.7.1
 Release:        1
 Summary:        Wrap commands in controlled Docker containers using docker
 
@@ -52,5 +52,5 @@ make check
 %{_datadir}/man/man5/cqfdrc.5.gz
 
 %changelog
-* Thu Jun 26 2025 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.7.0-1
+* Thu Aug 07 2025 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.7.1-1
 - Initial release.
