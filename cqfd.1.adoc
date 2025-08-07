@@ -4,7 +4,7 @@
 :email: jerome.oufella@savoirfairelinux.com
 :lang: en
 :man manual: C.Q.F.D. Manual
-:man source: C.Q.F.D. Project 5.7.0
+:man source: C.Q.F.D. Project 5.7.1
 
 == NAME
 

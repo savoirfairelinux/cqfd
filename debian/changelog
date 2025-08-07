@@ -1,5 +1,5 @@
-cqfd (5.7.0) UNRELEASED; urgency=medium
+cqfd (5.7.1) unstable; urgency=medium
 
   * Initial release.
 
- -- Jérôme Oufella <jerome.oufella@savoirfairelinux.com>  Sun, 06 Jul 2025 03:05:24 +0200
+ -- Jérôme Oufella <jerome.oufella@savoirfairelinux.com>  Thu, 07 Aug 2025 20:45:31 +0200
