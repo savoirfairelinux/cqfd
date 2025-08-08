@@ -31,6 +31,9 @@ Linux distribution.
 *deinit*::
 	Deinitialize project build container.
 
+*images*::
+	List all created images.
+
 *exec cmd [args]*::
 	Run argument(s) inside build container.
 

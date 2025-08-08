@@ -30,6 +30,7 @@ cqfd_user_cwd=${PWD:-"$cqfd_user_home/src"}
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
+cqfd_cachedir="${CQFD_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/cqfd}"
 
 ## usage() - print usage on stdout
 usage() {
@@ -50,6 +51,7 @@ Options:
 Commands:
     init                 Initialize project build container.
     deinit               Deinitialize project build container.
+    images               List all created images.
     exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
@@ -122,6 +124,103 @@ image_is_running() {
 	test "${#ids[@]}" -gt 0
 }
 
+## docker_images() - list images
+# stdout: the tag, the status, the path to Dockerfile, the Dockerfile hash and
+#         the image hash
+docker_images() {
+	local user
+	local image
+	local images
+
+	# shellcheck disable=SC2001
+	user="$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")"
+
+	mapfile -t images < <("$cqfd_docker" images "cqfd_$user\_*" --format "{{.Repository}}")
+	for image in "${images[@]}"; do
+		local symlink
+
+		# Remove registry if any
+		image="${image##*/}"
+		for symlink in "$cqfd_cachedir/$cqfd_docker"/*/"$image"; do
+			local array
+			local hash
+			local status
+			local dockerfile
+			local dockerfile_hash
+
+			if [ ! -L "$symlink" ]; then
+				continue
+			fi
+
+			# Split components to extract the Dockerfile hash
+			IFS=_ read -r -a array <<<"${symlink##*/cqfd_"$user"_}"
+			array=(cqfd "$user" "${array[@]}")
+			hash="${array[-1]}"
+			if [ "${#array[@]}" -gt 5 ]; then
+				hash="${array[-2]}"
+			fi
+
+			# Get the Dockerfile path to compute the hash
+			dockerfile="<none>"
+			dockerfile_hash="<none>"
+			if [ -e "$symlink" ]; then
+				dockerfile="$(readlink "$symlink")"
+				dockerfile_hash="$(sha256sum "$dockerfile" | cut -b 1-7)"
+			fi
+
+			# The symlink does not exist: image is Deleted
+			if [ ! -e "$symlink" ]; then
+				status="Deleted"
+			# The Dockerfile hash mismatches: image is Outdated
+			elif [ "$dockerfile_hash" != "$hash" ]; then
+				status="Outdated"
+			# The Dockerfile exists and hash matches,
+			# and at least a container is running: image is Running
+			elif image_is_running "$image"; then
+				status="Running"
+			# The Dockerfile exists and hash matches,
+			# and no container is running: image is Ready
+			else
+				status="Ready"
+			fi
+
+			echo "$image" "$status" "$dockerfile" "dockerfile_hash" "$hash"
+		done
+	done
+}
+
+## list_images() - list images
+# stdout: the tag, the status, and the path to Dockerfile, with header and
+#         aligned columns
+list_images() {
+	local image
+	local images
+	local maxtag
+
+	# Output header and look for the max tag length of images
+	maxtag=""
+	mapfile -t images < <(docker_images)
+	for image in "${images[@]}"; do
+		local tag
+
+		read -r tag _ <<<"$image"
+		if [ "${#tag}" -gt "${#maxtag}" ]; then
+			maxtag="$tag"
+		fi
+	done
+	printf "%-${#maxtag}s %-8s %s\n" "TAG" "STATUS" "DOCKERFILE"
+
+	# Output the images
+	for image in "${images[@]}"; do
+		local tag
+		local status
+		local dockerfile
+
+		read -r tag status dockerfile _ <<<"$image"
+		printf "%-${#maxtag}s %-8s %-7s %s\n" "$tag" "$status" "$dockerfile"
+	done
+}
+
 ## docker_build() - initialize build container
 docker_build() {
 	local args=()
@@ -160,6 +259,14 @@ docker_build() {
 	# Run command
 	debug executing: "$cqfd_docker" build "${args[@]}"
 	"$cqfd_docker" build "${args[@]}"
+
+	# Cache image
+	local file
+	local hash
+	file="$(realpath "$dockerfile")"
+	hash="$(sha256sum <<<"$PWD" | cut -b 1-64)"
+	mkdir -p "$cqfd_cachedir/$cqfd_docker/$hash"
+	ln -sf "$file" "$cqfd_cachedir/$cqfd_docker/$hash/${docker_img_name//\//-}"
 }
 
 ## image_exists_locally(): checks if image exists in the local image store
@@ -758,6 +865,10 @@ while [ $# -gt 0 ]; do
 	deinit)
 		load_config "$flavor"
 		docker_rmi
+		exit
+		;;
+	images)
+		list_images
 		exit
 		;;
 	flavors)
