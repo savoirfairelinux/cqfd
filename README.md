@@ -413,6 +413,10 @@ If a flavor redefines the distro key of the build section, use:
 
     $ cqfd -b centos7 deinit
 
+To collect all unused images across all user projects on the system, use:
+
+    $ cqfd prune
+
 ## Requirements
 
 To use cqfd, ensure the following requirements are satisfied on your

@@ -34,6 +34,9 @@ Linux distribution.
 *images*::
 	List all created images.
 
+*prune*::
+	Cleanup unused build containers.
+
 *exec cmd [args]*::
 	Run argument(s) inside build container.
 
