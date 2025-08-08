@@ -52,6 +52,7 @@ Commands:
     init                 Initialize project build container.
     deinit               Deinitialize project build container.
     ls                   List build containers.
+    gc                   Cleanup unused build containers.
     exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
@@ -218,6 +219,69 @@ list() {
 
 		read -r tag status dockerfile _ <<<"$image"
 		printf "%-${#maxtag}s %-8s %-7s %s\n" "$tag" "$status" "$dockerfile"
+	done
+}
+
+## prune() - remove deleted and outdated images
+prune() {
+	local tags
+	local image
+	local images
+	local symlink
+
+	# List unused images
+	mapfile -t images < <(images)
+	for image in "${images[@]}"; do
+		local tag
+		local status
+
+		# Append outdated and deleted image to list
+		read -r tag status _ <<<"$image"
+		if [ "$status" = "Deleted" ] ||
+		   [ "$status" = "Outdated" ]; then
+			tags+=("$tag")
+		fi
+	done
+
+	# Remove unused images if any
+	if [ "${#tags[@]}" -gt 0 ]; then
+		local args=()
+
+		# Append extra args from the .cqfdrc [build] section
+		if [ "$build_docker_rmi_args" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$build_docker_rmi_args"
+			args+=("${array[@]}")
+		fi
+
+		# Append extra args from $CQFD_EXTRA_RMI_ARGS
+		if [ "$CQFD_EXTRA_RMI_ARGS" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$CQFD_EXTRA_RMI_ARGS"
+			args+=("${array[@]}")
+		fi
+
+		# Remove image
+		"$cqfd_docker" rmi --force "${args[@]}" "${tags[@]}"
+	fi
+
+	# Consolidate the database
+	for symlink in "$cqfd_cachedir/$cqfd_docker"/*/*; do
+		local tag
+
+		if [ ! -L "$symlink" ]; then
+			continue
+		fi
+
+
+		# Remove if symlink is broken or if image does not exist
+		tag="${symlink##*/}"
+		if [ ! -e "$symlink" ] || ! image_exists_locally "$tag"; then
+			rm "$symlink"
+			rmdir --ignore-fail-on-non-empty "${symlink%/*}"
+		fi
 	done
 }
 
@@ -811,6 +875,10 @@ while [ $# -gt 0 ]; do
 		;;
 	ls)
 		list
+		exit
+		;;
+	gc)
+		prune
 		exit
 		;;
 	flavors)
