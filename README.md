@@ -388,6 +388,10 @@ If a flavor redefines the distro key of the build section, use:
 
     $ cqfd --build centos7 --deinit
 
+To list all created images, use:
+
+    $ cqfd --ls
+
 ## Requirements
 
 To use cqfd, ensure the following requirements are satisfied on your

@@ -11,6 +11,16 @@ cqfd="$TDIR/.cqfd/cqfd"
 cd "$TDIR/" || exit 1
 
 ################################################################################
+# running 'cqfd ls' without a proper config and empty cache should pass
+################################################################################
+jtest_prepare "cqfd ls runs without an .cqfdrc and with an empty cache"
+if "$cqfd" ls; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
 jtest_prepare "create a test skeleton in temporary directory"
