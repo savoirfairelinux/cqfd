@@ -34,6 +34,9 @@ Linux distribution.
 **list**::
 	List build containers.
 
+**gc**::
+	Cleanup unused build containers.
+
 *exec cmd [args]*::
 	Run argument(s) inside build container.
 
