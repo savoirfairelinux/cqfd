@@ -12,7 +12,8 @@ tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
 	@$(eval TDIR=$(shell mktemp -d /tmp/cqfd-test.XXXXXX))
-	@for f in [0-9][0-9]*; do \
+	@export CQFD_CACHE=$(TDIR); \
+	for f in [0-9][0-9]*; do \
 		if [ -x "$$f" ]; then \
 			./$$f $(TDIR); \
 		fi; \

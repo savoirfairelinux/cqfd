@@ -28,12 +28,6 @@ Examples are available in the `samples/` directory.
 `cqfd` will use the provided Dockerfile to create a normalized runtime
 build environment for your project.
 
-> ⚠️ Warning
->
-> Running `cqfd init` creates and names a new Docker image each
-> time the Dockerfile is modified, which may lead to a large number of
-> unused images that are not automatically purged.
-
 ## Using cqfd on a daily basis
 
 ### Regular builds
@@ -374,6 +368,16 @@ bash: no job control in this shell
 To work around this limitation, cqfd will use `sudo(8)` when it is
 available in the container instead. The user is responsible for
 including it in the related Dockerfile.
+
+## Remove images
+
+Running `cqfd init` creates and names a new Docker image each
+time the Dockerfile is modified, which may lead to a large number of
+unused images that are not automatically purged.
+
+To list all created images, use:
+
+    $ cqfd ls
 
 ## Requirements
 
