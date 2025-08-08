@@ -379,6 +379,10 @@ To list all created images, use:
 
     $ cqfd ls
 
+To collect all unused images across all user projects on the system, use:
+
+    $ cqfd gc
+
 ## Requirements
 
 To use cqfd, ensure the following requirements are satisfied on your

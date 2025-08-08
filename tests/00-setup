@@ -21,6 +21,16 @@ else
 fi
 
 ################################################################################
+# running 'cqfd gc' without a proper config and empty cache should pass
+################################################################################
+jtest_prepare "cqfd gc runs without an .cqfdrc and with an empty cache"
+if "$cqfd" gc; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
 jtest_prepare "create a test skeleton in temporary directory"

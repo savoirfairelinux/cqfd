@@ -51,6 +51,7 @@ Options:
 Commands:
     init                 Initialize project build container.
     ls                   List build containers.
+    gc                   Cleanup unused build containers.
     exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
@@ -217,6 +218,51 @@ list_images() {
 
 		read -r tag status dockerfile _ <<<"$image"
 		printf "%-${#maxtag}s %-8s %-7s %s\n" "$tag" "$status" "$dockerfile"
+	done
+}
+
+## collect_images() - remove deleted and outdated images
+collect_images() {
+	local tags
+	local image
+	local images
+	local symlink
+
+	# List unused images
+	mapfile -t images < <(docker_images)
+	for image in "${images[@]}"; do
+		local tag
+		local status
+
+		# Append outdated and deleted image to list
+		read -r tag status _ <<<"$image"
+		if [ "$status" = "Deleted" ] ||
+		   [ "$status" = "Outdated" ]; then
+			tags+=("$tag")
+		fi
+	done
+
+	# Remove unused images if any
+	if [ "${#tags[@]}" -gt 0 ]; then
+		# Remove image
+		"$cqfd_docker" rmi --force "${tags[@]}"
+	fi
+
+	# Consolidate the database
+	for symlink in "$cqfd_cachedir/$cqfd_docker"/*/*; do
+		local tag
+
+		if [ ! -L "$symlink" ]; then
+			continue
+		fi
+
+
+		# Remove if symlink is broken or if image does not exist
+		tag="${symlink##*/}"
+		if [ ! -e "$symlink" ] || ! image_exists_locally "$tag"; then
+			rm "$symlink"
+			rmdir --ignore-fail-on-non-empty "${symlink%/*}"
+		fi
 	done
 }
 
@@ -763,6 +809,10 @@ while [ $# -gt 0 ]; do
 		;;
 	ls)
 		list_images
+		exit
+		;;
+	gc)
+		collect_images
 		exit
 		;;
 	flavors)
