@@ -11,7 +11,7 @@ tests: CQFD_BIND_DOCKER_SOCK =
 tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
-	@$(eval TDIR=$(shell mktemp -d))
+	@$(eval TDIR=$(shell mktemp -d /tmp/cqfd-test.XXXXXX))
 	@for f in [0-9][0-9]*; do \
 		if [ -x "$$f" ]; then \
 			./$$f $(TDIR); \
@@ -26,7 +26,7 @@ tests:
 			failed=1; \
 		fi; \
 	fi; \
-	if echo $(TDIR) | grep -q "/tmp/tmp\.[0-9a-zA-Z]\+"; then \
+	if echo $(TDIR) | grep -q "/tmp/cqfd-test\.[0-9a-zA-Z]{6,6}"; then \
 		rm -rf $(TDIR); \
 	fi; \
 	if [ "$$failed" = "1" ]; then \
