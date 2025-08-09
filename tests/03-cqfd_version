@@ -3,7 +3,7 @@
 # validate the behavior of version command
 
 . "$(dirname "$0")"/jtest.inc "$1"
-cqfd="$TDIR"/.cqfd/cqfd
+cqfd="$TDIR/.cqfd/cqfd"
 
 ################################################################################
 # 'cqfd version' shall be an accepted command
