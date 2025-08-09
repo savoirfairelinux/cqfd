@@ -10,9 +10,12 @@ cqfd="$TDIR/.cqfd/cqfd"
 cd "$TDIR/" || exit 1
 
 ################################################################################
-# Ensure build container is "Outdated"
+# Ensure all build containers are"Outdated"
 ################################################################################
-echo "RUN echo $EPOCHSECONDS" >>.cqfd/docker/Dockerfile
+for i in .cqfd/*/Dockerfile; do
+	test -e "$i" || continue
+	echo "RUN echo $EPOCHSECONDS" >>"$i"
+done
 
 ################################################################################
 # 'cqfd ls' should list build containers
