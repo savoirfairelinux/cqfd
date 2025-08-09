@@ -26,7 +26,7 @@ tests:
 			failed=1; \
 		fi; \
 	fi; \
-	if echo $(TDIR) | grep -q "/tmp/tmp\.[a-zA-Z]"; then \
+	if echo $(TDIR) | grep -q "/tmp/tmp\.[0-9a-zA-Z]\+"; then \
 		rm -rf $(TDIR); \
 	fi; \
 	if [ "$$failed" = "1" ]; then \
