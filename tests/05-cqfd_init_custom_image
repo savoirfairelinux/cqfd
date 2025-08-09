@@ -9,7 +9,7 @@ cqfd_docker="${CQFD_DOCKER:-docker}"
 # create a temporary directory
 TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
 
-cd "$TEST_DIR"/ || exit 1
+cd "$TEST_DIR/" || exit 1
 
 ################################################################################
 # 'cqfd init' with custom_img_name

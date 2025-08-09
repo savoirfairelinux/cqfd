@@ -3,7 +3,7 @@
 # validate the behavior of help command
 
 . "$(dirname "$0")"/jtest.inc "$1"
-cqfd="$TDIR"/.cqfd/cqfd
+cqfd="$TDIR/.cqfd/cqfd"
 
 ################################################################################
 # 'cqfd help' shall be an accepted command

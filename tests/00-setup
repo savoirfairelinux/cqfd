@@ -6,7 +6,7 @@
 mkdir -p "$TDIR/.cqfd/docker"
 cp -a ../cqfd "$TDIR/.cqfd/"
 cp -a test_data/. "$TDIR/."
-cqfd="$TDIR"/.cqfd/cqfd
+cqfd="$TDIR/.cqfd/cqfd"
 
 cd "$TDIR/" || exit 1
 
