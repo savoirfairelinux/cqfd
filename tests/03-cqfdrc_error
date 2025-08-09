@@ -42,7 +42,7 @@ else
 	jtest_result fail
 fi
 
-echo "org=test" >>.cqfdrc
+echo "org=cqfd" >>.cqfdrc
 
 jtest_prepare "cqfdrc fails if no build section"
 if "$cqfd" 2>&1 | grep "cqfd: fatal: .cqfdrc: Missing build section!";
