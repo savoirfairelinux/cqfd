@@ -30,6 +30,7 @@ cqfd_user_cwd="$cqfd_user_home/src"
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
+cqfd_cachedir="${CQFD_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/cqfd}"
 
 ## usage() - print usage on stdout
 usage() {
@@ -49,6 +50,9 @@ Options:
 
 Commands:
     init                 Initialize project build container.
+    destroy              Destroy project build container.
+    ls                   List build containers.
+    gc                   Cleanup unused build containers.
     exec cmd [args]      Run argument(s) inside build container.
     flavors              List flavors from config file to stdout.
     run [cmdstring]      Run argument(s) inside build container.
@@ -113,6 +117,168 @@ debug() {
 	test -z "$CQFD_DEBUG" || echo "cqfd: debug: $*"
 }
 
+## image_is_running(): checks if image is running
+# $1: the image name to check if running
+image_is_running() {
+	local ids
+	mapfile -t ids < <("$cqfd_docker" ps --filter "ancestor=$1" --filter status=running --quiet)
+	test "${#ids[@]}" -gt 0
+}
+
+## images() - list images
+# stdout: the tag, the status, and the path to Dockerfile
+images() {
+	local user
+	local image
+	local images
+
+	# shellcheck disable=SC2001
+	user="$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")"
+
+	mapfile -t images < <("$cqfd_docker" images "cqfd_$user\_*" --format "{{.Repository}}")
+	for image in "${images[@]}"; do
+		local symlink
+
+		for symlink in "$cqfd_cachedir"/*/"$image"; do
+			local array
+			local hash
+			local status
+			local dockerfile
+			local dockerfile_hash
+
+			if [ ! -L "$symlink" ]; then
+				continue
+			fi
+
+			# Split components to extract the Dockerfile hash
+			IFS=_ read -r -a array <<<"${symlink##*/cqfd_"$user"_}"
+			array=(cqfd "$user" "${array[@]}")
+			hash="${array[-1]}"
+			if [ "${#array[@]}" -gt 5 ]; then
+				hash="${array[-2]}"
+			fi
+
+			# Get the Dockerfile path to compute the hash
+			dockerfile="<none>"
+			dockerfile_hash="<none>"
+			if [ -e "$symlink" ]; then
+				dockerfile="$(readlink "$symlink")"
+				dockerfile_hash="$(sha256sum "$dockerfile" | cut -b 1-7)"
+			fi
+
+			# The symlink does not exist: image is Deleted
+			if [ ! -e "$symlink" ]; then
+				status="Deleted"
+			# The Dockerfile hash mismatches: image is Outdated
+			elif [ "$dockerfile_hash" != "$hash" ]; then
+				status="Outdated"
+			# The Dockerfile exists and hash matches,
+			# and at least a container is running: image is Running
+			elif image_is_running "$image"; then
+				status="Running"
+			# The Dockerfile exists and hash matches,
+			# and no container is running: image is Ready
+			else
+				status="Ready"
+			fi
+
+			echo "$image" "$status" "$dockerfile" "dockerfile_hash" "$hash"
+		done
+	done
+}
+
+## list() - list images
+# stdout: the tag, the status, and the path to Dockerfile
+list() {
+	local image
+	local images
+	local maxtag
+
+	maxtag=""
+	mapfile -t images < <(images)
+	for image in "${images[@]}"; do
+		local tag
+
+		read -r tag _ <<<"$image"
+		if [ "${#tag}" -gt "${#maxtag}" ]; then
+			maxtag="$tag"
+		fi
+	done
+	printf "%-${#maxtag}s %-8s %s\n" "TAG" "STATUS" "DOCKERFILE"
+
+	for image in "${images[@]}"; do
+		local tag
+		local status
+		local dockerfile
+
+		read -r tag status dockerfile _ <<<"$image"
+		printf "%-${#maxtag}s %-8s %-7s %s\n" "$tag" "$status" "$dockerfile"
+	done
+}
+
+## prune() - remove deleted and outdated images
+prune() {
+	local tags
+	local image
+	local images
+	local symlink
+
+	# List unused images
+	mapfile -t images < <(images)
+	for image in "${images[@]}"; do
+		local tag
+		local status
+
+		# Append outdated and deleted image to list
+		read -r tag status _ <<<"$image"
+		if [ "$status" = "Deleted" ] ||
+		   [ "$status" = "Outdated" ]; then
+			tags+=("$tag")
+		fi
+	done
+
+	# Remove unused images if any
+	if [ "${#tags[@]}" -gt 0 ]; then
+		local args=()
+
+		# Append extra args from the .cqfdrc [build] section
+		if [ "$build_docker_rmi_args" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$build_docker_rmi_args"
+			args+=("${array[@]}")
+		fi
+
+		# Append extra args from $CQFD_EXTRA_RMI_ARGS
+		if [ "$CQFD_EXTRA_RMI_ARGS" ]; then
+			local array
+			# shellcheck disable=SC2162
+			read -a array <<<"$CQFD_EXTRA_RMI_ARGS"
+			args+=("${array[@]}")
+		fi
+
+		# Remove image
+		"$cqfd_docker" rmi --force "${args[@]}" "${tags[@]}"
+	fi
+
+	# Consolidate the database
+	for symlink in "$cqfd_cachedir"/*/*; do
+		local tag
+
+		if [ ! -L "$symlink" ]; then
+			continue
+		fi
+
+
+		# Remove if symlink is broken or if image does not exist
+		tag="${symlink##*/}"
+		if [ ! -e "$symlink" ] || ! image_exists_locally "$tag"; then
+			rm "$symlink"
+			rmdir --ignore-fail-on-non-empty "${symlink%/*}"
+		fi
+	done
+}
+
 ## docker_build() - initialize build container
 docker_build() {
 	local args=()
@@ -151,12 +317,63 @@ docker_build() {
 	# Run command
 	debug executing: "$cqfd_docker" build "${args[@]}"
 	"$cqfd_docker" build "${args[@]}"
+
+	# Cache image
+	local file
+	local hash
+	file="$(realpath "$dockerfile")"
+	hash="$(sha256sum <<<"$PWD" | cut -b 1-64)"
+	mkdir -p "$cqfd_cachedir/$hash"
+	ln -sf "$file" "$cqfd_cachedir/$hash/$docker_img_name"
 }
 
 ## image_exists_locally(): checks if image exists in the local image store
 # $1: the image name to check
 image_exists_locally() {
 	"$cqfd_docker" image inspect "$1" &>/dev/null
+}
+
+## docker_rmi() - remove build container
+docker_rmi() {
+	local args=()
+
+	# Check if image is running
+	if image_is_running "$docker_img_name"; then
+		die "$docker_img_name: Image busy"
+	fi
+
+	# Append extra args from the .cqfdrc [build] section
+	if [ "$build_docker_rmi_args" ]; then
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$build_docker_rmi_args"
+		args+=("${array[@]}")
+	fi
+
+	# Append extra args from $CQFD_EXTRA_RMI_ARGS
+	if [ "$CQFD_EXTRA_RMI_ARGS" ]; then
+		local array
+		# shellcheck disable=SC2162
+		read -a array <<<"$CQFD_EXTRA_RMI_ARGS"
+		args+=("${array[@]}")
+	fi
+
+	# Set the image to remove
+	args+=("$docker_img_name")
+
+	# Run command
+	debug executing: "$cqfd_docker" rmi "${args[@]}"
+	"$cqfd_docker" rmi "${args[@]}"
+
+	# Remove cached image if cached
+	if [ -e "$dockerfile" ]; then
+		local file
+		local hash
+		file="$(realpath "$dockerfile")"
+		hash="$(sha256sum <<<"$PWD" | cut -b 1-64)"
+		rm --force "$cqfd_cachedir/$hash/$docker_img_name"
+		rmdir --ignore-fail-on-non-empty "$cqfd_cachedir/$hash"
+	fi
 }
 
 ## docker_run() - run command in configured container
@@ -643,6 +860,19 @@ while [ $# -gt 0 ]; do
 	init)
 		load_config "$flavor"
 		docker_build
+		exit
+		;;
+	destroy)
+		load_config "$flavor"
+		docker_rmi
+		exit
+		;;
+	ls)
+		list
+		exit
+		;;
+	gc)
+		prune
 		exit
 		;;
 	flavors)

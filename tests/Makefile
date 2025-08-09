@@ -3,6 +3,7 @@
 tests: CQFD_DOCKER =
 tests: CQFD_EXTRA_RUN_ARGS =
 tests: CQFD_EXTRA_BUILD_ARGS =
+tests: CQFD_EXTRA_RMI_ARGS =
 tests: CQFD_NO_SSH_CONFIG =
 tests: CQFD_NO_SSH_AUTH_SOCK =
 tests: CQFD_NO_USER_SSH_CONFIG =
@@ -11,8 +12,9 @@ tests: CQFD_BIND_DOCKER_SOCK =
 tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
-	@$(eval TDIR=$(shell mktemp -d))
-	@for f in [0-9][0-9]*; do \
+	@$(eval TDIR=$(shell mktemp -d /tmp/cqfd-test.XXXXXX))
+	@export CQFD_CACHE=$(TDIR); \
+	for f in [0-9][0-9]*; do \
 		if [ -x "$$f" ]; then \
 			./$$f $(TDIR); \
 		fi; \
@@ -26,7 +28,7 @@ tests:
 			failed=1; \
 		fi; \
 	fi; \
-	if echo $(TDIR) | grep -q "/tmp/tmp\.[a-zA-Z]"; then \
+	if echo $(TDIR) | grep -q "/tmp/cqfd-test\.[0-9a-zA-Z]{6,6}"; then \
 		rm -rf $(TDIR); \
 	fi; \
 	if [ "$$failed" = "1" ]; then \
