@@ -245,6 +245,11 @@ docker-build options to be append to the building image.
 Format is the same as (and passed to) docker-build’s options.
 See 'docker build --help'.
 
+`CQFD_EXTRA_RMI_ARGS`: A space-separated list of additional
+docker-rmi options to be append to the removed image.
+Format is the same as (and passed to) docker-rmi’s options.
+See 'docker rmi --help'.
+
 `CQFD_NO_SSH_CONFIG`: Set to `true` to disable forwarding the global
 `/etc/ssh` configurations to the container. This may be required if
 the host's `ssh` configuration is not compatible with the `ssh`
