@@ -39,11 +39,11 @@ make check
 
 
 %files
-%doc %{_datadir}/doc/cqfd/AUTHORS
-%doc %{_datadir}/doc/cqfd/CHANGELOG.md
-%doc %{_datadir}/doc/cqfd/README.md
-%license %{_datadir}/doc/cqfd/LICENSE
-%{_bindir}/cqfd
+%doc %{_datadir}/doc/%{name}/AUTHORS
+%doc %{_datadir}/doc/%{name}/CHANGELOG.md
+%doc %{_datadir}/doc/%{name}/README.md
+%license %{_datadir}/doc/%{name}/LICENSE
+%{_bindir}/{%name}
 %{_datadir}/bash-completion/completions/%{name}
 %{_datadir}/%{name}/samples/Dockerfile.focalFossa.android34
 %{_datadir}/%{name}/samples/Dockerfile.focalFossa.nodejs20x
