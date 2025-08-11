@@ -31,11 +31,10 @@ EOF
 mkdir -p .cqfd/docker
 echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
-jtest_prepare "$cqfd_docker registry contains NO image named: $custom_image_1"
-if ! "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
-	jtest_result pass
-else
-	jtest_result fail
+jtest_log info "$cqfd_docker registry contains NO image named: $custom_image_1"
+if "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
+	jtest_log fatal "$custom_image_1 already present before test"
+	"$cqfd_docker" rmi "$custom_image_1"
 fi
 
 jtest_prepare "cqfd init works using custom_img_name=$custom_image_1"
