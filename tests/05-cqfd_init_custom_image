@@ -9,27 +9,15 @@ cqfd_docker="${CQFD_DOCKER:-docker}"
 cd "$TDIR/" || exit 1
 
 cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+cp -f .cqfd/docker/Dockerfile.init_custom_image .cqfd/docker/Dockerfile
 cp -f .cqfdrc .cqfdrc.old
+cp -f cqfdrc-custom_image .cqfdrc
+custom_image_1="cqfd_test_custom_image_$RANDOM$RANDOM"
+sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_image_1'!" .cqfdrc
 
 ################################################################################
 # 'cqfd init' with custom_img_name
 ################################################################################
-custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
-
-# Test .cqfdrc
-cat >.cqfdrc <<EOF
-[project]
-org="cqfd"
-name="custom-image"
-custom_img_name="$custom_image_1"
-
-[build]
-command="true"
-EOF
-
-# Test dockerfile
-echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
-
 jtest_log info "$cqfd_docker registry contains NO image named: $custom_image_1"
 if "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
 	jtest_log fatal "$custom_image_1 already present before test"
@@ -50,9 +38,11 @@ else
 	jtest_result fail
 fi
 
-################################################################################
 # cleanup
-################################################################################
 "$cqfd_docker" rmi "$custom_image_1"
+
+################################################################################
+# Restore initial .cqfdrc and Dockerfile
+################################################################################
 mv -f .cqfdrc.old .cqfdrc
 mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile

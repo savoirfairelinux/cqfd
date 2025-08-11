@@ -1,0 +1,7 @@
+[project]
+org="cqfd"
+name="custom-image"
+custom_img_name="cqfd_test_custom_image"
+
+[build]
+command="true"
