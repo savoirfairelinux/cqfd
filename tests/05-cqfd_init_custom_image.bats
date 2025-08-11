@@ -1,14 +1,21 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+    cp -f .cqfdrc .cqfdrc.old
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
 }
 
+teardown_file() {
+    mv -f .cqfdrc.old .cqfdrc
+    mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
+}
+
 @test "cqfd with custom image works" {
-    # create a temporary directory
-    TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
-    cd "$TEST_DIR" || exit 1
     custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
 
     # shellcheck disable=SC2154
@@ -27,7 +34,6 @@ command="true"
 EOF
 
     # Test dockerfile
-    mkdir -p .cqfd/docker
     echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
     run cqfd init
@@ -39,5 +45,4 @@ EOF
 
     # cleanup
     "$cqfd_docker" rmi "$custom_image_1"
-    rm -rf "$TEST_DIR"
 }
