@@ -6,10 +6,10 @@
 cqfd="$TDIR/.cqfd/cqfd"
 cqfd_docker="${CQFD_DOCKER:-docker}"
 
-# create a temporary directory
-TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
+cd "$TDIR/" || exit 1
 
-cd "$TEST_DIR/" || exit 1
+cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+cp -f .cqfdrc .cqfdrc.old
 
 ################################################################################
 # 'cqfd init' with custom_img_name
@@ -28,7 +28,6 @@ command="true"
 EOF
 
 # Test dockerfile
-mkdir -p .cqfd/docker
 echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
 jtest_log info "$cqfd_docker registry contains NO image named: $custom_image_1"
@@ -55,4 +54,5 @@ fi
 # cleanup
 ################################################################################
 "$cqfd_docker" rmi "$custom_image_1"
-rm -rf "$TEST_DIR"
+mv -f .cqfdrc.old .cqfdrc
+mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
