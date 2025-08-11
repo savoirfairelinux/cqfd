@@ -1,7 +1,7 @@
 [project]
 org="cqfd"
 name="custom-image"
-custom_img_name="cqfd_test_custom_image"
+custom_img_name="ubuntu:16.04"
 
 [build]
-command="true"
+command="grep ^PRETTY_NAME /etc/os-release"
