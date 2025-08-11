@@ -67,7 +67,7 @@ for f in $rel_files; do
 	fi
 done
 jtest_result "$result"
-sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
+sed -i -e '$ s!^tar_transform=.*$!!' .cqfdrc
 rm -f cqfd-test.tar.xz
 
 # now use tar_transform=yes
@@ -81,7 +81,7 @@ for f in $rel_files; do
 	fi
 done
 jtest_result "$result"
-sed -i -e '$ s!^tar_transform.*$!!' .cqfdrc
+sed -i -e '$ s!^tar_transform=.*$!!' .cqfdrc
 rm -f cqfd-test.tar.xz
 
 ################################################################################
@@ -110,7 +110,7 @@ jtest_result "$result"
 
 # revert the changes in .cqfdrc file
 rm -f link.txt
-sed -i '/tar_options/d' .cqfdrc
+sed -i '/tar_options=/d' .cqfdrc
 sed -i '/files=/d' .cqfdrc
 echo "files=\"$rel_files\"" >>.cqfdrc
 
