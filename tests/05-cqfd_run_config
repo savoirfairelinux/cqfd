@@ -12,7 +12,6 @@ cd "$TDIR/" || exit 1
 # cp the default conf and replace the original with a fake one
 mkdir -p "$confdir"
 mv .cqfdrc "$confdir"/mycqfdrc
-touch .cqfdrc
 
 # First pass: run with non default config file
 # Second pass: run with non default config file and bash cmd
