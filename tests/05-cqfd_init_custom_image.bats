@@ -18,12 +18,12 @@ teardown_file() {
 }
 
 @test "cqfd with custom image works" {
-    custom_image_1="cqfd_test_custom_image_$RANDOM$RANDOM"
-    sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_image_1'!" .cqfdrc
+    custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
+    sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
 
     # shellcheck disable=SC2154
-    if "$cqfd_docker" inspect "$custom_image_1"; then
-        "$cqfd_docker" rmi "$custom_image_1"
+    if "$cqfd_docker" inspect "$custom_img_name"; then
+        "$cqfd_docker" rmi "$custom_img_name"
     fi
 
     run cqfd init
@@ -31,8 +31,8 @@ teardown_file() {
     run cqfd run "true"
     assert_success
 
-    "$cqfd_docker" inspect "$custom_image_1"
+    "$cqfd_docker" inspect "$custom_img_name"
 
     # cleanup
-    "$cqfd_docker" rmi "$custom_image_1"
+    "$cqfd_docker" rmi "$custom_img_name"
 }
