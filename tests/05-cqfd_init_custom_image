@@ -51,7 +51,7 @@ else
 fi
 
 jtest_prepare "cqfd init works using custom_img_name=$custom_img_name"
-if "$cqfd" init && "$cqfd" | grep -qE "Ubuntu 24.04(.[[:digit:]]+)? LTS"; then
+if "$cqfd" init; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -59,6 +59,13 @@ fi
 
 jtest_prepare "$cqfd_docker registry contains image named: $custom_img_name"
 if "$cqfd_docker" inspect "$custom_img_name" &>/dev/null; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd runs created image $custom_img_name"
+if "$cqfd" | grep -qE "Ubuntu 24.04(.[[:digit:]]+)? LTS"; then
 	jtest_result pass
 else
 	jtest_result fail
