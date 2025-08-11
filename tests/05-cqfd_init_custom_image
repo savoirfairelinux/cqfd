@@ -33,7 +33,7 @@ else
 fi
 
 ################################################################################
-# 'cqfd init' with custom_img_name
+# 'cqfd init' creates custom_img_name
 ################################################################################
 custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
 sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
@@ -50,15 +50,9 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "cqfd init works using custom_img_name=$custom_img_name"
-if "$cqfd" init; then
-	jtest_result pass
-else
-	jtest_result fail
-fi
-
-jtest_prepare "$cqfd_docker registry contains image named: $custom_img_name"
-if "$cqfd_docker" inspect "$custom_img_name" &>/dev/null; then
+jtest_prepare "cqfd init creates image $custom_img_name from Dockerfile"
+if "$cqfd" init && \
+   "$cqfd_docker" inspect "$custom_img_name" &>/dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -70,7 +64,6 @@ if "$cqfd" | grep -qE "Ubuntu 24.04(.[[:digit:]]+)? LTS"; then
 else
 	jtest_result fail
 fi
-
 # cleanup
 "$cqfd_docker" rmi "$custom_img_name"
 
