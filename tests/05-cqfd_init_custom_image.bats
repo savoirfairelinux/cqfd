@@ -58,7 +58,8 @@ teardown_file() {
     run cqfd init
     assert_success
 
-    "$cqfd_docker" inspect "$custom_img_name"
+    run "$cqfd_docker" inspect "$custom_img_name"
+    assert_success
 
     echo "custom_img_name=$custom_img_name" >.cqfd/docker/custom_img_name
 }
