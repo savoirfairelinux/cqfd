@@ -29,6 +29,22 @@ teardown_file() {
     assert_line --regexp "Ubuntu 16.04(.[[:digit:]]+)? LTS"
 }
 
+@test "cqfd fails pulling inexistant custom image from registry" {
+    custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
+    sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
+
+    # shellcheck disable=SC2154
+    if "$cqfd_docker" inspect "$custom_img_name"; then
+        "$cqfd_docker" rmi "$custom_img_name"
+    fi
+
+    run cqfd
+    assert_failure
+
+    run "$cqfd_docker" inspect "$custom_img_name"
+    assert_failure
+}
+
 @test "cqfd with custom image works" {
     custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
     sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
