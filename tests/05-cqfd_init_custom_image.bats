@@ -45,7 +45,8 @@ teardown_file() {
     assert_failure
 }
 
-@test "cqfd with custom image works" {
+@test "cqfd init creates custom image" {
+    # shellcheck disable=SC2030
     custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
     sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
 
@@ -56,11 +57,20 @@ teardown_file() {
 
     run cqfd init
     assert_success
-    run cqfd
-    assert_line --regexp "Ubuntu 24.04(.[[:digit:]]+)? LTS"
 
     "$cqfd_docker" inspect "$custom_img_name"
 
-    # cleanup
+    echo "custom_img_name=$custom_img_name" >.cqfd/docker/custom_img_name
+}
+
+@test "cqfd runs created custom image" {
+    # shellcheck disable=SC1091
+    source .cqfd/docker/custom_img_name
+
+    run cqfd
+    assert_line --regexp "Ubuntu 24.04(.[[:digit:]]+)? LTS"
+
+    # shellcheck disable=SC2031
     "$cqfd_docker" rmi "$custom_img_name"
+    rm .cqfd/docker/custom_img_name
 }
