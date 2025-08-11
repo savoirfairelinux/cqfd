@@ -6,38 +6,47 @@ setup() {
     cqfd_docker="${CQFD_DOCKER:-docker}"
 }
 
-@test "cqfd with custom image works" {
-    # create a temporary directory
-    TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
-    cd "$TEST_DIR" || exit 1
-    custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
+@test "cqfd pulls image custom_img_name from registry" {
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+    cp -f .cqfd/docker/Dockerfile.init_custom_image .cqfd/docker/Dockerfile
+    cp -f .cqfdrc .cqfdrc.old
+    cp -f cqfdrc-custom_image .cqfdrc
 
-    run "$cqfd_docker" inspect "$custom_image_1"
+    custom_img_name="ubuntu:16.04"
+    sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
+    if "$cqfd_docker" inspect "$custom_img_name"; then
+        "$cqfd_docker" rmi "$custom_img_name"
+    fi
+
+    run cqfd
+    assert_success
+    assert_line --regexp "Ubuntu 16.04(.[[:digit:]]+)? LTS"
+}
+
+@test "'cqfd init' creates custom_img_name" {
+    custom_img_name="cqfd_test_custom_image_$RANDOM$RANDOM"
+    sed -i -e "s!^custom_img_name=.*\$!custom_img_name='$custom_img_name'!" .cqfdrc
+    if "$cqfd_docker" inspect "$custom_img_name"; then
+        "$cqfd_docker" rmi "$custom_img_name"
+    fi
+
+    # cqfd fails pulling inexistant image $custom_img_name from registry"
+    run cqfd
     assert_failure
-    # Test .cqfdrc
-    cat >.cqfdrc <<EOF
-[project]
-org="cqfd"
-name="custom-image"
-custom_img_name="$custom_image_1"
 
-[build]
-command="true"
-EOF
-
-    # Test dockerfile
-    mkdir -p .cqfd/docker
-    echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
-
+    # cqfd init creates custom_img_name from Dockerfile
     run cqfd init
     assert_success
-    run cqfd run "true"
+    run "$cqfd_docker" inspect "$custom_img_name"
     assert_success
 
-    "$cqfd_docker" inspect "$custom_image_1"
+    # cqfd runs created image $custom_img_name
+    run cqfd
     assert_success
+    assert_line --regexp "Ubuntu 24.04(.[[:digit:]]+)? LTS"
 
     # cleanup
-    "$cqfd_docker" rmi "$custom_image_1"
-    rm -rf "$TEST_DIR"
+    "$cqfd_docker" rmi "$custom_img_name"
+    mv -f .cqfdrc.old .cqfdrc
+    mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
