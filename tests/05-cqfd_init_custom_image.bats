@@ -12,8 +12,9 @@ setup() {
     custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
 
     # shellcheck disable=SC2154
-    run "$cqfd_docker" inspect "$custom_image_1"
-    assert_failure
+    if "$cqfd_docker" inspect "$custom_image_1"; then
+        "$cqfd_docker" rmi "$custom_image_1"
+    fi
     # Test .cqfdrc
     cat >.cqfdrc <<EOF
 [project]
