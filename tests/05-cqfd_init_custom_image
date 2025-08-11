@@ -43,6 +43,13 @@ if "$cqfd_docker" inspect "$custom_img_name" &>/dev/null; then
 	"$cqfd_docker" rmi "$custom_img_name"
 fi
 
+jtest_prepare "cqfd fails pulling inexistant image $custom_img_name from registry"
+if ! "$cqfd"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
 jtest_prepare "cqfd init works using custom_img_name=$custom_img_name"
 if "$cqfd" init && "$cqfd" | grep -qE "Ubuntu 24.04(.[[:digit:]]+)? LTS"; then
 	jtest_result pass
