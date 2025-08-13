@@ -542,7 +542,7 @@ EOF
 }
 
 ## locate_project_dir() - locate directory with .cqfd upwards
-# stdout: the path to the .cqfd directory
+# stdout: the path to the .cqfd parent directory
 locate_project_dir() {
 	local search_dir="$PWD"
 
