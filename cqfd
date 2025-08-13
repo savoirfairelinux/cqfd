@@ -535,7 +535,7 @@ load_config() {
 	fi
 
 	# generate dynamically the list of flavors based on the names of shell
-	# functions reported by the buildtin:
+	# functions reported by the builtin:
 	#  - the cfg_section_ prefix is stripped
 	#  - the build and project sections are stripped
 	mapfile -t flavors < <(compgen -A function -X '!cfg_section_*')
