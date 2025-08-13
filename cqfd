@@ -570,7 +570,7 @@ locate_project_dir() {
 	while [ "$search_dir" != "/" ]; do
 		if [ -d "$search_dir"/"$cqfddir" ]; then
 			realpath "$search_dir"
-			return 0
+			return
 		fi
 		search_dir="$(readlink -f "$search_dir"/..)"
 	done
