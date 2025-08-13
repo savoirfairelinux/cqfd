@@ -565,8 +565,14 @@ EOF
 ## locate_project_dir() - locate directory with .cqfd upwards
 # stdout: the path to the .cqfd parent directory
 locate_project_dir() {
-	local search_dir="$PWD"
+	local search_dir
 
+	if $has_custom_cqfddir; then
+		realpath "$cqfddir/.."
+		return
+	fi
+
+	search_dir="$PWD"
 	while [ "$search_dir" != "/" ]; do
 		if [ -d "$search_dir"/"$cqfddir" ]; then
 			realpath "$search_dir"
@@ -581,8 +587,14 @@ locate_project_dir() {
 ## load_config() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command
 load_config() {
+	# get the project directory
 	if ! cqfd_project_dir=$(locate_project_dir); then
 		die ".cqfd directory not found in directory tree"
+	fi
+
+	# unless using '-d other_cqfddir', use base directory located above
+	if ! $has_custom_cqfddir; then
+		cqfddir="$cqfd_project_dir/$cqfddir"
 	fi
 
 	# unless using '-f other_cqfdrc', use base directory located above
@@ -669,7 +681,7 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfd_project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
+	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -726,6 +738,7 @@ setopt nohistsavebycopy
 EOF
 }
 
+has_custom_cqfddir=false
 has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
@@ -764,6 +777,7 @@ while [ $# -gt 0 ]; do
 		;;
 	-d)
 		shift
+		has_custom_cqfddir=true
 		cqfddir="$1"
 		;;
 	-f)
