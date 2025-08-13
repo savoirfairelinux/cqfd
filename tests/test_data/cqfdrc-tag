@@ -1,0 +1,7 @@
+[project]
+org="cqfd"
+name="test"
+tag="cqfd-%Un-%Po-%Pn-%Dh-%Bd"
+
+[build]
+command="grep ^PRETTY_NAME /etc/os-release"
