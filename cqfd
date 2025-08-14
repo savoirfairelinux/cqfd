@@ -639,6 +639,7 @@ while [ $# -gt 0 ]; do
 		;;
 	--verbose)
 		export CQFD_DEBUG=true
+		export BUILDKIT_PROGRESS=plain
 		;;
 	init)
 		load_config "$flavor"
