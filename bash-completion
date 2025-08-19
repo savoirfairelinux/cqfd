@@ -28,7 +28,11 @@ _cqfd() {
 	_init_completion || return
 
 	case $prev in
-	-C|-d|-f)
+	-C|-d)
+		_filedir -d
+		return
+		;;
+	-f)
 		_filedir
 		return
 		;;
