@@ -6,7 +6,10 @@ set -o pipefail
 
 . "$(dirname "$0")/jtest.inc" "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-cqfd_docker="${CQFD_DOCKER:-docker}"
+read -r -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
+if [ "$CQFD_RUN_WITH_SUDO" = true ]; then
+	cqfd_docker=(sudo "${cqfd_docker[@]}")
+fi
 
 cd "$TDIR/" || exit 1
 
@@ -16,7 +19,7 @@ dockerfile_old=$(mktemp)
 cp -f .cqfd/docker/Dockerfile "$dockerfile_old"
 
 jtest_prepare "cqfd run docker using host docker daemon"
-if [ "$cqfd_docker" != "docker" ] || ! getent group docker | grep -q "$USER"; then
+if [ "${cqfd_docker[-1]}" != "docker" ] || ! getent group docker | grep -q "$USER"; then
 	jtest_result skip
 else
 	cp -f .cqfd/docker/Dockerfile.doutofd .cqfd/docker/Dockerfile

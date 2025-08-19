@@ -6,7 +6,10 @@ set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-cqfd_docker="${CQFD_DOCKER:-docker}"
+read -r -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
+if [ "$CQFD_RUN_WITH_SUDO" = true ]; then
+	cqfd_docker=(sudo "${cqfd_docker[@]}")
+fi
 
 cd "$TDIR/" || exit 1
 
@@ -35,7 +38,7 @@ echo 'RUN apk add bash shadow' >>.cqfd/docker/Dockerfile
 # cqfd run should now be happy with the required commands, using su.
 ################################################################################
 jtest_prepare "cqfd run with satisfied command requirements, using su"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	if "$cqfd" init && "$cqfd" --verbose run true \
@@ -55,7 +58,7 @@ echo 'RUN apk add sudo' >>.cqfd/docker/Dockerfile
 # cqfd run should now be happy with the required commands, using sudo
 ################################################################################
 jtest_prepare "cqfd run with satisfied command requirements, using sudo"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	if "$cqfd" init && "$cqfd" --verbose run true \

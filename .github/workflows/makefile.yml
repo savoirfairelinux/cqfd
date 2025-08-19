@@ -22,3 +22,12 @@ jobs:
 
     - name: Run tests for podman
       run: make CQFD_DOCKER=podman PODMAN_USERNS="keep-id" tests
+
+    - name: Run tests for docker using sudo
+      run: make CQFD_DOCKER="sudo docker" tests
+
+    - name: Run tests for docker using sudo and a non docker user
+      run: |
+        sudo usermod -aG sudo nobody
+        sudo sh -c 'echo "nobody ALL=(ALL) NOPASSWD: ALL" >>/etc/sudoers.d/nobody'
+        sudo runuser -u nobody -- make CQFD_RUN_WITH_SUDO="true" USER="cqfd" HOME="/tmp/cqfd" tests
