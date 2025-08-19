@@ -90,7 +90,7 @@ _cqfd() {
 		return
 	fi
 
-	local opts="-C -d -f -b -q --release -V --version -h --help"
+	local opts="-C -d -f -b -q --release -v --version -h --help"
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
 		return
