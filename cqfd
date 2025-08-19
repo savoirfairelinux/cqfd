@@ -45,6 +45,7 @@ Options:
     -q                   Turn on quiet mode.
     -v or --version      Show version.
     --verbose            Increase the script's verbosity.
+    --no-rm              Don't remove the container after exit.
     -h or --help         Show this help text.
 
 Commands:
@@ -204,7 +205,11 @@ docker_run() {
 		args+=("${array[@]}")
 	fi
 
-	args+=(--rm --log-driver=none)
+	if [ "$CQFD_NO_RM" != true ]; then
+		args+=(--rm)
+	fi
+
+	args+=(--log-driver=none)
 
 	# always keep stdin open
 	args+=(--interactive)
@@ -639,6 +644,9 @@ while [ $# -gt 0 ]; do
 		;;
 	--verbose)
 		export CQFD_DEBUG=true
+		;;
+	--no-rm)
+		export CQFD_NO_RM=true
 		;;
 	init)
 		load_config "$flavor"
