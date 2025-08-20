@@ -65,6 +65,9 @@ Command options for run:
 
 == OPTIONS
 
+*--platform TARGET*::
+	Set target platform.
+
 *-f FILE*::
 	Use file as config file (default _.cqfdrc_).
 

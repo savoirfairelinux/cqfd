@@ -1,0 +1,6 @@
+[project]
+org='cqfd'
+name='multi_platform_test'
+
+[build]
+command='uname -m'

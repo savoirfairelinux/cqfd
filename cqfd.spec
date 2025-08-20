@@ -43,6 +43,12 @@ make check
 %doc %{_datadir}/doc/%{name}/README.md
 %license %{_datadir}/doc/%{name}/LICENSE
 %{_bindir}/{%name}
+%{_bindir}/linux-amd64-%{name}
+%{_bindir}/linux-arm-%{name}
+%{_bindir}/linux-arm64-%{name}
+%{_bindir}/linux-ppc64le-%{name}
+%{_bindir}/linux-riscv64-%{name}
+%{_bindir}/linux-s390x-%{name}
 %{_datadir}/bash-completion/completions/%{name}
 %{_datadir}/%{name}/samples/Dockerfile.focalFossa.android34
 %{_datadir}/%{name}/samples/Dockerfile.focalFossa.nodejs20x

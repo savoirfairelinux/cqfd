@@ -42,6 +42,7 @@ Usage: $PROGNAME [OPTIONS] [COMMAND] [COMMAND OPTIONS] [ARGUMENTS]
 
 Options:
     --release            Release software.
+    --platform <target>  Set target platform.
     -f <file>            Use file as config file (default .cqfdrc).
     -d <directory>       Use directory as cqfd directory (default .cqfd).
     -C <directory>       Use the specified working directory.
@@ -165,6 +166,11 @@ docker_build() {
 	# Suppress the build output
 	if [ "$quiet" ]; then
 		args+=(--quiet)
+	fi
+
+	# Set platform if not native
+	if [ "$cqfd_platform" != "$native" ]; then
+		args+=(--platform "$cqfd_platform")
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -659,6 +665,40 @@ load_config() {
 		die "$cqfdrc_dir$cqfdrc: Invalid ini-file!"
 	fi
 
+	# deduce native platform from system
+	local machine
+	machine="$(uname -m)"
+	case "$machine" in
+	x86_64)
+		native="linux/amd64"
+		;;
+	aarch64)
+		native="linux/arm64"
+		;;
+	*)
+		native="linux/$machine"
+		;;
+	esac
+
+	# deduce target platform from filename (i.e. linux-amd64-cqfd)
+	local target
+	target=
+	if [[ "$PROGNAME" =~ ^(.+)-cqfd$ ]]; then
+		target="${BASH_REMATCH[1]}"
+		target="${target//-/\/}"
+	fi
+
+	# set default platform from CQFD_PLATFORM is set
+	platform="$CQFD_PLATFORM"
+	# or from filename
+	if [ ! "$platform" ]; then
+		platform="$target"
+	fi
+	# or default to native
+	if [ ! "$platform" ]; then
+		platform="$native"
+	fi
+
 	# generate dynamically the list of flavors based on the names of shell
 	# functions reported by the builtin:
 	#  - the cfg_section_ prefix is stripped
@@ -714,6 +754,8 @@ load_config() {
 	# shellcheck disable=SC2154
 	build_command="$command"
 	# shellcheck disable=SC2154
+	build_platform="$platform"
+	# shellcheck disable=SC2154
 	build_docker_build_args="$docker_build_args"
 	# shellcheck disable=SC2154
 	build_docker_run_args="$docker_run_args"
@@ -732,6 +774,12 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_options="$tar_options"
 
+	# set native if platform= unspecified
+	cqfd_platform="$build_platform"
+	if [ ! "$cqfd_platform" ]; then
+		cqfd_platform="$native"
+	fi
+
 	dockerfile=$(realpath "$cqfddir/${build_distro:-docker}/Dockerfile")
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
@@ -743,10 +791,11 @@ load_config() {
 		local format_user
 		local dockerfile_hash
 
-		# This will look like cqfd_USER_ORG_NAME_HASH
+		# This will look like cqfd_USER_ORG_NAME_PLATFORM_HASH
 		format_user=${USER//[^0-9a-zA-Z\-]/_}
+		docker_platform="${cqfd_platform//[^0-9a-zA-Z\-]/_}"
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${docker_platform}_${dockerfile_hash}${build_distro:+_$build_distro}"
 	fi
 }
 
@@ -852,6 +901,10 @@ while [ $# -gt 0 ]; do
 		;;
 	--release)
 		has_to_release=true
+		;;
+	--platform)
+		shift
+		CQFD_PLATFORM="$1"
 		;;
 	exec)
 		shift
