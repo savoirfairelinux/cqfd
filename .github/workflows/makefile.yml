@@ -17,6 +17,9 @@ jobs:
     - name: Run linting
       run: make check
 
+    - name: Setup binfmt
+      run: docker run --privileged --rm tonistiigi/binfmt --install all
+
     - name: Run tests for docker
       run: make tests
 
