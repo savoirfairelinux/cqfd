@@ -342,6 +342,14 @@ These options can be combined together:
     $ #  - cqfd directory: external/directory/cqfd_alt
     $ #  - cqfdrc file: external/directory/cqfdrc_alt
 
+Do not remove the container after exiting using the `--no-rm` option:
+
+    $ cqfd --no-rm
+
+The container that was created with the above command will not be removed upon its exit. You can then use the same container in the same state as when you exited using the `start` command:
+
+    $ cqfd start container_id
+
 ## Build Container Environment
 
 When cqfd runs, a docker container is launched as the environment in
