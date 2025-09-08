@@ -27,10 +27,33 @@ else
 fi
 
 ################################################################################
-# 'cqfd init' using alternate filenames in an external directory should work
+# 'cqfd init' using alternate filenames in an external directory using filenames
+# should work
 ################################################################################
-jtest_prepare "cqfd init using alternate filenames in an external directory should work"
+jtest_prepare "cqfd init using alternate filenames in an external directory using filenames should work"
 if "$cqfd" -C "$extdir" -d cqfd -f cqfdrc init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd init' using alternate filenames in an external directory using absolute
+# filenames should work
+################################################################################
+jtest_prepare "cqfd init using alternate filenames in an external directory using relative filenames should work"
+if "$cqfd" -d "$extdir/cqfd" -f "$extdir/cqfdrc" init; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd init' using alternate filenames in an external directory using absolute
+# filenames should work
+################################################################################
+jtest_prepare "cqfd init using alternate filenames in an external directory using absolute filenames should work"
+if "$cqfd" -d "$PWD/$extdir/cqfd" -f "$PWD/$extdir/cqfdrc" init; then
 	jtest_result pass
 else
 	jtest_result fail
