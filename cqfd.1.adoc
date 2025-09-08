@@ -62,8 +62,11 @@ Command options for run:
 *-d DIR*::
 	Use directory as cqfd directory (default _.cqfd_).
 
+*-w DIR*::
+	Use directory as working directory (default parent of _.cqfd_).
+
 *-C DIR*::
-	Use the specified working directory.
+	Change to the specified working directory.
 
 *-b STRING*::
 	Target a specific build flavor.

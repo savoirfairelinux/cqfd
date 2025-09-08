@@ -40,7 +40,9 @@ Options:
     --release            Release software.
     -f <file>            Use file as config file (default .cqfdrc).
     -d <directory>       Use directory as cqfd directory (default .cqfd).
-    -C <directory>       Use the specified working directory.
+    -w <directory>       Use directory as working directory (default parent of
+                         .cqfd).
+    -C <directory>       Change to the specified working directory.
     -b <flavor_name>     Target a specific build flavor.
     -q                   Turn on quiet mode.
     -v or --version      Show version.
@@ -221,7 +223,6 @@ docker_run() {
 
 	if [ -n "$HOME" ]; then
 		cqfd_user_home="$(cd "$HOME"; pwd)"
-		cqfd_user_cwd="$(pwd)"
 	fi
 
 	# Get the docker gid if the group exists
@@ -303,7 +304,14 @@ docker_run() {
 		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
-	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
+	# Bind mount the project directory
+	local workdir
+	if ! workdir="$(realpath "$build_workdir")" ||
+	   [ ! -d "$workdir" ]; then
+		die "$build_workdir: Missing or not a directory!"
+	fi
+	cqfd_user_cwd="$workdir"
+	args+=(--volume "$cqfd_user_cwd:$cqfd_user_cwd")
 
 	# Create and bind mount the entrypoint
 	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
@@ -517,13 +525,25 @@ locate_project_dir() {
 ## load_config() - load build settings from cqfdrc
 # $1: optional "flavor" of the build, is a suffix of command
 load_config() {
-	if ! cqfd_project_dir=$(locate_project_dir); then
-		die ".cqfd directory not found in directory tree"
+	# get the project directory
+	local project_dir
+	if ! project_dir=$(locate_project_dir); then
+		die ".cqfd: Missing project directory!"
+	fi
+
+	# unless using '-w other_workdir', use current working directory
+	if ! $has_custom_workdir; then
+		workdir="$PWD"
+	fi
+	# make an absolute path and check if it is a directory
+	if ! workdir="$(realpath "$workdir")" || \
+	   [ ! -d "$workdir" ]; then
+		die ".cqfd: Missing or not a directory!"
 	fi
 
 	# unless using '-f other_cqfdrc', use base directory located above
 	if ! $has_custom_cqfdrc; then
-		local cqfdrc_dir="$cqfd_project_dir/"
+		local cqfdrc_dir="$project_dir/"
 	fi
 
 	if [ ! -f "$cqfdrc_dir$cqfdrc" ]; then
@@ -587,6 +607,8 @@ load_config() {
 	fi
 
 	# shellcheck disable=SC2154
+	build_workdir="$workdir"
+	# shellcheck disable=SC2154
 	build_command="$command"
 	# shellcheck disable=SC2154
 	build_docker_build_args="$docker_build_args"
@@ -605,7 +627,7 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfd_project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
+	dockerfile="$project_dir/$cqfddir/${build_distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
@@ -624,6 +646,7 @@ load_config() {
 	fi
 }
 
+has_custom_workdir=false
 has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
@@ -653,6 +676,11 @@ while [ $# -gt 0 ]; do
 	-b)
 		shift
 		flavor="$1"
+		;;
+	-w)
+		shift
+		has_custom_workdir=true
+		workdir="$1"
 		;;
 	-d)
 		shift

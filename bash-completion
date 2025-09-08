@@ -28,7 +28,7 @@ _cqfd() {
 	_init_completion || return
 
 	case $prev in
-	-C|-d|-f)
+	-C|-w|-d|-f)
 		_filedir
 		return
 		;;
@@ -90,7 +90,7 @@ _cqfd() {
 		return
 	fi
 
-	local opts="-C -d -f -b -q --release -V --version -h --help"
+	local opts="-C -w -d -f -b -q --release -V --version -h --help"
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
 		return
