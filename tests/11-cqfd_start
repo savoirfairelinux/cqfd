@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of start command
+
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+cqfd_docker="${CQFD_DOCKER:-docker}"
+
+# create a temporary directory
+TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
+
+cd "$TEST_DIR"/ || exit 1
+
+################################################################################
+# 'cqfd start' with arguments
+################################################################################
+
+jtest_prepare "cqfd start with no argument should fail"
+if ! "$cqfd" start; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+jtest_prepare "cqfd start with invalid argument should fail"
+if ! "$cqfd" start invalid_container_id_should_fail; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd start' with 'cqfd --no-rm'
+################################################################################
+
+# 'cqfd init' with custom_img_name
+custom_image_1="cqfd_test_start_custom_image_$RANDOM$RANDOM"
+
+cat >.cqfdrc <<EOF
+[project]
+org="cqfd"
+name="custom-image"
+custom_img_name="$custom_image_1"
+
+[build]
+command="true"
+EOF
+
+# Test dockerfile
+mkdir -p .cqfd/docker
+echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
+
+jtest_prepare "cqfd start with a valid argument should pass"
+"$cqfd" init && "$cqfd" --no-rm run
+cid=$("$cqfd_docker" ps -q -a -f ancestor="$custom_image_1" -f status=exited)
+if "$cqfd" start "$cid"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# cleanup
+################################################################################
+"$cqfd_docker" rm "$cid"
+"$cqfd_docker" rmi "$custom_image_1"
+rm -rf "$TEST_DIR"

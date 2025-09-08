@@ -30,6 +30,7 @@ cqfd_user_cwd="$cqfd_user_home/src"
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
+cqfd_container_cache="$HOME/.cache/cqfd/containers"
 
 ## usage() - print usage on stdout
 usage() {
@@ -45,6 +46,7 @@ Options:
     -q                   Turn on quiet mode.
     -v or --version      Show version.
     --verbose            Increase the script's verbosity.
+    --no-rm              Don't remove the container after exit.
     -h or --help         Show this help text.
 
 Commands:
@@ -54,6 +56,7 @@ Commands:
     run [cmdstring]      Run argument(s) inside build container.
     release [cmdstring]  Run argument(s) and release software.
     shell [shargs]       Run shell command inside build container.
+    start [containerid]  Start the container.
     help                 Show this help text.
 
     By default, the 'run' command is assumed, with the default
@@ -204,7 +207,11 @@ docker_run() {
 		args+=("${array[@]}")
 	fi
 
-	args+=(--rm --log-driver=none)
+	if [ "$CQFD_NO_RM" != true ]; then
+		args+=(--rm)
+	fi
+
+	args+=(--log-driver=none)
 
 	# always keep stdin open
 	args+=(--interactive)
@@ -217,11 +224,6 @@ docker_run() {
 	# If possible, map cqfd_user from the calling user's
 	if [ -n "$USER" ]; then
 		cqfd_user="$USER"
-	fi
-
-	if [ -n "$HOME" ]; then
-		cqfd_user_home="$(cd "$HOME"; pwd)"
-		cqfd_user_cwd="$(pwd)"
 	fi
 
 	# Get the docker gid if the group exists
@@ -306,8 +308,13 @@ docker_run() {
 	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
 	# Create and bind mount the entrypoint
-	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
-	trap 'rm -f "$tmp_entrypoint"' EXIT
+	if [ "$CQFD_NO_RM" = true ]; then
+		mkdir -p "$cqfd_container_cache"
+		tmp_entrypoint=$(mktemp "$cqfd_container_cache"/cqfd-entrypoint.XXXXXX)
+	else
+		tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
+		trap 'rm -f "$tmp_entrypoint"' EXIT
+	fi
 	make_entrypoint "$tmp_entrypoint"
 	chmod 0755 "$tmp_entrypoint"
 	args+=(--volume "$tmp_entrypoint:/bin/cqfd-entrypoint")
@@ -319,6 +326,20 @@ docker_run() {
 	# Run command
 	debug executing: "$cqfd_docker" run "${args[@]}"
 	"$cqfd_docker" run "${args[@]}"
+}
+
+## docker_start() - start an exited container
+# The container created using the --no-rm option is being started here.
+# $1: container id
+docker_start() {
+	local container_id="$1"
+	local child_container_ids
+	child_container_ids=$("$cqfd_docker" ps -q -a -f ancestor="$docker_img_name" -f status=exited)
+	if ! echo "$child_container_ids" | grep -qw "$container_id"; then
+		die "The container does not exist or it is not created with cqfd. Run cqfd with '--no-rm' option to create it."
+	fi
+
+	"$cqfd_docker" start -ai "$container_id"
 }
 
 ## make_archive(): create a release package
@@ -457,7 +478,9 @@ fi
 
 # Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders
-useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+if ! id "$cqfd_user" >/dev/null 2>&1; then
+	useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+fi
 mkdir -p "$cqfd_user_home"
 chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
@@ -528,6 +551,11 @@ load_config() {
 
 	if [ ! -f "$cqfdrc_dir$cqfdrc" ]; then
 		die "Unable to find $cqfdrc_dir$cqfdrc - create it or pick one using 'cqfd -f'"
+	fi
+
+	if [ -n "$HOME" ]; then
+		cqfd_user_home="$(cd "$HOME"; pwd)"
+		cqfd_user_cwd="$(pwd)"
 	fi
 
 	if ! cfg_parser "$cqfdrc_dir$cqfdrc"; then
@@ -640,6 +668,9 @@ while [ $# -gt 0 ]; do
 	--verbose)
 		export CQFD_DEBUG=true
 		;;
+	--no-rm)
+		export CQFD_NO_RM=true
+		;;
 	init)
 		load_config "$flavor"
 		docker_build
@@ -682,6 +713,16 @@ while [ $# -gt 0 ]; do
 		load_config "$flavor"
 		command_string="${*@Q}"
 		docker_run "$command_string"
+		exit
+		;;
+	start)
+		shift
+		if [ "$#" -lt 1 ]; then
+			usage
+			die "start: Missing arguments!"
+		fi
+		load_config "$flavor"
+		docker_start "$1"
 		exit
 		;;
 	run|release)
