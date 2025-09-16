@@ -20,7 +20,7 @@ if [ "$cqfd_docker" != "docker" ] || ! getent group docker | grep -q "$USER"; th
 	jtest_result skip
 else
 	cp -f .cqfd/docker/Dockerfile.doutofd .cqfd/docker/Dockerfile
-	sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='docker run --rm -ti ubuntu:24.04 cat /etc/os-release'," .cqfdrc
+	sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='docker run --rm -t ubuntu:24.04 cat /etc/os-release'," .cqfdrc
 
 	if "$cqfd" init && CQFD_BIND_DOCKER_SOCK=true "$cqfd" | grep -qE 'PRETTY_NAME="Ubuntu 24.04(.[[:digit:]]+)? LTS"'; then
 		jtest_result pass
