@@ -42,6 +42,8 @@ Options:
     -d <directory>       Use directory as cqfd directory (default .cqfd).
     -C <directory>       Use the specified working directory.
     -b <flavor_name>     Target a specific build flavor.
+    -s <image_name> <cmdstring>
+                         Run the image with commands.
     -q                   Turn on quiet mode.
     -v or --version      Show version.
     --verbose            Increase the script's verbosity.
@@ -670,6 +672,13 @@ while [ $# -gt 0 ]; do
 	-C)
 		shift
 		cd "$1"
+		;;
+	-s)
+		shift
+		docker_img_name="$1"
+		command_string="$2"
+		docker_run "$command_string"
+		exit
 		;;
 	-q)
 		quiet=true
