@@ -1,5 +1,9 @@
 # Changelog for cqfd
 
+## Version 5.7.2 (2025-09-23)
+
+* Publish distro packages in releases
+
 ## Version 5.7.1 (2025-08-07)
 
 * Override container entrypoint

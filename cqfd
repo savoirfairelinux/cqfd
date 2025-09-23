@@ -21,7 +21,7 @@ set -e
 set -o pipefail
 
 PROGNAME=$(basename "$0")
-VERSION=5.7.1
+VERSION=5.7.2
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user='builder'
