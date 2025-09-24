@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of ls and gc command to teardown
+
+set -o pipefail
+
+. "$(dirname "$0")"/jtest.inc "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd "$TDIR/" || exit 1
+
+################################################################################
+# Ensure all build containers are "Outdated"
+################################################################################
+for i in .cqfd/*/Dockerfile; do
+	test -e "$i" || continue
+	echo "RUN echo $EPOCHSECONDS" >>"$i"
+done
+
+################################################################################
+# 'cqfd ls' should list build containers
+################################################################################
+jtest_prepare "cqfd ls lists the build containers"
+if "$cqfd" ls | grep "^cqfd_$USER\_cqfd_test_";
+   test "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 0; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd gc' should collects the build containers
+################################################################################
+jtest_prepare "cqfd gc collects all unused build containers"
+if "$cqfd" gc && ( ! "$cqfd" ls | grep -E "(Deleted|Outdated)" && \
+	           test "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 1 ); then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+
+################################################################################
+# 'cqfd ls' should not list the build containers
+################################################################################
+jtest_prepare "cqfd ls lists no build containers"
+if ! "$cqfd" ls | grep "^cqfd_$USER\_cqfd_test_" && \
+   test "${PIPESTATUS[0]}" -eq 0 -a "${PIPESTATUS[1]}" -eq 1; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
