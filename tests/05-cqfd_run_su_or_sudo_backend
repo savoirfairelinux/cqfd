@@ -6,7 +6,10 @@ set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-cqfd_docker="${CQFD_DOCKER:-docker}"
+read -r -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
+if [ "$CQFD_RUN_WITH_SUDO" = true ]; then
+	cqfd_docker=(sudo "${cqfd_docker[@]}")
+fi
 
 cd "$TDIR/" || exit 1
 
@@ -20,7 +23,7 @@ echo "FROM ubuntu:16.04" >.cqfd/docker/Dockerfile
 # cqfd run should be happy using su -c.
 ################################################################################
 jtest_prepare "cqfd run with su -c"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	if "$cqfd" init && "$cqfd" --verbose run true \
@@ -40,7 +43,7 @@ echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 # cqfd run should be happy using su --session-command.
 ################################################################################
 jtest_prepare "cqfd run with su --session-command"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	if "$cqfd" init && "$cqfd" --verbose run true \
@@ -61,7 +64,7 @@ echo "RUN apt-get update && apt-get install -y --no-install-recommends sudo" >>.
 # cqfd run should be happy using sudo.
 ################################################################################
 jtest_prepare "cqfd run with sudo"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	if "$cqfd" init && "$cqfd" --verbose run true \

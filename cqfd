@@ -24,12 +24,13 @@ PROGNAME=$(basename "$0")
 VERSION=5.7.2
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
-cqfd_user='builder'
-cqfd_user_home='/home/builder'
-cqfd_user_cwd="$cqfd_user_home/src"
+cqfd_user="${USER:-builder}"
+cqfd_user_home="${HOME:-/home/$cqfd_user}"
+cqfd_user_cwd="${PWD:-$cqfd_user_home/src}"
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
+# shellcheck disable=SC2162
+read -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
-cqfd_docker="${CQFD_DOCKER:-docker}"
 
 ## usage() - print usage on stdout
 usage() {
@@ -158,14 +159,14 @@ docker_build() {
 	fi
 
 	# Run command
-	debug executing: "$cqfd_docker" build "${args[@]}"
-	"$cqfd_docker" build "${args[@]}"
+	debug executing: "${cqfd_docker[@]}" build "${args[@]}"
+	"${cqfd_docker[@]}" build "${args[@]}"
 }
 
 ## image_exists_locally(): checks if image exists in the local image store
 # $1: the image name to check
 image_exists_locally() {
-	"$cqfd_docker" image inspect "$1" &>/dev/null
+	"${cqfd_docker[@]}" image inspect "$1" &>/dev/null
 }
 
 ## docker_rmi() - remove build container
@@ -223,7 +224,7 @@ docker_run() {
 	if ! image_exists_locally "$docker_img_name"; then
 		# If custom image name is used, try to pull it before dying
 		if [ "$project_custom_img_name" ]; then
-			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
+			if ! "${cqfd_docker[@]}" pull "$docker_img_name" &>/dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
@@ -255,31 +256,6 @@ docker_run() {
 	# allocate a pty if stdin/err are connected to a tty
 	if [ -t 0 ] && [ -t 2 ]; then
 		args+=(--tty)
-	fi
-
-	# If possible, map cqfd_user from the calling user's
-	if [ -n "$USER" ]; then
-		cqfd_user="$USER"
-	fi
-
-	if [ -n "$HOME" ]; then
-		cqfd_user_home="$(cd "$HOME"; pwd)"
-		cqfd_user_cwd="$(pwd)"
-	fi
-
-	# Get the docker gid if the group exists
-	if [ "$cqfd_docker_gid" -eq 0 ]; then
-		local docker_group
-		if IFS=: read -r -a docker_group < <(getent group docker); then
-			local docker_users
-			IFS=, read -r -a docker_users <<<"${docker_group[3]}"
-			for user in "${docker_users[@]}"; do
-				if [ "$user" = "$cqfd_user" ]; then
-					cqfd_docker_gid="${docker_group[2]}"
-					break
-				fi
-			done
-		fi
 	fi
 
 	# Terminate if using legacy variable
@@ -360,8 +336,8 @@ docker_run() {
 	args+=("$docker_img_name" "$1")
 
 	# Run command
-	debug executing: "$cqfd_docker" run "${args[@]}"
-	"$cqfd_docker" run "${args[@]}"
+	debug executing: "${cqfd_docker[@]}" run "${args[@]}"
+	"${cqfd_docker[@]}" run "${args[@]}"
 }
 
 ## make_archive(): create a release package
@@ -664,6 +640,26 @@ load_config() {
 		format_user=$(sed 's/[^0-9a-zA-Z\-]/_/g' <<<"$USER")
 		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
 		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+	fi
+
+	# set the docker gid if the group exists
+	if [ "$cqfd_docker_gid" -eq 0 ]; then
+		local docker_group
+		if IFS=: read -r -a docker_group < <(getent group docker); then
+			local docker_users
+			IFS=, read -r -a docker_users <<<"${docker_group[3]}"
+			for user in "${docker_users[@]}"; do
+				if [ "$user" = "$cqfd_user" ]; then
+					cqfd_docker_gid="${docker_group[2]}"
+					break
+				fi
+			done
+		fi
+	fi
+
+	# use sudo if user is not in the docker group
+	if [ "$CQFD_RUN_WITH_SUDO" = true ] && [ "$cqfd_docker_gid" -eq 0 ]; then
+		cqfd_docker=(sudo "${cqfd_docker[@]}")
 	fi
 }
 

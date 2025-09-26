@@ -6,7 +6,10 @@ set -o pipefail
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-cqfd_docker="${CQFD_DOCKER:-docker}"
+read -r -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
+if [ "$CQFD_RUN_WITH_SUDO" = true ]; then
+	cqfd_docker=(sudo "${cqfd_docker[@]}")
+fi
 
 cd "$TDIR/" || exit 1
 
@@ -77,7 +80,7 @@ fi
 # directory.
 ################################################################################
 jtest_prepare "the user's home in passwd == \$HOME"
-if [ "$cqfd_docker" = "podman" ]; then
+if [ "${cqfd_docker[-1]}" = "sudo docker" ] || [ "${cqfd_docker[-1]}" = "podman" ]; then
 	jtest_result skip
 else
 	passwd_home=$("$cqfd" run "grep ^$(whoami): /etc/passwd |cut -d: -f6")

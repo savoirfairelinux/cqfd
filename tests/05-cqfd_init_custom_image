@@ -4,7 +4,10 @@
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
-cqfd_docker="${CQFD_DOCKER:-docker}"
+read -r -a cqfd_docker <<<"${CQFD_DOCKER:-docker}"
+if [ "$CQFD_RUN_WITH_SUDO" = true ]; then
+	cqfd_docker=(sudo "${cqfd_docker[@]}")
+fi
 
 # create a temporary directory
 TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
@@ -31,8 +34,8 @@ EOF
 mkdir -p .cqfd/docker
 echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
-jtest_prepare "$cqfd_docker registry contains NO image named: $custom_image_1"
-if ! "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
+jtest_prepare "${cqfd_docker[-1]} registry contains NO image named: $custom_image_1"
+if ! "${cqfd_docker[@]}" inspect "$custom_image_1" &>/dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -45,8 +48,8 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "$cqfd_docker registry contains image named: $custom_image_1"
-if "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
+jtest_prepare "${cqfd_docker[-1]} registry contains image named: $custom_image_1"
+if "${cqfd_docker[@]}" inspect "$custom_image_1" &>/dev/null; then
 	jtest_result pass
 else
 	jtest_result fail
@@ -55,5 +58,5 @@ fi
 ################################################################################
 # cleanup
 ################################################################################
-"$cqfd_docker" rmi "$custom_image_1"
+"${cqfd_docker[@]}" rmi "$custom_image_1"
 rm -rf "$TEST_DIR"

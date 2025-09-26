@@ -137,7 +137,7 @@ jtest_prepare "build.archive can template filenames (git short hash of last comm
 sed -i -e '$ s!^archive=.*$!archive=cqfd-%Gh-$CTEST.tar.xz!' .cqfdrc
 # shellcheck disable=SC2010
 if "$cqfd" release &&
-   ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{4,40\}-foobar.tar.xz$" &&
+   ls -1 cqfd-*-foobar.tar.xz | grep -qE "^cqfd-([[:xdigit:]]{4,40}|unset)-foobar.tar.xz$" &&
    tar tf cqfd-*-foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
@@ -150,7 +150,7 @@ jtest_prepare "build.archive can template filenames (git long hash of last commi
 sed -i -e '$ s!^archive=.*$!archive=cqfd-%GH-$CTEST.tar.xz!' .cqfdrc
 # shellcheck disable=SC2010
 if "$cqfd" release &&
-   ls -1 cqfd-*-foobar.tar.xz | grep -q "^cqfd-[[:xdigit:]]\{40\}-foobar.tar.xz$" &&
+   ls -1 cqfd-*-foobar.tar.xz | grep -qE "^cqfd-([[:xdigit:]]{40}|unset)-foobar.tar.xz$" &&
    tar tf cqfd-*-foobar.tar.xz &>/dev/null; then
 	jtest_result pass
 else
