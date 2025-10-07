@@ -348,6 +348,17 @@ docker_run() {
 
 	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
+	if [ -n "$shell_histfile" ]; then
+		# Create the history file if it doesn't exist yet
+		if [ ! -f "$shell_histfile" ]; then
+			touch "$shell_histfile"
+		fi
+
+		args+=(--mount "type=bind,src=$shell_histfile,dst=$shell_histfile")
+		args+=(--env "HISTFILE=$shell_histfile")
+		args+=(--env "SAVEHIST=1000")
+	fi
+
 	# Create and bind mount the entrypoint
 	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
 	trap 'rm -f "$tmp_entrypoint"' EXIT
@@ -667,6 +678,33 @@ load_config() {
 	fi
 }
 
+## set_shell_histfile() - set the histfile if the argument is a shell
+# $1: the first element after cqfd [run|exec]
+set_shell_histfile() {
+	local program_basename
+	program_basename=$(basename "$1")
+
+	case "$program_basename" in
+	bash|zsh)
+		shell_histfile="${HISTFILE:-$HOME/.${program_basename}_history}"
+		;;
+	ksh)
+		shell_histfile="${HISTFILE:-$HOME/.sh_history}"
+		;;
+	tcsh)
+		# Note: tcsh history does not persist without doing `history -S` on exit
+		shell_histfile="${HISTFILE:-$HOME/.history}"
+		;;
+	*)
+		shell_histfile=""
+		;;
+	esac
+
+	if [ -n "$shell_histfile" ]; then
+		cqfd_shell="$program_basename"
+	fi
+}
+
 has_custom_cqfdrc=false
 has_to_release=false
 has_alternate_command=false
@@ -729,6 +767,7 @@ while [ $# -gt 0 ]; do
 			die "exec: Missing arguments!"
 		fi
 		load_config "$flavor"
+		set_shell_histfile "$1"
 		command_string="${*@Q}"
 		docker_run "$command_string"
 		exit
@@ -754,6 +793,7 @@ while [ $# -gt 0 ]; do
 			break
 		fi
 
+		set_shell_histfile "$1"
 		# Run alternate command
 		has_alternate_command=true
 		break
@@ -764,6 +804,7 @@ while [ $# -gt 0 ]; do
 		fi
 		shift
 		load_config "$flavor"
+		set_shell_histfile "$cqfd_shell"
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${*@Q}"
