@@ -348,6 +348,38 @@ docker_run() {
 
 	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
+	# Add history file for each shell (sh,ash,dash,csh do not support history)
+	local shell_hist_file=""
+	local cqfd_shell_basename=""
+	cqfd_shell_basename=$(basename "$cqfd_shell")
+
+	case "$cqfd_shell_basename" in
+	bash|zsh)
+		shell_hist_file="${HISTFILE:-$HOME/.${cqfd_shell_basename}_history}"
+		;;
+	ksh)
+		shell_hist_file="${HISTFILE:-$HOME/.sh_history}"
+		;;
+	tcsh)
+		# Note: tcsh history does not persist without doing `history -S` on exit
+		shell_hist_file="${histfile:-$HOME/.history}"
+		;;
+	fish)
+		shell_hist_file="${fish_history:-$HOME/.local/share/fish/fish_history}"
+		;;
+	esac
+
+	if [ -n "$shell_hist_file" ]; then
+		# Create the history file if it doesn't exist yet
+		if [ ! -f "$shell_hist_file" ]; then
+			touch "$shell_hist_file"
+		fi
+
+		args+=(--mount "type=bind,src=$shell_hist_file,dst=$shell_hist_file")
+		args+=(--env "HISTFILE=$shell_hist_file")
+		args+=(--env "SAVEHIST=1000")
+	fi
+
 	# Create and bind mount the entrypoint
 	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
 	trap 'rm -f "$tmp_entrypoint"' EXIT
@@ -762,9 +794,18 @@ while [ $# -gt 0 ]; do
 		if [ "$1" != "shell" ]; then
 			cqfd_shell="$1"
 		fi
+
 		shift
 		load_config "$flavor"
 		command_string="$cqfd_shell"
+
+		# Disable this zsh specific option to allow in-place history renaming
+		# Container bind mounts can have issues with zsh's default history saving
+		cqfd_shell_basename=$(basename "$cqfd_shell")
+
+		if [ "$cqfd_shell_basename" = "zsh" ]; then
+			command_string+=" --no-histsavebycopy"
+		fi
 		if [ "$#" -gt 0 ]; then
 			command_string+=" ${*@Q}"
 		fi
