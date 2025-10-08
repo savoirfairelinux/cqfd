@@ -1,0 +1,4 @@
+echo --- start of test shell commands ---
+pwd
+echo salut!
+echo --- end of test shell commands ---
