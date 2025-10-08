@@ -119,3 +119,25 @@ run-fish-commands() {
    shell-vars-setup "fish"
    run-fish-commands "fish"
 }
+
+@test "bash: shell history file is created if it does not already exist" {
+    shell-vars-setup "bash"
+    run-posix-commands "bash" "true"
+}
+
+@test "zsh: shell history file is created if it does not already exist" {
+    shell-vars-setup "zsh"
+    run-posix-commands "zsh" "true"
+}
+
+@test "ksh: shell history file is created if it does not already exist" {
+    shell-vars-setup "ksh"
+    run-posix-commands "ksh" "true"
+}
+
+# this cant really be tested since '.cqfd fish' cannot be run interactively
+# and fish history file would be created only after the first command run
+# @test "fish: shell history file is created if it does not already exist" {
+#     shell-vars-setup "fish"
+#     run-fish-commands "fish" "true"
+# }
