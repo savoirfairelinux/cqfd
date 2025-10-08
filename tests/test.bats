@@ -8,6 +8,11 @@ setup() {
     export PATH="$BATS_TEST_DIRNAME/../:$PATH"
 }
 
+setup_histfile() {
+    export HISTFILE=$(mktemp "/tmp/tmp.bats-cqfd-XXXXX")
+    shell_histfile=${HISTFILE}
+}
+
 @test "can run cqfd shell script" {
     run ./cqfd init
     assert_success
