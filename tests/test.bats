@@ -1,4 +1,6 @@
 #!/usr/bin/env bats
+load 'test_helper/bats-support/load'
+load 'test_helper/bats-assert/load'
 
 # Setup so that bats tests can be run from anywhere
 setup() {
@@ -7,6 +9,9 @@ setup() {
 }
 
 @test "can run cqfd shell script" {
-    cqfd init
-    cqfd
+    run cqfd init
+    assert_success
+
+    run cqfd
+    assert_success
 }
