@@ -8,6 +8,7 @@ setup() {
     export PATH="$BATS_TEST_DIRNAME/../:$PATH"
 
     posix_cmds_file="$BATS_TEST_DIRNAME/posix_shell_cmds.txt"
+    fish_cmds_file="$BATS_TEST_DIRNAME/fish_shell_cmds.txt"
 }
 
 shell-vars-setup() {
@@ -63,6 +64,34 @@ run-posix-commands() {
     fi
 }
 
+run-fish-commands() {
+    # fish is special... commands are saved in YAML
+
+    shell_name="$1"
+    command_to_run="hello from the other sideee $shell_name"
+    command_prefix="- cmd:"
+
+    # add line to test the $command_tests_file
+    echo "$command_prefix echo $command_to_run" >> "$fish_cmds_file"
+    mkdir -p "$(dirname "$shell_histfile")"
+    cat "$fish_cmds_file" >> "$shell_histfile"
+
+    # test that the shell history file was created
+    if [ -f "$shell_histfile" ]; then
+        run touch "$shell_histfile"
+        assert_success
+
+        # test that the commands run are now in the $shell_histfile
+        run tail "$shell_histfile"
+        assert_line --partial "$command_to_run"
+
+        # remove the command from the history file for future tests if so
+        sed -i "/$command_to_run/d" "$fish_cmds_file"
+    else
+        assert_failure "shell history file not created"
+    fi
+}
+
 @test "can run cqfd shell script" {
     run cqfd init
     assert_success
@@ -84,4 +113,9 @@ run-posix-commands() {
 @test "ksh: commands run are saved in the history file" {
    shell-vars-setup "ksh"
    run-posix-commands "ksh"
+}
+
+@test "fish: commands run are saved in the history file" {
+   shell-vars-setup "fish"
+   run-fish-commands "fish"
 }

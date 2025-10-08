@@ -1,0 +1,4 @@
+- cmd: echo --- start of test shell commands ---
+- cmd: pwd
+- cmd: echo aurevoirrr!
+- cmd: echo --- end of test shell commands ---
