@@ -34,6 +34,7 @@ shell-vars-setup() {
 run-posix-commands() {
     shell_name="$1"
     rm_histfile="$2"
+    exec_or_run="$3"
     command_to_run="hello from the other sideee $shell_name"
 
     if [ -n "$rm_histfile" ] && [ -f "$shell_histfile" ]; then
@@ -41,9 +42,24 @@ run-posix-commands() {
         rm -f "$shell_histfile"
     fi
 
-    # add line to test the commands file
+    # add line to test in the commands file
     echo "echo $command_to_run" >> "$posix_cmds_file"
-    run ./cqfd "$shell_name" -i < "$posix_cmds_file"
+
+    if [ -n "$exec_or_run" ]; then
+        case "$exec_or_run" in
+        exec)
+            run ./cqfd exec "$shell_name" -i < "$posix_cmds_file"
+            assert_success
+        ;;
+        run)
+            run ./cqfd run "$shell_name" -i < "$posix_cmds_file"
+            assert_success
+        ;;
+        esac
+    else
+        run ./cqfd "$shell_name" -i < "$posix_cmds_file"
+        assert_success
+    fi
 
     # test that the shell commands have been run from the commands file
     assert_line --partial "$command_to_run"
@@ -58,6 +74,7 @@ run-posix-commands() {
     else
         assert_failure "shell history file not set"
     fi
+
     # restore old history file if it existed
     if [ -f "$shell_histfile.old" ]; then
         mv "$shell_histfile.old" "$shell_histfile"
@@ -141,3 +158,33 @@ run-fish-commands() {
 #     shell-vars-setup "fish"
 #     run-fish-commands "fish" "true"
 # }
+
+@test "bash: history saving functions as expected when cqfd is called with run" {
+    shell-vars-setup "bash"
+    run-posix-commands "bash" "" "run"
+}
+
+@test "zsh: history saving functions as expected when cqfd is called with run" {
+    shell-vars-setup "zsh"
+    run-posix-commands "zsh" "" "run"
+}
+
+@test "ksh: history saving functions as expected when cqfd is called with run" {
+    shell-vars-setup "ksh"
+    run-posix-commands "ksh" "" "run"
+}
+
+@test "bash: history saving functions as expected when cqfd is called with exec" {
+    shell-vars-setup "bash"
+    run-posix-commands "bash" "" "exec"
+}
+
+@test "zsh: history saving functions as expected when cqfd is called with exec" {
+    shell-vars-setup "zsh"
+    run-posix-commands "zsh" "" "exec"
+}
+
+@test "ksh: history saving functions as expected when cqfd is called with exec" {
+    shell-vars-setup "ksh"
+    run-posix-commands "ksh" "" "exec"
+}
