@@ -356,16 +356,26 @@ docker_run() {
 
 		args+=(--mount "type=bind,src=$shell_histfile,dst=$shell_histfile")
 		args+=(--env "HISTFILE=$shell_histfile")
-		args+=(--env "SAVEHIST=1000")
 	fi
 
 	# Create and bind mount the entrypoint
+	local tmp_entrypoint
 	tmp_entrypoint=$(mktemp /tmp/cqfd-entrypoint.XXXXXX)
-	trap 'rm -f "$tmp_entrypoint"' EXIT
+	list_of_files_to_delete=("${tmp_entrypoint}")
+	trap 'rm -f ${list_of_files_to_delete[@]}' EXIT
 	make_entrypoint "$tmp_entrypoint"
 	chmod 0755 "$tmp_entrypoint"
 	args+=(--volume "$tmp_entrypoint:/bin/cqfd-entrypoint")
 	args+=(--entrypoint "/bin/cqfd-entrypoint")
+
+	if [ "$(basename "$cqfd_shell")" = "zsh" ]; then
+		# Create and bind mount the zshenv
+		local tmp_zshenv
+		tmp_zshenv=$(mktemp /tmp/cqfd-zshenv.XXXXXX)
+		list_of_files_to_delete+=("${tmp_zshenv}")
+		make_zshenv "$tmp_zshenv"
+		args+=(--mount "type=bind,src=$tmp_zshenv,dst=$cqfd_user_home/.zshenv")
+	fi
 
 	# Set positional arguments
 	args+=("$docker_img_name" "$1")
@@ -703,6 +713,17 @@ set_shell_histfile() {
 	if [ -n "$shell_histfile" ]; then
 		cqfd_shell="$program_basename"
 	fi
+}
+
+# make_zshenv - generate make_zshenv to include settings related to history
+# $1: the path to the zshenv
+make_zshenv() {
+	cat >"$1" <<EOF
+SAVEHIST=9000
+HISTSIZE=9999                   # set HISTSIZE > SAVEHIST
+
+setopt nohistsavebycopy
+EOF
 }
 
 has_custom_cqfdrc=false
