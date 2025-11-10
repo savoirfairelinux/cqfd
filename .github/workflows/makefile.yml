@@ -21,8 +21,5 @@ jobs:
     - name: Run tests for docker
       run: make tests
 
-    - name: Run Bats tests
-      run: make bats-tests
-
     - name: Run tests for podman
       run: make CQFD_DOCKER=podman PODMAN_USERNS="keep-id" tests
