@@ -2,7 +2,7 @@
 
 PREFIX?=/usr/local
 
-.PHONY: all help doc install uninstall test tests bats-tests check
+.PHONY: all help doc install uninstall test tests check
 
 all:	help
 
@@ -61,9 +61,6 @@ user-%:
 
 test tests:
 	@$(MAKE) -C tests GIT_DIR=$(CURDIR)/.git
-
-bats-tests:
-	tests/bats/bin/bats tests/test.bats
 
 check:
 	shellcheck cqfd
