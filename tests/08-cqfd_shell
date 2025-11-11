@@ -70,10 +70,10 @@ else
 	jtest_result fail
 fi
 
-jtest_prepare "cqfd zsh should fail with 127 and 'zsh: command not found'"
+jtest_prepare "cqfd fish should fail with 127 and 'fish: command not found'"
 # shellcheck disable=SC2016
-if "$cqfd" zsh 2>&1 <<<'printf "$0"' \
-	| tee /dev/stderr | grep -q 'zsh: command not found';
+if "$cqfd" fish 2>&1 <<<'printf "$0"' \
+	| tee /dev/stderr | grep -q 'fish: command not found';
    test "${PIPESTATUS[0]}" -eq 127; then
 	jtest_result pass
 else
