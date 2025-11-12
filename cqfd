@@ -346,7 +346,11 @@ docker_run() {
 		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
-	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
+	if $has_custom_cqfddir; then
+		args+=(--volume "$PWD:$cqfd_user_cwd")
+	else
+		args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
+	fi
 
 	if [ "$CQFD_DISABLE_SHELL_HISTORY" != "true" ] && [ -n "$shell_histfile" ]; then
 		# Create the history file if it doesn't exist yet
