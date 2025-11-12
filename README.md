@@ -347,6 +347,16 @@ These options can be combined together:
     $ #  - cqfd directory: external/directory/cqfd_alt
     $ #  - cqfdrc file: external/directory/cqfdrc_alt
 
+### Shell history
+
+`cqfd` bind mounts the current shell history file to the container so the
+commands history is shared between the user and the cqfd container. This feature
+is supported for `bash`, `zsh`, `tcsh`, and `ksh`.
+
+This feature is available only when using the commands `cqfd shell`, `cqfd <name_of_the_shell>`
+such as `cqfd bash`, `cqfd run <name_of_the_shell>` and
+`cqfd exec <name_of_the_shell>`.
+
 ## Build Container Environment
 
 When cqfd runs, a docker container is launched as the environment in
