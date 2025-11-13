@@ -24,9 +24,9 @@ PROGNAME=$(basename "$0")
 VERSION=5.8.0-dev
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
-cqfd_user='builder'
-cqfd_user_home='/home/builder'
-cqfd_user_cwd="$cqfd_user_home/src"
+cqfd_user="${USER:-'builder'}"
+cqfd_user_home="${HOME:-'/home/builder'}"
+cqfd_user_cwd=${PWD:-"$cqfd_user_home/src"}
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
@@ -257,16 +257,6 @@ docker_run() {
 		args+=(--tty)
 	fi
 
-	# If possible, map cqfd_user from the calling user's
-	if [ -n "$USER" ]; then
-		cqfd_user="$USER"
-	fi
-
-	if [ -n "$HOME" ]; then
-		cqfd_user_home="$(cd "$HOME"; pwd)"
-		cqfd_user_cwd="$(pwd)"
-	fi
-
 	# Get the docker gid if the group exists
 	if [ "$cqfd_docker_gid" -eq 0 ]; then
 		local docker_group
@@ -326,7 +316,7 @@ docker_run() {
 	fi
 
 	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
-		args+=(--volume "$cqfd_user_home/.ssh:$cqfd_user_home/.ssh")
+		args+=(--volume "$HOME/.ssh:$cqfd_user_home/.ssh")
 	fi
 
 	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
@@ -338,8 +328,8 @@ docker_run() {
 		args+=(--env "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
 
-	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ] && [ -f "$cqfd_user_home/.gitconfig" ]; then
-		args+=(--mount "type=bind,src=$cqfd_user_home/.gitconfig,dst=$cqfd_user_home/.gitconfig")
+	if [ "$CQFD_NO_USER_GIT_CONFIG" != true ] && [ -f "$HOME/.gitconfig" ]; then
+		args+=(--mount "type=bind,src=$HOME/.gitconfig,dst=$cqfd_user_home/.gitconfig")
 	fi
 
 	if [ "$CQFD_BIND_DOCKER_SOCK" = true ]; then
