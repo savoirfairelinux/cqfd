@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# validate the behavior of custom image
+# validate the behavior of cqfd with custom image
 
 . "$(dirname "$0")"/jtest.inc "$1"
 cqfd="$TDIR/.cqfd/cqfd"
@@ -12,34 +12,27 @@ TEST_DIR=$(mktemp -d -t cqfd-test-XXXXXX)
 cd "$TEST_DIR/" || exit 1
 
 ################################################################################
-# 'cqfd init' with custom_img_name
+# 'cqfd init' with custom image
 ################################################################################
-custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
+custom_image_1="debian:bookworm"
 
 # Test .cqfdrc
 cat >.cqfdrc <<EOF
 [project]
 org="cqfd"
-name="custom-image"
-custom_img_name="$custom_image_1"
+name="repository-image"
+image="$custom_image_1"
 
 [build]
-command="true"
+command="cat /etc/os-release"
 EOF
 
 # Test dockerfile
 mkdir -p .cqfd/docker
 echo "FROM ubuntu:24.04" >.cqfd/docker/Dockerfile
 
-jtest_prepare "$cqfd_docker registry contains NO image named: $custom_image_1"
-if ! "$cqfd_docker" inspect "$custom_image_1" &>/dev/null; then
-	jtest_result pass
-else
-	jtest_result fail
-fi
-
-jtest_prepare "cqfd init works using custom_img_name=$custom_image_1"
-if "$cqfd" init && "$cqfd" run "true"; then
+jtest_prepare "cqfd init works using image=$custom_image_1"
+if "$cqfd" init && "$cqfd" | grep -qE 'PRETTY_NAME="Debian GNU/Linux 12 \(bookworm\)"'; then
 	jtest_result pass
 else
 	jtest_result fail
