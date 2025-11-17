@@ -3,7 +3,6 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    cqfd_docker="${CQFD_DOCKER:-docker}"
     cp -f .cqfdrc .cqfdrc.old
     cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
 }
@@ -14,6 +13,7 @@ teardown() {
 }
 
 @test "cqfd run docker using host docker daemon" {
+    #shellcheck disable=SC2154
     if [ "$cqfd_docker" = "docker" ] && getent group docker | grep -q "$USER"; then
         cp -f .cqfd/docker/Dockerfile.doutofd .cqfd/docker/Dockerfile
         sed -i -e "/\[build\]/,/^$/s,^command=.*$,command='docker run --rm -t ubuntu:24.04 cat /etc/os-release'," .cqfdrc
