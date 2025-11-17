@@ -12,7 +12,6 @@ tests: CQFD_BIND_DOCKER_SOCK =
 tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
-	@$(eval export TDIR=$(shell mktemp -d /tmp/cqfd-test.XXXXXX))
 	./bats/bin/bats ./
 
 check:

@@ -12,9 +12,9 @@ setup() {
 
 @test "'cqfd run' passes environment variables to the container when using docker_run_args with an option containing a whitespace" {
     # setup -- add the docker_run_args option to config
-    sed '/\[build\]/adocker_run_args="-e FOO=bar\\ baz"' -i "$TDIR/.cqfdrc"
+    sed '/\[build\]/adocker_run_args="-e FOO=bar\\ baz"' -i .cqfdrc
     run cqfd run env
     assert_line --partial "FOO=bar baz"
     # teardown -- clear the docker_run_args option from config
-    sed '/\[build\]/{n;d}' -i "$TDIR/.cqfdrc"
+    sed '/\[build\]/{n;d}' -i .cqfdrc
 }

@@ -20,12 +20,12 @@ setup() {
 
 @test "run cqfd with docker_run_args in config" {
     # setup -- add the docker_run_args option to config
-    sed '/\[build\]/adocker_run_args="--add-host testhost:1.2.3.4"' -i "$TDIR/.cqfdrc"
+    sed '/\[build\]/adocker_run_args="--add-host testhost:1.2.3.4"' -i .cqfdrc
     run cqfd run "$getent_cmd"
     assert_line --regexp "1.2.3.4.*testhost"
 
     # teardown -- clear the docker_run_args option from config
-    sed '/\[build\]/{n;d}' -i "$TDIR/.cqfdrc"
+    sed '/\[build\]/{n;d}' -i .cqfdrc
 }
 
 
