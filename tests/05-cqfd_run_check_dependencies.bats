@@ -5,10 +5,17 @@ setup() {
     _common_setup
 }
 
+setup_file() {
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+    cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
+}
+
+teardown_file() {
+    mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
+}
+
 @test "cqfd run fails when the Docker image lacks required commands" {
     bats_require_minimum_version 1.5.0
-    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
-    cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
     run cqfd init
     assert_success
     #shellcheck disable=SC2154
@@ -36,14 +43,10 @@ setup() {
 @test "cqfd run with satisfied command requirements, using sudo" {
     echo 'RUN apk add sudo' >>.cqfd/docker/Dockerfile
     if [ "$cqfd_docker" = "podman" ]; then
-        mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
-        cqfd init
         skip "This test fails when using podman"
     fi
     run cqfd init
     assert_success
     run cqfd --verbose run true
     assert_line --partial 'Using "sudo"'
-    mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
-    cqfd init
 }

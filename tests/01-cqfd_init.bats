@@ -1,29 +1,34 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f cqfdrc-test .cqfdrc
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
+    cp -f .cqfdrc .cqfdrc.old
+}
+
+teardown() {
+    mv -f .cqfdrc.old .cqfdrc
 }
 
 @test "'cqfd init' with a proper .cqfdrc should pass" {
-    cp -f cqfdrc-test .cqfdrc
-    #shellcheck disable=SC2154
     run cqfd init
     assert_success
 }
 
 @test "'cqfd init' with a nonexistent Dockerfile should fail" {
-    cp -f .cqfdrc .cqfdrc.old
     sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
     run cqfd init
     assert_failure
 }
 
 @test "'cqfd init' with a proper Dockerfile should pass" {
-    sed -i -e "s/thisshouldfail/centos/" .cqfdrc
+    sed -i -e "s/\[build\]/[build]\ndistro='centos'/" .cqfdrc
     run cqfd init
     assert_success
-    mv -f .cqfdrc.old .cqfdrc
 }
 
 @test "'cqfd init' with same uid/gid dummy user should pass" {

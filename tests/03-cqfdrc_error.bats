@@ -1,12 +1,19 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f .cqfdrc .cqfdrc.old
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
 }
 
+teardown_file() {
+    mv -f .cqfdrc.old .cqfdrc
+}
+
 @test "cqfdrc fails if no project section" {
-    cp -f .cqfdrc .cqfdrc.old
     echo -n "" >.cqfdrc
     run cqfd
     assert_line "cqfd: fatal: .cqfdrc: Missing project section!"
@@ -78,6 +85,5 @@ setup() {
     echo "foo= bar" >>.cqfdrc
     run cqfd run true
     assert_success
-    mv -f .cqfdrc.old .cqfdrc
 }
 
