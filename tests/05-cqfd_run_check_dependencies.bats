@@ -24,22 +24,26 @@ setup() {
 @test "cqfd run with satisfied command requirements, using su" {
     echo 'RUN apk add bash shadow' >>.cqfd/docker/Dockerfile
 
-    if [ "$cqfd_docker" != "podman" ]; then
-        run cqfd init
-        assert_success
-        run cqfd --verbose run true
-        assert_line --partial 'Using "su"'
+    if [ "$cqfd_docker" = "podman" ]; then
+        skip "This test fails when using podman"
     fi
+    run cqfd init
+    assert_success
+    run cqfd --verbose run true
+    assert_line --partial 'Using "su"'
 }
 
 @test "cqfd run with satisfied command requirements, using sudo" {
     echo 'RUN apk add sudo' >>.cqfd/docker/Dockerfile
-    if [ "$cqfd_docker" != "podman" ]; then
-        run cqfd init
-        assert_success
-        run cqfd --verbose run true
-        assert_line --partial 'Using "sudo"'
+    if [ "$cqfd_docker" = "podman" ]; then
+        mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
+        cqfd init
+        skip "This test fails when using podman"
     fi
+    run cqfd init
+    assert_success
+    run cqfd --verbose run true
+    assert_line --partial 'Using "sudo"'
     mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
     cqfd init
 }
