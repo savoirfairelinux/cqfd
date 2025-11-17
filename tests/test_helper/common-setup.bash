@@ -9,5 +9,5 @@ _common_setup() {
     PROJECT_ROOT="$( cd "$( dirname "$BATS_TEST_FILENAME" )/.." >/dev/null 2>&1 && pwd )"
     # make executables in src/ visible to PATH
     PATH="$PROJECT_ROOT:$PATH"
-    cd "$TDIR/" || exit 1
+    cd "$BATS_SUITE_TMPDIR/" || exit 1
 }

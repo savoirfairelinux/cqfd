@@ -9,9 +9,9 @@ setup() {
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
 @test "create a test skeleton in temporary directory" {
-    mkdir -p "$TDIR/.cqfd/docker"
-    cp -a "$PROJECT_ROOT"/cqfd "$TDIR/.cqfd/"
-    cp -a "$PROJECT_ROOT"/tests/test_data/. "$TDIR/."
+    mkdir -p "$BATS_SUITE_TMPDIR/.cqfd/docker"
+    cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
+    cp -a "$PROJECT_ROOT"/tests/test_data/. "$BATS_SUITE_TMPDIR/."
     run cqfd init
     assert_failure
 }
@@ -20,7 +20,7 @@ setup() {
 # running 'cqfd init' should fail, as there's an empty config
 ################################################################################
 @test "cqfd init complains with an empty .cqfdrc" {
-    touch "$TDIR/.cqfdrc"
+    touch "$BATS_SUITE_TMPDIR/.cqfdrc"
     run cqfd init
     assert_failure
 }
@@ -29,7 +29,7 @@ setup() {
 # running 'cqfd init' should fail, as there's an incomplete config
 ################################################################################
 @test "cqfd init complains with an incomplete .cqfdrc" {
-    echo '[project]' >"$TDIR/.cqfdrc"
+    echo '[project]' >"$BATS_SUITE_TMPDIR/.cqfdrc"
     run cqfd init
     assert_failure
 }

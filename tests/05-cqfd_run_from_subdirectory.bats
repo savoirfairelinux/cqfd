@@ -6,7 +6,7 @@ setup() {
 }
 
 @test "cqfd can run from a project's sub-directory" {
-    pushd "$TDIR" >/dev/null || exit 1
+    pushd "$BATS_SUITE_TMPDIR" >/dev/null || exit 1
     # Create and enter a dummy sub-directory tree
     sub_dir="dir with space/b/c/d/e"
     mkdir -p "$sub_dir"

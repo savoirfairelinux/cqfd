@@ -12,7 +12,7 @@ setup() {
     mkdir -p "$extdir"
     mv .cqfd "$extdir/cqfd"
     mv .cqfdrc "$extdir/cqfdrc"
-    cqfd="$TDIR/$extdir/cqfd/cqfd"
+    cqfd="$BATS_SUITE_TMPDIR/$extdir/cqfd/cqfd"
 
     run "$cqfd" init
     assert_failure
@@ -20,7 +20,7 @@ setup() {
 
 @test "'cqfd init' using alternate filenames in an external directory should work" {
     extdir="external/dir"
-    cqfd="$TDIR/$extdir/cqfd/cqfd"
+    cqfd="$BATS_SUITE_TMPDIR/$extdir/cqfd/cqfd"
 
     run "$cqfd" -C "$extdir" -d cqfd -f cqfdrc init
     assert_success
