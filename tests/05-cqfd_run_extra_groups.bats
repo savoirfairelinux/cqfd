@@ -3,11 +3,11 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    cqfd_docker="${CQFD_DOCKER:-docker}"
 }
 
 @test "'cqfd run' should add extra_groups provided by an environment variable" {
     cp -f .cqfdrc .cqfdrc.old
+    #shellcheck disable=SC2154
     if [ "$cqfd_docker" = "podman" ]; then
         skip "This test fails when using podman"
     fi
