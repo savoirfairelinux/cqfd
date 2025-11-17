@@ -6,7 +6,7 @@ setup() {
 }
 
 @test "'cqfd init' with a proper .cqfdrc should pass" {
-    cat cqfdrc-test >.cqfdrc
+    cp -f cqfdrc-test .cqfdrc
     #shellcheck disable=SC2154
     run cqfd init
     assert_success
