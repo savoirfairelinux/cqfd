@@ -16,11 +16,8 @@ setup() {
 }
 
 @test "Running cqfd without a .cqfdrc file in the current directory shall fail" {
-    empty_dir=$(mktemp -d)
-    pushd "$empty_dir" >/dev/null || exit 1
+    pushd "$BATS_TEST_TMPDIR" >/dev/null || exit 1
     run cqfd run true
     assert_failure
     popd >/dev/null || exit 1
-    # cleanup
-    rm -rf "$empty_dir"
 }
