@@ -17,7 +17,7 @@ setup() {
 # running 'cqfd init' should fail, as there's an empty config
 ################################################################################
 @test "cqfd init complains with an empty .cqfdrc" {
-    touch "$BATS_SUITE_TMPDIR/.cqfdrc"
+    touch .cqfdrc
     run cqfd init
     assert_failure
 }
@@ -26,7 +26,7 @@ setup() {
 # running 'cqfd init' should fail, as there's an incomplete config
 ################################################################################
 @test "cqfd init complains with an incomplete .cqfdrc" {
-    echo '[project]' >"$BATS_SUITE_TMPDIR/.cqfdrc"
+    echo '[project]' >.cqfdrc
     run cqfd init
     assert_failure
 }
