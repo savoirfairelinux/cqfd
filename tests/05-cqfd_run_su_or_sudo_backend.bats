@@ -3,13 +3,13 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    cqfd_docker="${CQFD_DOCKER:-docker}"
 }
 
 @test "cqfd run should be happy using su -c" {
     # Use a custom Dockerfile with an ancient version of su.
     cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
     echo "FROM ubuntu:16.04" >.cqfd/docker/Dockerfile
+    #shellcheck disable=SC2154
     if [ "$cqfd_docker" = "podman" ]; then
         skip "This test fails when using podman"
     fi

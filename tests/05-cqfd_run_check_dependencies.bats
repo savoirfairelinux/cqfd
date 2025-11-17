@@ -3,7 +3,6 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    cqfd_docker="${CQFD_DOCKER:-docker}"
 }
 
 @test "cqfd run fails when the Docker image lacks required commands" {
@@ -12,6 +11,7 @@ setup() {
     cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
     run cqfd init
     assert_success
+    #shellcheck disable=SC2154
     if [ "$cqfd_docker" != "podman" ]; then
         run cqfd run
     else
