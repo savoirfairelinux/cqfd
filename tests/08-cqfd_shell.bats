@@ -67,7 +67,7 @@ setup() {
 
 @test "cqfd shell is usable as a shell interpreter script" {
     #shellcheck disable=SC2030
-    PATH="$TDIR/.cqfd:$PATH"
+    PATH="$BATS_SUITE_TMPDIR/.cqfd:$PATH"
     run ./whereami.sh
     assert_line --regexp '^Ubuntu .* LTS$'
 }
@@ -75,7 +75,7 @@ setup() {
 @test "cqfd shell is usable as a shell interpreter in binaries" {
     if command -v make; then
         #shellcheck disable=SC2031
-        PATH="$TDIR/.cqfd:$PATH" run make whereami
+        PATH="$BATS_SUITE_TMPDIR/.cqfd:$PATH" run make whereami
         assert_line --regexp '^Ubuntu .* LTS$'
     fi
 }

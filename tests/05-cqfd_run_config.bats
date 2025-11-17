@@ -3,7 +3,7 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    confdir=$TDIR/.config/dir
+    confdir=$BATS_SUITE_TMPDIR/.config/dir
     flavor="foo"
 }
 
