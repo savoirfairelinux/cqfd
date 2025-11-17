@@ -9,9 +9,6 @@ setup() {
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
 @test "create a test skeleton in temporary directory" {
-    mkdir -p "$BATS_SUITE_TMPDIR/.cqfd/docker"
-    cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
-    cp -a "$PROJECT_ROOT"/tests/test_data/. "$BATS_SUITE_TMPDIR/."
     run cqfd init
     assert_failure
 }
