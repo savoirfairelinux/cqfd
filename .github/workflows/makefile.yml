@@ -22,4 +22,4 @@ jobs:
       run: make tests
 
     - name: Run tests for podman
-      run: make CQFD_DOCKER=podman PODMAN_USERNS="keep-id" tests
+      run: make CQFD_DOCKER=podman tests

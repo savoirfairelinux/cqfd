@@ -14,14 +14,10 @@ teardown_file() {
     mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
 
-@test "cqfd run deletes the ubuntu user if it exists" {
-    #shellcheck disable=SC2154
-    if [ "$cqfd_docker" = "podman" ]; then
-        skip "podman maps current user to root in the container, so there is no conflict with ubuntu user"
-    fi
+@test "cqfd run deletes the ubuntu user if it conflicts with $UID" {
     run cqfd init
     assert_success
-    run cqfd exec grep ubuntu:x:1000:1000 /etc/passwd
+    run cqfd exec grep "ubuntu:x:$UID:${GID:-$UID}" /etc/passwd
     assert_failure
 }
 
