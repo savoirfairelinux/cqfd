@@ -468,6 +468,7 @@ _Note_: Uninstall it using the package manager:
 First clone this repository:
 
     $ git clone https://github.com/savoirfairelinux/cqfd.git
+    $ git submodule update --init --recursive
 
 Then, install the script and its resources:
 
@@ -552,9 +553,14 @@ export PODMAN_USERNS="keep-id"
 ## Testing cqfd (for developers)
 
 The codebase contains tests which can be invoked using the following
-command, if the above requirements are met on the system:
+command, if the [requirements](#requirements) are met on the system:
 
     $ make tests
+
+The test suite depends on a git submodule, so if they do not run it may be
+because submodule have not been synced. To sync them, use:
+
+    $ git submodule update --init --recursive
 
 ## Patches
 
