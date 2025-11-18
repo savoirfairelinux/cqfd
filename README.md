@@ -542,15 +542,19 @@ directories.
 
 ## Using podman
 
-Podman may be used instead of Docker, but with limited functionalities,
-for example when dealing with extra groups.
-
-To use podman instead of docker, you can set in your environment,
+Podman may be used instead of Docker. It first must be installed on your system,
+and then, to use it instead of docker, you can set in your environment,
 like your `.bashrc`, `.profile` or `.zshrc`:
 
 ```bash
 export CQFD_DOCKER="podman"
-export PODMAN_USERNS="keep-id"
+```
+
+You can also prefix your cqfd commands:
+
+```bash
+CQFD_DOCKER="podman" cqfd init
+CQFD_DOCKER="podman" cqfd shell
 ```
 
 ## Testing cqfd (for developers)

@@ -308,6 +308,11 @@ docker_run() {
 		done
 	fi
 
+	if [ "$cqfd_docker" = "podman" ]; then
+		args+=(--userns="keep-id")
+		args+=(--user=root)
+	fi
+
 	# Set HOME variable for the $cqfd_user, except if it was explicitly set
 	# via CQFD_EXTRA_RUN_ARGS or docker_run_args
 	if ! echo "$CQFD_EXTRA_RUN_ARGS $build_docker_run_args" |
@@ -497,7 +502,6 @@ fi
 # Check container requirements
 test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" >&2; }
 test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" >&2; }
-test_cmd userdel || { failed=1 && echo "error: Missing command: userdel" >&2; }
 test_cmd usermod || { failed=1 && echo "error: Missing command: usermod" >&2; }
 test_cmd chown || { failed=1 && echo "error: Missing command: chown" >&2; }
 test_cmd sudo && has_sudo=1 || test_cmd su ||
@@ -514,10 +518,8 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 	exit 127
 fi
 
-# Delete Ubuntu user if it exists
-if grep -q "ubuntu:x:1000:1000" /etc/passwd; then
-	touch /var/mail/ubuntu && chown ubuntu /var/mail/ubuntu && userdel -r ubuntu
-fi
+# Delete ${UID:-1000}:${GID:-${UID:-1000}} user if it exists
+sed -i "/:${UID:-1000}:${GID:-${UID:-1000}}:/d" /etc/passwd
 
 # Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders
