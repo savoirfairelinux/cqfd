@@ -497,6 +497,7 @@ fi
 # Check container requirements
 test_cmd groupadd || { failed=1 && echo "error: Missing command: groupadd" >&2; }
 test_cmd useradd || { failed=1 && echo "error: Missing command: useradd" >&2; }
+test_cmd userdel || { failed=1 && echo "error: Missing command: userdel" >&2; }
 test_cmd usermod || { failed=1 && echo "error: Missing command: usermod" >&2; }
 test_cmd chown || { failed=1 && echo "error: Missing command: chown" >&2; }
 test_cmd sudo && has_sudo=1 || test_cmd su ||
@@ -511,6 +512,11 @@ test "\$has_sudo" = 1 || test_su_session_command && has_su_session_command=1
 if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
+fi
+
+# Delete Ubuntu user if it exists
+if grep -q "ubuntu:x:1000:1000" /etc/passwd; then
+	touch /var/mail/ubuntu && chown ubuntu /var/mail/ubuntu && userdel -r ubuntu
 fi
 
 # Add the host's user and group to the container, and adjust ownership
