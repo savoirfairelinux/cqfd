@@ -320,7 +320,7 @@ docker_run() {
 		args+=(--env "HOME=$cqfd_user_home")
 	fi
 
-	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
+	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ] && [ -d "$HOME/.ssh" ]; then
 		args+=(--volume "$HOME/.ssh:$cqfd_user_home/.ssh")
 	fi
 
