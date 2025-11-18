@@ -6,10 +6,8 @@ on:
   pull_request:
 
 jobs:
-  build:
-
+  test-docker:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
       with:
@@ -20,6 +18,16 @@ jobs:
 
     - name: Run tests for docker
       run: make tests
+
+  test-podman:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Run linting
+      run: make check
 
     - name: Run tests for podman
       run: make CQFD_DOCKER=podman tests
