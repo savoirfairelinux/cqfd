@@ -547,7 +547,6 @@ like your `.bashrc`, `.profile` or `.zshrc`:
 
 ```bash
 export CQFD_DOCKER="podman"
-export PODMAN_USERNS="keep-id"
 ```
 
 ## Testing cqfd (for developers)
