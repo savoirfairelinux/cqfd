@@ -37,10 +37,6 @@ setup() {
 
 
 @test "The container's user directory has been created with the right home directory." {
-    #shellcheck disable=SC2154
-    if [ "$cqfd_docker" = "podman" ]; then
-        skip "This test fails when using podman"
-    fi
     passwd_home=$(cqfd run "grep ^$(whoami): /etc/passwd |cut -d: -f6")
     user_home=$(cqfd run "echo \$HOME")
     run [ "$passwd_home" = "$user_home" ]
