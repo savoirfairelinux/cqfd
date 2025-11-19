@@ -311,6 +311,7 @@ docker_run() {
 	if [ "$cqfd_docker" = "podman" ]; then
 		args+=(--userns="keep-id")
 		args+=(--user=root)
+		args+=(--security-opt label=disable)
 	fi
 
 	# Set HOME variable for the $cqfd_user, except if it was explicitly set
