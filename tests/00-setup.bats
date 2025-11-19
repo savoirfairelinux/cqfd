@@ -1,5 +1,9 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    rm .cqfdrc
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
