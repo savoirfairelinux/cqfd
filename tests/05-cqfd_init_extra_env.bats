@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 setup_file() {
-    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
     cp -f .cqfd/docker/Dockerfile.init_extra_env .cqfd/docker/Dockerfile
 }
 
@@ -12,7 +12,7 @@ setup() {
 
 teardown_file() {
     # restore initial Dockerfile
-    mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
+    mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
 
 @test "'cqfd init' without CQFD_EXTRA_BUILD_ARGS should fail" {

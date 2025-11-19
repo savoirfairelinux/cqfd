@@ -11,7 +11,7 @@ setup() {
 }
 
 @test "'cqfd deinit' with a nonexistent Dockerfile should fail" {
-    cp -f .cqfdrc .cqfdrc.orig
+    cp -f .cqfdrc .cqfdrc.old
     sed -i -e "s/\[build\]/[build]\ndistro='thisshouldfail'/" .cqfdrc
     run cqfd deinit
     assert_failure
@@ -24,7 +24,7 @@ setup() {
     run cqfd deinit
     assert_success
     # restore cqfdrc
-    mv -f .cqfdrc.orig .cqfdrc
+    mv -f .cqfdrc.old .cqfdrc
 }
 
 @test "'cqfd deinit' with an already deinit'ed image should fail" {

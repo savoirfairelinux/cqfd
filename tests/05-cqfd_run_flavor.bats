@@ -6,7 +6,7 @@ setup() {
     flavor="foo"
 }
 
-@test "cqfd run build cmd for '$flavor' flavor" {
+@test "cqfd run build cmd for 'foo' flavor" {
     test_file=$flavor
     run cqfd -b "$flavor" run
     assert_success
