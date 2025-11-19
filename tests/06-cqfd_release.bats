@@ -1,5 +1,9 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f .cqfdrc .cqfdrc.old
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
@@ -7,9 +11,11 @@ setup() {
     export CTEST=foobar
 }
 
+teardown_file() {
+    mv -f .cqfdrc.old .cqfdrc
+}
 
 @test "cqfd release fails without files parameter" {
-    cp -f .cqfdrc .cqfdrc.old
     run cqfd release
     assert_failure
 }
@@ -216,9 +222,6 @@ setup() {
     rm -f "cqfd-$CTEST.zip"
 }
 
-################################################################################
-# Now test releasing a flavor
-################################################################################
 @test "release for flavor foo creates cqfd-foo.tar.xz" {
     filename="cqfd-foo.tar.xz"
     run cqfd -b "foo" release
@@ -259,6 +262,5 @@ setup() {
     assert_line --regexp '^Makefile$'
     # cleanup
     rm -f "cqfd-$CTEST.tar.xz"
-    mv -f .cqfdrc.old .cqfdrc
 }
 

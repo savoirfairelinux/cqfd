@@ -1,16 +1,25 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    confdir=$BATS_SUITE_TMPDIR/.config/dir
+    export confdir
+    mkdir -p "$confdir"
+    mv .cqfdrc "$confdir"/mycqfdrc
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    confdir=$BATS_SUITE_TMPDIR/.config/dir
-    flavor="foo"
+    flavor='foo'
+}
+
+teardown_file() {
+    # restore for further tests
+    mv -f "$confdir"/mycqfdrc .cqfdrc
 }
 
 @test "cqfd run with config in $confdir/mycqfdrc" {
     # cp the default conf and replace the original with a fake one
-    mkdir -p "$confdir"
-    mv .cqfdrc "$confdir"/mycqfdrc
     test_file="a/cqfd_a.txt"
     run cqfd -f "$confdir"/mycqfdrc run
     assert_success
@@ -44,6 +53,4 @@ setup() {
     run test -f "$test_file"
     assert_success
     rm -f "$test_file"
-    # restore for further tests
-    mv -f "$confdir"/mycqfdrc .cqfdrc
 }

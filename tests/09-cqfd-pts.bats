@@ -1,13 +1,20 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f .cqfdrc .cqfdrc.old
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
 }
 
+teardown_file() {
+    mv -f .cqfdrc.old .cqfdrc
+}
+
 #FIXME this test should allocate a tty
 @test "cqfd without redirection should allocate a tty" {
-    cp -f .cqfdrc .cqfdrc.old
     sed -i -e "/\[build\]/,/^$/s/^command=.*$/command='tty || true'/" .cqfdrc
     if tty; then
         run cqfd
@@ -40,6 +47,4 @@ setup() {
     run grep 'stderr' err
     assert_success
     rm out err
-
-    mv -f .cqfdrc.old .cqfdrc
 }

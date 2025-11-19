@@ -1,12 +1,20 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    cp -f .cqfdrc .cqfdrc.old
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
 }
 
+teardown_file() {
+    # restore .cqfdrc
+    mv -f .cqfdrc.old .cqfdrc
+}
+
 @test "'cqfd run' sets HOME environment variable for the local user" {
-    cp -f .cqfdrc .cqfdrc.old
     # shellcheck disable=SC2016
     run cqfd run 'echo -n $HOME'
     assert_line "$HOME"
@@ -74,7 +82,5 @@ EOF
     # shellcheck disable=SC2016
     run cqfd run 'echo -n $JAVA_HOME $HOME'
     assert_line "$val1 $val2"
-    # restore .cqfdrc
-    mv -f .cqfdrc.old .cqfdrc
 }
 

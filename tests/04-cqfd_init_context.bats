@@ -12,7 +12,7 @@ setup() {
 }
 
 @test "'cqfd init' with context changes the context" {
-    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
     cp -f .cqfd/docker/Dockerfile.build_context .cqfd/docker/Dockerfile
     cp -f cqfdrc-build_context .cqfdrc
     run cqfd init
@@ -20,5 +20,5 @@ setup() {
     run cqfd run "test -e /tmp/cqfdrc-build_context"
     assert_success
     cp -f cqfdrc-test .cqfdrc
-    mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
+    mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
