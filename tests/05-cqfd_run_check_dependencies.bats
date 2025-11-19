@@ -1,13 +1,13 @@
 #!/usr/bin/env bats
 
-setup() {
-    load 'test_helper/common-setup'
-    _common_setup
-}
-
 setup_file() {
     cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
     cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
+}
+
+setup() {
+    load 'test_helper/common-setup'
+    _common_setup
 }
 
 teardown_file() {
@@ -21,7 +21,6 @@ teardown_file() {
     run cqfd run
     assert_failure
 }
-
 
 @test "cqfd run with satisfied command requirements, using su" {
     echo 'RUN apk add bash shadow' >>.cqfd/docker/Dockerfile

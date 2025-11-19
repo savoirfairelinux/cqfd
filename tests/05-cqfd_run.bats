@@ -4,12 +4,12 @@ setup() {
     load 'test_helper/common-setup'
     _common_setup
     test_file="a/cqfd_a.txt"
-}
-
-@test "running \"cqfd\" with no argument makes it run" {
     if [ -f "$test_file" ]; then
         rm -f "$test_file"
     fi
+}
+
+@test "running \"cqfd\" with no argument makes it run" {
     run cqfd
     assert_success
     run grep -qw "cqfd" "$test_file"
@@ -18,9 +18,6 @@ setup() {
 }
 
 @test "running \"cqfd run\" makes it run" {
-    if [ -f "$test_file" ]; then
-        rm -f "$test_file"
-    fi
     run cqfd run
     assert_success
     run grep -qw "cqfd" "$test_file"
