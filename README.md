@@ -274,6 +274,9 @@ the cqfd group in the container.
 
 `CQFD_SHELL`: The shell to be launched, by default `/bin/sh`.
 
+`CQFD_DISABLE_SHELL_HISTORY`: Set to `true` to disable bind mounting the shell
+history file in the container and setting the HISTFILE variable
+
 ### Appending to the build command
 
 The `-c` option set immediately after the command run allows appending the
