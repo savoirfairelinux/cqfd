@@ -348,7 +348,7 @@ docker_run() {
 
 	args+=(--volume "$cqfd_project_dir:$cqfd_project_dir")
 
-	if [ -n "$shell_histfile" ]; then
+	if [ "$CQFD_DISABLE_SHELL_HISTORY" != "true" ] && [ -n "$shell_histfile" ]; then
 		# Create the history file if it doesn't exist yet
 		if [ ! -f "$shell_histfile" ]; then
 			touch "$shell_histfile"
