@@ -247,7 +247,7 @@ docker_run() {
 		args+=("${array[@]}")
 	fi
 
-	args+=(--rm --log-driver=none)
+	args+=(--rm --init --log-driver=none)
 
 	# always keep stdin open
 	args+=(--interactive)
