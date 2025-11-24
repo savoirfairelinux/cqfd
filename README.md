@@ -274,6 +274,9 @@ the cqfd group in the container.
 
 `CQFD_SHELL`: The shell to be launched, by default `/bin/sh`.
 
+`CQFD_HISTFILE`: This file will be used as the shell history file for all the
+shells supported in the [shell history](#shell-history) section.
+
 `CQFD_DISABLE_SHELL_HISTORY`: Set to `true` to disable bind mounting the shell
 history file in the container and setting the HISTFILE variable
 
