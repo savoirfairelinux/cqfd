@@ -327,6 +327,29 @@ Example:
        uninstall: Remove script, doc and resources
        tests:     Run functional tests
 
+### Multi-platform
+
+Docker supports multi-platform images; such images can run on multiple
+platforms (amd64, arm64, etc.). Therefore, cqfd takes advantage of this
+to build and run containers for different architectures thanks to QEMU and
+binfmt on Linux.
+
+Example:
+
+First, specify the desired platform in the `Dockerfile`, as shown below:
+
+    FROM --platform=linux/arm64 ubuntu:24.04
+    (...)
+
+Then, initialize the image:
+
+    $ cqfd init
+
+Finally, test the build container:
+
+    $ cqfd exec uname -m
+    aarch64
+
 ### Other command-line options
 
 In some conditions you may want to use alternate cqfd filenames and / or an
