@@ -308,6 +308,12 @@ docker_run() {
 		done
 	fi
 
+	if [ "$cqfd_docker" = "podman" ]; then
+		args+=(--userns="keep-id")
+		args+=(--user=root)
+		args+=(--security-opt label=disable)
+	fi
+
 	# Set HOME variable for the $cqfd_user, except if it was explicitly set
 	# via CQFD_EXTRA_RUN_ARGS or docker_run_args
 	if ! echo "$CQFD_EXTRA_RUN_ARGS $build_docker_run_args" |
@@ -315,7 +321,7 @@ docker_run() {
 		args+=(--env "HOME=$cqfd_user_home")
 	fi
 
-	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ]; then
+	if [ "$CQFD_NO_USER_SSH_CONFIG" != true ] && [ -d "$HOME/.ssh" ]; then
 		args+=(--volume "$HOME/.ssh:$cqfd_user_home/.ssh")
 	fi
 
@@ -512,6 +518,9 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 	echo "$cqfd_shell: command not found" >&2
 	exit 127
 fi
+
+# Delete ${UID:-1000}:${GID:-${UID:-1000}} user if it exists
+sed -i "/:${UID:-1000}:${GID:-${UID:-1000}}:/d" /etc/passwd
 
 # Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders

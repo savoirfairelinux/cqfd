@@ -18,22 +18,13 @@ teardown_file() {
     bats_require_minimum_version 1.5.0
     run cqfd init
     assert_success
-    #shellcheck disable=SC2154
-    if [ "$cqfd_docker" != "podman" ]; then
-        run cqfd run
-    else
-        run -127 cqfd run
-    fi
+    run cqfd run
     assert_failure
 }
 
 
 @test "cqfd run with satisfied command requirements, using su" {
     echo 'RUN apk add bash shadow' >>.cqfd/docker/Dockerfile
-
-    if [ "$cqfd_docker" = "podman" ]; then
-        skip "This test fails when using podman"
-    fi
     run cqfd init
     assert_success
     run cqfd --verbose run true
@@ -42,9 +33,6 @@ teardown_file() {
 
 @test "cqfd run with satisfied command requirements, using sudo" {
     echo 'RUN apk add sudo' >>.cqfd/docker/Dockerfile
-    if [ "$cqfd_docker" = "podman" ]; then
-        skip "This test fails when using podman"
-    fi
     run cqfd init
     assert_success
     run cqfd --verbose run true
