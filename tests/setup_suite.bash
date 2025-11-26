@@ -13,4 +13,5 @@ setup_suite() {
     cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
     cp -a "$PROJECT_ROOT"/tests/test_data/. "$BATS_SUITE_TMPDIR/."
     cd "$BATS_SUITE_TMPDIR/" || exit 1
+    cp -f cqfdrc-test .cqfdrc
 }
