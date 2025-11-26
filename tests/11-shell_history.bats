@@ -6,15 +6,15 @@ setup() {
     HISTFILE=$(mktemp "/tmp/tmp.bats-cqfd-XXXXX")
     export HISTFILE
     shell_histfile=${HISTFILE}
+    commands_file="$BATS_TEST_TMPDIR/commands.txt"
 }
 
 run_shell_commands() {
     shell_name="$1"
     rm_histfile="$2"
     exec_or_run="$3"
+    history_not_saved="$4"
     string_to_check="hello from the other side $shell_name"
-    commands_file="$BATS_TEST_TMPDIR/commands.txt"
-
     echo "echo $string_to_check" > "$commands_file"
 
     if [ "$rm_histfile" = "true" ] && [ -f "$shell_histfile" ]; then
@@ -23,29 +23,25 @@ run_shell_commands() {
 
     if [ -n "$exec_or_run" ]; then
         case "$exec_or_run" in
-        exec)
-            run cqfd exec "$shell_name" -i < "$commands_file"
-            assert_success
-        ;;
-        run)
-            run cqfd run "$shell_name" -i < "$commands_file"
-            assert_success
+        exec|run)
+            run cqfd "$exec_or_run" "$shell_name" -i < "$commands_file"
         ;;
         esac
     else
         run cqfd "$shell_name" -i < "$commands_file"
-        assert_success
     fi
 
     # test that the shell commands have been run from the commands file
+    assert_success
     assert_line --partial "$string_to_check"
 
     # test that the commands run are now in the $shell_histfile
-    if [ -f "$shell_histfile" ]; then
-        run tail "$shell_histfile"
-        assert_line --partial "echo $string_to_check"
+    run tail "$shell_histfile"
+    if [ "$history_not_saved" = "true" ]; then
+        assert_failure
     else
-        assert_failure "shell history file not found"
+        assert_success
+        assert_line --partial "echo $string_to_check"
     fi
 }
 
@@ -95,4 +91,12 @@ run_shell_commands() {
 
 @test "ksh: history saving functions as expected when cqfd is called with exec" {
     run_shell_commands "ksh" "true" "exec"
+}
+
+@test "bash: history not saving when using CQFD_DISABLE_SHELL_HISTORY=true" {
+    CQFD_DISABLE_SHELL_HISTORY="true" run_shell_commands "bash" "true" "" "true"
+}
+
+@test "bash: history saving when using CQFD_DISABLE_SHELL_HISTORY=false" {
+    CQFD_DISABLE_SHELL_HISTORY="false" run_shell_commands "bash" "true" "" "false"
 }
