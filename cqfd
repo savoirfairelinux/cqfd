@@ -258,8 +258,13 @@ docker_rmi() {
 #
 # $1: the command string to execute as $cqfd_user
 docker_run() {
-	local args=(--privileged)
-
+	local args=(
+		--privileged
+		--rm
+		--init
+		--log-driver=none
+		--interactive
+	)
 	# The image does not exist
 	if ! image_exists_locally "$cqfd_image"; then
 		die "The docker image doesn't exist, launch 'cqfd init' to create or pull it"
@@ -280,11 +285,6 @@ docker_run() {
 		read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
 		args+=("${array[@]}")
 	fi
-
-	args+=(--rm --init --log-driver=none)
-
-	# always keep stdin open
-	args+=(--interactive)
 
 	# allocate a pty if stdin/err are connected to a tty
 	if [ -t 0 ] && [ -t 2 ]; then
