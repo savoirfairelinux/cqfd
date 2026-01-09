@@ -870,6 +870,7 @@ while [ $# -gt 0 ]; do
 			break
 		fi
 
+		# set HISTFILE if using `cqfd run bash`
 		set_shell_histfile "$1"
 		# Run alternate command
 		has_alternate_command=true
