@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# validate the behavior of running docker multi-platform image
+
+set -o pipefail
+
+. "$(dirname "$0")/jtest.inc" "$1"
+cqfd="$TDIR/.cqfd/cqfd"
+
+cd "$TDIR/" || exit 1
+
+cp -f .cqfdrc .cqfdrc.orig
+cp -f cqfdrc-platform .cqfdrc
+cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.orig
+cp -f .cqfd/docker/Dockerfile.platform .cqfd/docker/Dockerfile
+
+jtest_prepare "cqfd run docker using multi-platform"
+if "$cqfd" init && "$cqfd" | grep -q "aarch64"; then
+	jtest_result pass
+else
+	jtest_result fail
+fi
+# restore .cqfdrc and Dockerfile
+mv -f .cqfdrc.orig .cqfdrc
+mv -f .cqfd/docker/Dockerfile.orig .cqfd/docker/Dockerfile
+
+# restore container
+if ! "$cqfd" init; then
+	jtest_log error "restore container failed"
+fi
