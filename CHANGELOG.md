@@ -1,5 +1,14 @@
 # Changelog for cqfd
 
+## Version 5.8.0 (2026-01-15)
+
+* Add `cqfd deinit` command to delete currently built Docker image
+* Bind mount shell history file for shell that supports it
+* Move tests to bats framework
+* Allow relative and absolute path with `-d` option
+* Better support for podman
+* Fix compatibility with recent Ubuntu Docker images
+
 ## Version 5.7.2 (2025-09-23)
 
 * Publish distro packages in releases

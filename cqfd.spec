@@ -1,5 +1,5 @@
 Name:           cqfd
-Version:        5.7.2
+Version:        5.8.0
 Release:        1
 Summary:        Wrap commands in controlled Docker containers using docker
 
@@ -52,5 +52,14 @@ make check
 %{_datadir}/man/man5/cqfdrc.5.gz
 
 %changelog
+
+* Thu Jan 15 2026 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.8.0-1
+- Add `cqfd deinit` command to delete currently built Docker image
+- Bind mount shell history file for shell that supports it
+- Move tests to bats framework
+- Allow relative and absolute path with `-d` option
+- Better support for podman
+- Fix compatibility with recent Ubuntu Docker images
+
 * Tue Sep 23 2025 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.7.2-1
 - Initial release.
