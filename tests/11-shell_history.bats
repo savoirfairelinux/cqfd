@@ -3,9 +3,8 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    HISTFILE=$(mktemp "/tmp/tmp.bats-cqfd-XXXXX")
-    export HISTFILE
-    shell_histfile=${HISTFILE}
+    CQFD_HISTFILE=$(mktemp "/tmp/tmp.bats-cqfd-XXXXX")
+    export CQFD_HISTFILE
     commands_file="$BATS_TEST_TMPDIR/commands.txt"
 }
 
@@ -17,8 +16,8 @@ run_shell_commands() {
     string_to_check="hello from the other side $shell_name"
     echo "echo $string_to_check" > "$commands_file"
 
-    if [ "$rm_histfile" = "true" ] && [ -f "$shell_histfile" ]; then
-        rm -f "$shell_histfile"
+    if [ "$rm_histfile" = "true" ] && [ -f "$CQFD_HISTFILE" ]; then
+        rm -f "$CQFD_HISTFILE"
     fi
 
     if [ -n "$exec_or_run" ]; then
@@ -35,8 +34,8 @@ run_shell_commands() {
     assert_success
     assert_line --partial "$string_to_check"
 
-    # test that the commands run are now in the $shell_histfile
-    run tail "$shell_histfile"
+    # test that the commands run are now in the $CQFD_HISTFILE
+    run tail "$CQFD_HISTFILE"
     if [ "$history_not_saved" = "true" ]; then
         assert_failure
     else
