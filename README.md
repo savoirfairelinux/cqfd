@@ -428,11 +428,11 @@ workstation:
 
 First download the package:
 
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.2/cqfd-5.7.2-1-any.pkg.tar.zst
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.8.0/cqfd-5.8.0-1-any.pkg.tar.zst
 
 Then, install it using the package manager:
 
-    $ sudo pacman -U ./cqfd-5.7.2-1-any.pkg.tar.zst
+    $ sudo pacman -U ./cqfd-5.8.0-1-any.pkg.tar.zst
 
 _Note_: Uninstall it using the package manager:
 
@@ -442,11 +442,11 @@ _Note_: Uninstall it using the package manager:
 
 First download the package:
 
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.2/cqfd_5.7.2_all.deb
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.8.0/cqfd_5.8.0_all.deb
 
 Then, install it using the package manager:
 
-    $ sudo dpkg -i ./cqfd_5.7.2_all.deb
+    $ sudo dpkg -i ./cqfd_5.8.0_all.deb
 
 _Note_: Uninstall it using the package manager:
 
@@ -456,11 +456,11 @@ _Note_: Uninstall it using the package manager:
 
 First download the package:
 
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.7.2/cqfd-5.7.2-1.noarch.rpm
+    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.8.0/cqfd-5.8.0-1.noarch.rpm
 
 Then, install it using the package manager:
 
-    $ sudo dnf install ./cqfd-5.7.2-1.noarch.rpm
+    $ sudo dnf install ./cqfd-5.8.0-1.noarch.rpm
 
 _Note_: Uninstall it using the package manager:
 

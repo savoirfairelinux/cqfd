@@ -1,3 +1,14 @@
+cqfd (5.8.0) stable; urgency=low
+
+  * Add `cqfd deinit` command to delete currently built Docker image
+  * Bind mount shell history file for shell that supports it
+  * Move tests to bats framework
+  * Allow relative and absolute path with `-d` option
+  * Better support for podman
+  * Fix compatibility with recent Ubuntu Docker images
+
+ -- Jérôme Oufella <jerome.oufella@savoirfairelinux.com>  Thu, 15 Jan 2026 20:00:00 +0200
+
 cqfd (5.7.2) unstable; urgency=medium
 
   * Initial release.
