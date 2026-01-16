@@ -53,7 +53,7 @@ _cqfd() {
 		fi
 		return
 		;;
-	init|deinit|flavors|release|-v|version|-h|help)
+	init|deinit|images|prune|flavors|release|-v|version|-h|help)
 		return
 		;;
 	esac
@@ -101,7 +101,7 @@ _cqfd() {
 	fi
 
 	local shells="sh ash dash bash ksh zsh csh tcsh fish"
-	local cmds="init deinit flavors exec run release shell version help"
+	local cmds="init deinit images prune flavors exec run release shell version help"
 	COMPREPLY=( $(compgen -W "$shells $cmds $opts" -- "$cur") )
 } &&
 complete -F _cqfd cqfd

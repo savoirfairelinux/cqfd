@@ -401,13 +401,21 @@ Running `cqfd init` creates and names a new Docker image each
 time the Dockerfile is modified, which may lead to a large number of
 unused images that are not automatically purged.
 
-To remove the image associated with the current version of the Dockerfile, use:
+To list all created images, use:
+
+    $ cqfd images
+
+To remove the image associated with teh current version of the Dockerfile, use:
 
     $ cqfd deinit
 
 If a flavor redefines the distro key of the build section, use:
 
     $ cqfd -b centos7 deinit
+
+To collect all unused images across all user projects on the system, use:
+
+    $ cqfd prune
 
 ## Requirements
 
