@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 setup_file() {
+    export BATS_NO_PARALLELIZE_WITHIN_FILE=true
     cp -f cqfdrc-test .cqfdrc
 }
 

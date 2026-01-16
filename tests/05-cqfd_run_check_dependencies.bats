@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 setup_file() {
+    export BATS_NO_PARALLELIZE_WITHIN_FILE=true
     cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
     cp -f .cqfd/docker/Dockerfile.missing_dependencies .cqfd/docker/Dockerfile
 }

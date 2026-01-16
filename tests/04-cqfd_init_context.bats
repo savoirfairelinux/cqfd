@@ -1,5 +1,9 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    export BATS_NO_PARALLELIZE_WITHIN_FILE=true
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
