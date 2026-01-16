@@ -42,6 +42,8 @@ Options:
     -d <directory>       Use directory as cqfd directory (default .cqfd).
     -C <directory>       Use the specified working directory.
     -b <flavor_name>     Target a specific build flavor.
+    -s <image_name> <cmdstring>
+                         Run the image with commands.
     -q                   Turn on quiet mode.
     -v or --version      Show version.
     --verbose            Increase the script's verbosity.
@@ -55,6 +57,8 @@ Commands:
     run [cmdstring]      Run argument(s) inside build container.
     release [cmdstring]  Run argument(s) and release software.
     shell [shargs]       Run shell command inside build container.
+    store [containerid] [imagename]
+                         Store the running container to an image.
     help                 Show this help text.
 
     By default, the 'run' command is assumed, with the default
@@ -524,7 +528,9 @@ sed -i "/:${UID:-1000}:${GID:-${UID:-1000}}:/d" /etc/passwd
 
 # Add the host's user and group to the container, and adjust ownership
 groupadd -og "${GROUPS[0]}" -f builders
-useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+if ! id "$cqfd_user" >/dev/null 2>&1; then
+	useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+fi
 mkdir -p "$cqfd_user_home"
 chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
 
@@ -792,6 +798,13 @@ while [ $# -gt 0 ]; do
 		shift
 		cd "$1"
 		;;
+	-s)
+		shift
+		docker_img_name="$1"
+		command_string="$2"
+		docker_run "$command_string"
+		exit
+		;;
 	-q)
 		quiet=true
 		;;
@@ -808,6 +821,15 @@ while [ $# -gt 0 ]; do
 		set_shell_histfile "$1"
 		command_string="${*@Q}"
 		docker_run "$command_string"
+		exit
+		;;
+	store)
+		shift
+		if [ "$#" -lt 2 ]; then
+			usage
+			die "store: Missing argument!"
+		fi
+		"$cqfd_docker" commit "$1" "$2"
 		exit
 		;;
 	run|release)
