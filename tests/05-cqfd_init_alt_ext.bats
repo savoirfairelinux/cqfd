@@ -8,6 +8,7 @@ setup_file() {
     mkdir -p "$extdir"
     mv .cqfd "$extdir/cqfd"
     mv .cqfdrc "$extdir/cqfdrc"
+    cp -a "$PROJECT_ROOT/cqfd" "$cqfd_ext"
 }
 
 setup() {

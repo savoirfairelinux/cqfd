@@ -10,7 +10,6 @@ setup_suite() {
     export PROJECT_ROOT
     # make executables in src/ visible to PATH
     export PATH="$PROJECT_ROOT:$PATH"
-    cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
     cp -a "$PROJECT_ROOT"/tests/test_data/. "$BATS_SUITE_TMPDIR/."
     cd "$BATS_SUITE_TMPDIR/" || exit 1
     cp -f cqfdrc-test .cqfdrc
