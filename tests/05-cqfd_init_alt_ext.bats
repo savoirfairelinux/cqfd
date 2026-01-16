@@ -1,13 +1,16 @@
 #!/usr/bin/env bats
 
 setup_file() {
+    load 'test_helper/common-setup'
+    _common_setup_file
     export extdir="external/dir"
-    export cqfd_ext="$BATS_SUITE_TMPDIR/$extdir/cqfd/cqfd"
+    export cqfd_ext="$BATS_FILE_TMPDIR/$extdir/cqfd/cqfd"
     # First, move every local cqfd files into an external directory and use
     # alternate filenames
     mkdir -p "$extdir"
     mv .cqfd "$extdir/cqfd"
     mv .cqfdrc "$extdir/cqfdrc"
+    cp -a "$PROJECT_ROOT/cqfd" "$cqfd_ext"
 }
 
 setup() {

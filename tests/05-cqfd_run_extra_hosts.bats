@@ -1,11 +1,15 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    load 'test_helper/common-setup'
+    _common_setup_file
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
     getent_cmd="getent hosts 1.2.3.4"
 }
-
 
 @test "run cqfd without extra hosts" {
     bats_require_minimum_version 1.5.0
