@@ -9,6 +9,16 @@ setup() {
     _common_setup
 }
 
+@test "'cqfd images' runs without an .cqfdrc and with an empty cache" {
+    run cqfd images
+    assert_success
+}
+
+@test "'cqfd prune' runs without an .cqfdrc and with an empty cache" {
+    run cqfd prune
+    assert_success
+}
+
 ################################################################################
 # running 'cqfd init' should fail, as there's no proper config
 ################################################################################
