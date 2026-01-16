@@ -1,13 +1,15 @@
 #!/usr/bin/env bats
 
+setup_file() {
+    load 'test_helper/common-setup'
+    _common_setup_file
+    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
+    cp -f .cqfd/docker/Dockerfile.home_path .cqfd/docker/Dockerfile
+}
+
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-}
-
-setup_file() {
-    cp -f .cqfd/docker/Dockerfile .cqfd/docker/Dockerfile.old
-    cp -f .cqfd/docker/Dockerfile.home_path .cqfd/docker/Dockerfile
 }
 
 teardown_file() {

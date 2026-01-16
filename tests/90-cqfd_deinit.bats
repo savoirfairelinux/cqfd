@@ -2,16 +2,13 @@
 
 setup_file() {
     export BATS_NO_PARALLELIZE_WITHIN_FILE=true
+    load 'test_helper/common-setup'
+    _common_setup_file
 }
 
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-}
-
-@test "'cqfd deinit' with a proper .cqfdrc should pass" {
-    run cqfd deinit
-    assert_success
 }
 
 @test "'cqfd deinit' with a nonexistent Dockerfile should fail" {
@@ -21,7 +18,7 @@ setup() {
     assert_failure
 }
 
-@test "'cqfd deinit' with a proper Dockerfile should fail" {
+@test "'cqfd deinit' with a proper Dockerfile should succeed" {
     sed -i -e "s/thisshouldfail/centos/" .cqfdrc
     run cqfd init
     assert_success

@@ -1,7 +1,9 @@
 #!/usr/bin/env bats
 
 setup_file() {
-    confdir=$BATS_SUITE_TMPDIR/.config/dir
+    load 'test_helper/common-setup'
+    _common_setup_file
+    confdir=$BATS_FILE_TMPDIR/.config/dir
     export confdir
     mkdir -p "$confdir"
     mv .cqfdrc "$confdir"/mycqfdrc

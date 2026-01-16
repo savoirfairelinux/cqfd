@@ -12,7 +12,7 @@ tests: CQFD_BIND_DOCKER_SOCK =
 tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
-	./bats/bin/bats --jobs 8 --no-parallelize-across-files ./
+	./bats/bin/bats --jobs 8 --no-parallelize-across-file ./
 
 check:
 	shellcheck -x [0-9][0-9]*
