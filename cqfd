@@ -82,7 +82,6 @@ cfg_parser() {
 	mapfile -t ini <"$1"                                 # convert to line-array
 	ini=("${ini[@]//[/\\[}")                             # escape [
 	ini=("${ini[@]//]/\\]}")                             # escape ]
-	ini=("${ini[@]//;*/}")                               # remove comments with ;
 	ini=("${ini[@]/$'\t'=/=}")                           # remove tabs before =
 	ini=("${ini[@]/=$'\t'/=}")                           # remove tabs after =
 	ini=("${ini[@]/\ =/=}")                              # remove space before =
