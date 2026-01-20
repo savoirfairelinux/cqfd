@@ -742,14 +742,14 @@ set_shell_histfile() {
 
 	case "$program_basename" in
 	bash|zsh)
-		shell_histfile="${HISTFILE:-$HOME/.${program_basename}_history}"
+		shell_histfile="${CQFD_HISTFILE:-$HOME/.${program_basename}_history}"
 		;;
 	ksh)
-		shell_histfile="${HISTFILE:-$HOME/.sh_history}"
+		shell_histfile="${CQFD_HISTFILE:-$HOME/.sh_history}"
 		;;
 	tcsh)
 		# Note: tcsh history does not persist without doing `history -S` on exit
-		shell_histfile="${HISTFILE:-$HOME/.history}"
+		shell_histfile="${CQFD_HISTFILE:-$HOME/.history}"
 		;;
 	*)
 		shell_histfile=""
@@ -870,6 +870,7 @@ while [ $# -gt 0 ]; do
 			break
 		fi
 
+		# set HISTFILE if using `cqfd run bash`
 		set_shell_histfile "$1"
 		# Run alternate command
 		has_alternate_command=true
