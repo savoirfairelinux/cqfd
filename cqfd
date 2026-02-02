@@ -370,7 +370,7 @@ docker_run() {
 		args+=(--mount "type=bind,src=$HOME/.gitconfig,dst=$cqfd_user_home/.gitconfig")
 	fi
 
-	if [ "$CQFD_BIND_DOCKER_SOCK" = true ]; then
+	if [ "$CQFD_BIND_DOCKER_SOCK" = true ] || [ "$build_bind_docker_sock" = true ]; then
 		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
 
@@ -707,6 +707,8 @@ load_config() {
 	build_distro="$distro"
 	# shellcheck disable=SC2154
 	build_user_extra_groups="$user_extra_groups"
+	# shellcheck disable=SC2154
+	build_bind_docker_sock="$bind_docker_sock"
 	# shellcheck disable=SC2154
 	release_files="$files"
 	# shellcheck disable=SC2154
