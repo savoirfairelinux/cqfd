@@ -1,5 +1,12 @@
 # Changelog for cqfd
 
+## Version 5.9.0 (2026-02-02)
+
+* Add `cqfd images` to list all Docker images built by cqfd across all
+  projects
+* Add `cqfd prune` to delete all the images listed by `cqfd images`
+* Add `bind_docker_sock` option to .cqfdrc
+
 ## Version 5.8.0 (2026-01-15)
 
 * Add `cqfd deinit` command to delete currently built Docker image

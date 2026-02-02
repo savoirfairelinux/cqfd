@@ -1,5 +1,5 @@
 Name:           cqfd
-Version:        5.8.0
+Version:        5.9.0
 Release:        1
 Summary:        Wrap commands in controlled Docker containers using docker
 
@@ -51,6 +51,12 @@ make check
 %{_datadir}/man/man5/cqfdrc.5.gz
 
 %changelog
+
+* Mon Feb 02 2026 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.9.0-1
+- Add `cqfd images` to list all Docker images built by cqfd across all
+  projects
+- Add `cqfd prune` to delete all the images listed by `cqfd images`
+- Add `bind_docker_sock` option to .cqfdrc
 
 * Thu Jan 15 2026 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.8.0-1
 - Add `cqfd deinit` command to delete currently built Docker image
