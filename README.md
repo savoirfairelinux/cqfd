@@ -17,7 +17,7 @@ in an older Linux distribution.
 Follow these steps:
 
 * Ensure the [requirements](#requirements) are met
-* [Install cqfd](#installingremoving-cqfd)
+* [**Install cqfd**](#installingremoving-cqfd)
 * Go to your project's directory
 * Create a `.cqfdrc` file
 * Create a Dockerfile and save it as `.cqfd/docker/Dockerfile`
@@ -28,6 +28,90 @@ Examples are available in the `samples/` directory.
 `cqfd` will use the provided Dockerfile to create a normalized runtime
 build environment for your project.
 
+## Installing/removing cqfd
+
+### From packages
+
+#### Ubuntu or Debian
+
+First download the package, then install it with the package manager:
+
+```sh
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd_5.9.0_all.deb
+sudo apt install ./cqfd_5.9.0_all.deb
+```
+
+_Note_: Uninstall it using the package manager:
+
+```sh
+sudo apt remove cqfd
+```
+
+#### Fedora or RedHat Linux
+
+First download the package, then install it with the package manager:
+
+```sh
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd-5.9.0-1.noarch.rpm
+sudo dnf install ./cqfd-5.9.0-1.noarch.rpm
+```
+
+_Note_: Uninstall it using the package manager:
+
+```sh
+sudo dnf remove cqfd
+```
+
+#### Arch Linux or Manjaro
+
+First download the package, then install it with the package manager:
+
+```sh
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd-5.9.0-1-any.pkg.tar.zst
+sudo pacman -U ./cqfd-5.9.0-1-any.pkg.tar.zst
+```
+
+_Note_: Uninstall it using the package manager:
+
+```sh
+sudo pacman -R cqfd
+```
+
+#### GNU Guix
+
+If you use the [GNU Guix](https://gnu.org/software/guix) package
+manager, you can install `cqfd` via:
+
+```sh
+guix install cqfd
+```
+
+### From source
+
+First clone this repository, then checkout the stable version, and install cqfd
+and its resources:
+
+```sh
+git clone --recurse-submodules https://github.com/savoirfairelinux/cqfd.git
+cd cqfd
+git checkout v5.9.0
+sudo make install
+```
+
+To uninstall the script and its resources, run:
+
+```sh
+sudo make uninstall
+```
+
+Makefile honors both **PREFIX** (__/usr/local__) and **DESTDIR** (__[empty]__)
+variables:
+
+```sh
+make install PREFIX=/opt
+make install PREFIX=/usr DESTDIR=package
+```
+
 ## Using cqfd on a daily basis
 
 ### Regular builds
@@ -35,21 +119,27 @@ build environment for your project.
 To build your project from the configured build environment with the
 default build command as configured in `.cqfdrc`, use:
 
-    $ cqfd
+```sh
+cqfd
+```
 
 Alternatively, you may want to specify a custom command to be
 executed from inside the build container.
 
-    $ cqfd run make clean
-    $ cqfd run "make linux-dirclean && make foobar-dirclean"
+```sh
+cqfd run make clean
+cqfd run "make linux-dirclean && make foobar-dirclean"
+```
 
 The `run` command is broken in some situations, and it is then recommended to
 use `exec` for a single command, `shell -c` for a command composed with shell
 grammar, or `shell` to run a shell script with or without arguments:
 
-    $ cqfd exec make clean
-    $ cqfd shell -c "make linux-dirclean && make foobar-dirclean"
-    $ cqfd shell ./build.sh debug
+```sh
+cqfd exec make clean
+cqfd shell -c "make linux-dirclean && make foobar-dirclean"
+cqfd shell ./build.sh debug
+```
 
 When `cqfd` is running, the current directory is mounted by Docker
 as a volume. As a result, all the build artefacts generated inside the
@@ -62,7 +152,9 @@ The `release` command behaves exactly like `run`, but creates a release
 tarball for your project additionally. The release files (as specified
 in your `.cqfdrc`) will be included inside the release archive.
 
-    $ cqfd release
+```sh
+cqfd release
+```
 
 The resulting release file is then called according to the archive
 template, which defaults to `%Po-%Pn.tar.xz`.
@@ -80,14 +172,16 @@ format and `samples/dot-cqfdrc` is an example.
 
 Here is a sample `.cqfdrc` file:
 
-    [project]
-    org='fooinc'
-    name='buildroot'
+```ini
+[project]
+org='fooinc'
+name='buildroot'
 
-    [build]
-    command='make foobar_defconfig && make && asciidoc README.FOOINC'
-    files='README.FOOINC output/images/sdcard.img'
-    archive='cqfd-%Gh.tar.xz'
+[build]
+command='make foobar_defconfig && make && asciidoc README.FOOINC'
+files='README.FOOINC output/images/sdcard.img'
+archive='cqfd-%Gh.tar.xz'
+```
 
 ### Comments
 
@@ -213,17 +307,19 @@ In the `.cqfdrc` file, one or more flavors may be listed in the
 `[build]` section, referencing other sections named following
 flavor's name.
 
-    [centos7]
-    command='make CENTOS=1'
-    distro='centos7'
+```ini
+[centos7]
+command='make CENTOS=1'
+distro='centos7'
 
-    [debug]
-    command='make DEBUG=1'
-    files='myprogram Symbols.map'
+[debug]
+command='make DEBUG=1'
+files='myprogram Symbols.map'
 
-    [build]
-    command='make'
-    files='myprogram'
+[build]
+command='make'
+files='myprogram'
+```
 
 A flavor will typically redefine some keys of the build section:
 command, files, archive, distro.
@@ -289,8 +385,10 @@ history file in the container and setting the HISTFILE variable
 The `-c` option set immediately after the command run allows appending the
 command of a cqfd run for temporary developments:
 
-    $ cqfd -b centos7 run -c "clean"
-    $ cqfd -b centos7 run -c "TRACING=1"
+```sh
+cqfd -b centos7 run -c "clean"
+cqfd -b centos7 run -c "TRACING=1"
+```
 
 ### Running a shell in the container
 
@@ -300,8 +398,10 @@ the `CQFD_SHELL` environment variable.
 
 Example:
 
-    fred@host:~/project$ cqfd shell
-    fred@container:~/project$
+```sh
+fred@host:~/project$ cqfd shell
+fred@container:~/project$
+```
 
 ### Use cqfd as an interpreter for shell script
 
@@ -310,15 +410,17 @@ defined container.
 
 Example:
 
-    fred@host:~/project$ cat get-container-pretty-name.sh 
-    #!/usr/bin/env -S cqfd shell
-    if ! test -e /.dockerenv; then
-        exit 1
-    fi
-    source /etc/os-release
-    echo "$PRETTY_NAME"
-    fred@host:~/projet$ ./get-container-pretty-name.sh 
-    Debian GNU/Linux 12 (bookworm)
+```sh
+fred@host:~/project$ cat get-container-pretty-name.sh 
+#!/usr/bin/env -S cqfd shell
+if ! test -e /.dockerenv; then
+    exit 1
+fi
+source /etc/os-release
+echo "$PRETTY_NAME"
+fred@host:~/project$ ./get-container-pretty-name.sh 
+Debian GNU/Linux 12 (bookworm)
+```
 
 ### Use cqfd as a standard shell for binaries
 
@@ -327,12 +429,14 @@ binaries honoring that variable run shell commands in your defined container.
 
 Example:
 
-    fred@host:~/project$ make SHELL="cqfd shell"
-    Available make targets:
-       help:      This help message
-       install:   Install script, doc and resources
-       uninstall: Remove script, doc and resources
-       tests:     Run functional tests
+```sh
+fred@host:~/project$ make SHELL="cqfd shell"
+Available make targets:
+    help:      This help message
+    install:   Install script, doc and resources
+    uninstall: Remove script, doc and resources
+    tests:     Run functional tests
+```
 
 ### Other command-line options
 
@@ -342,22 +446,30 @@ configuration files:
 
 The working directory can be changed using the `-C` option:
 
-    $ cqfd -C external/directory
+```sh
+cqfd -C external/directory
+```
 
 An alternate cqfd directory can be specified with the `-d` option:
 
-    $ cqfd -d cqfd_alt
+```sh
+cqfd -d cqfd_alt
+```
 
 An alternate cqfdrc file can be specified with the `-f` option:
 
-    $ cqfd -f cqfdrc_alt
+```sh
+cqfd -f cqfdrc_alt
+```
 
 These options can be combined:
 
-    $ cqfd -C external/directory -d cqfd_alt -f cqfdrc_alt
-    $ # cqfd will use:
-    $ #  - cqfd directory: external/directory/cqfd_alt
-    $ #  - cqfdrc file: external/directory/cqfdrc_alt
+```sh
+cqfd -C external/directory -d cqfd_alt -f cqfdrc_alt
+# cqfd will use:
+#  - cqfd directory: external/directory/cqfd_alt
+#  - cqfdrc file: external/directory/cqfdrc_alt
+```
 
 ### Shell history
 
@@ -392,7 +504,7 @@ limitation for processes that require a controlling terminal (such as
 an interactive shell), as `su` will prevent the command executed
 from having one.
 
-```
+```sh
 $ cqfd bash
 bash: cannot set terminal process group (-1): Inappropriate ioctl for device
 bash: no job control in this shell
@@ -410,19 +522,27 @@ unused images that are not automatically purged.
 
 To remove the image associated with the current version of the Dockerfile, use:
 
-    $ cqfd deinit
+```sh
+cqfd deinit
+```
 
 If a flavor redefines the distro key of the build section, use:
 
-    $ cqfd -b centos7 deinit
+```sh
+cqfd -b centos7 deinit
+```
 
 To list all cqfd images across all user projects on the system, use:
 
-    $ cqfd images
+```sh
+cqfd images
+```
 
 To clean all cqfd images across all user projects on the system, use:
 
-    $ cqfd prune
+```sh
+cqfd prune
+```
 
 ## Requirements
 
@@ -435,80 +555,37 @@ workstation:
 - Your username is a member of the `docker` group
 - Restart your docker service if you needed to create the group.
 
-## Installing/removing cqfd
+## Building cqfd packages
 
-### From packages
+After having cloned the source of cqfd, you can build the packages for the
+following Linux distributions:
 
-#### Arch Linux or Manjaro
+### Ubuntu or Debian
 
-First download the package:
-
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd-5.9.0-1-any.pkg.tar.zst
-
-Then, install it using the package manager:
-
-    $ sudo pacman -U ./cqfd-5.9.0-1-any.pkg.tar.zst
-
-_Note_: Uninstall it using the package manager:
-
-    $ sudo pacman -R cqfd
-
-#### Debian or Ubuntu
-
-First download the package:
-
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd_5.9.0_all.deb
-
-Then, install it using the package manager:
-
-    $ sudo dpkg -i ./cqfd_5.9.0_all.deb
-
-_Note_: Uninstall it using the package manager:
-
-    $ sudo dpkg -r cqfd
-
-#### RedHat Linux or Fedora
-
-First download the package:
-
-    $ curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.9.0/cqfd-5.9.0-1.noarch.rpm
-
-Then, install it using the package manager:
-
-    $ sudo dnf install ./cqfd-5.9.0-1.noarch.rpm
-
-_Note_: Uninstall it using the package manager:
-
-    $ sudo dnf remove cqfd
-
-### From source
-
-First clone this repository, then checkout the stable version, and install cqfd
-and its resources:
-
-    git clone --recurse-submodules https://github.com/savoirfairelinux/cqfd.git
-    cd cqfd
-    git checkout v5.9.0
-    sudo make install
-
-To uninstall the script and its resources, run:
-
-    sudo make uninstall
-
-Makefile honors both **PREFIX** (__/usr/local__) and **DESTDIR** (__[empty]__)
-variables:
-
-    make install PREFIX=/opt
-    make install PREFIX=/usr DESTDIR=package
-
-### GNU Guix
-
-If you use the [GNU Guix](https://gnu.org/software/guix) package
-manager, you can install `cqfd` via:
+If you use an Debian derivative distribution based on the dpkg package manager,
+you can build the latest released version of the `cqfd` package via:
 
 ```sh
-guix install cqfd
+dpkg-buildpackage -us -uc
 ```
+
+_Note_: The artefacts are available in the parent directory.
+
+### Fedora or RedHat Linux
+
+If you use an RPM based distribution, you can build the latest released version
+of the `cqfd` package via:
+
+```sh
+rpmdev-setuptree
+cp cqfd.spec ~/rpmbuild/SPECS/
+cd ~/rpmbuild/SPECS
+rpmbuild --undefine=_disable_source_fetch -ba cqfd.spec "$@"
+cp ~/rpmbuild/SRPMS/*.src.rpm ~/rpmbuild/RPMS/*/*.rpm "$OLDPWD"
+```
+
+_Note_: The artefacts are available in `~/rpmbuild/RPMS` and `~/rpmbuild/SRPMS`
+directories.
 
 ### Arch Linux or Manjaro
 
@@ -526,33 +603,6 @@ makepkg -f PKGBUILD-git
 ```
 
 _Note_: The artefacts are available in the current directory.
-
-### Debian or Ubuntu
-
-If you use an Debian derivative distribution based on the dpkg package manager,
-you can build the latest released version of the `cqfd` package via:
-
-```sh
-dpkg-buildpackage -us -uc
-```
-
-_Note_: The artefacts are available in the parent directory.
-
-### RedHat Linux or Fedora
-
-If you use a RPM based distribution, you can build the latest released version
-of the `cqfd` package via:
-
-```sh
-rpmdev-setuptree
-cp cqfd.spec ~/rpmbuild/SPECS/
-cd ~/rpmbuild/SPECS
-rpmbuild --undefine=_disable_source_fetch -ba cqfd.spec "$@"
-cp ~/rpmbuild/SRPMS/*.src.rpm ~/rpmbuild/RPMS/*/*.rpm "$OLDPWD"
-```
-
-_Note_: The artefacts are available in `~/rpmbuild/RPMS` and `~/rpmbuild/SRPMS`
-directories.
 
 ## Using podman
 
@@ -576,12 +626,16 @@ CQFD_DOCKER="podman" cqfd shell
 The codebase contains tests which can be invoked using the following
 command, if the [requirements](#requirements) are met on the system:
 
-    $ make tests
+```sh
+make tests
+```
 
 The test suite depends on a git submodule, so if they do not run it may be
 because submodule have not been synced. To sync them, use:
 
-    $ git submodule update --init --recursive
+```sh
+git submodule update --init --recursive
+```
 
 ## Patches
 
