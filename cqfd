@@ -718,7 +718,7 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
+	dockerfile=$(readlink -e "$cqfddir/${build_distro:-docker}/Dockerfile")
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
