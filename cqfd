@@ -188,7 +188,7 @@ docker_build() {
 
 	# Set the context
 	if [ -z "$project_build_context" ]; then
-		args+=("$(dirname "$dockerfile")")
+		args+=("$(dirname "$dockerfile")" --file "$dockerfile")
 	else
 		args+=("$project_build_context" --file "$dockerfile")
 	fi
@@ -728,7 +728,7 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_options="$tar_options"
 
-	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
+	dockerfile=$(realpath "$cqfddir/${build_distro:-docker}/Dockerfile")
 	if [ ! -f "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
