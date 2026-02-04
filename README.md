@@ -657,13 +657,16 @@ because submodule have not been synced. To sync them, use:
 git submodule update --init --recursive
 ```
 
-## Patches
+## Contributing
 
-Submit patches at *https://github.com/savoirfairelinux/cqfd/pulls*
+Contributions are welcome! Here's how it is possible to help:
 
-## Bugs
+- **Report bugs** at [GitHub Issues](https://github.com/savoirfairelinux/cqfd/issues)
+- **Submit patches** at [GitHub Pull Requests](https://github.com/savoirfairelinux/cqfd/pulls)
 
-Report bugs at *https://github.com/savoirfairelinux/cqfd/issues*
+Please ensure your code follows the existing style and includes appropriate tests.
+
+See the [CHANGELOG.md](CHANGELOG.md) for version history and recent changes.
 
 ## Trivia
 
