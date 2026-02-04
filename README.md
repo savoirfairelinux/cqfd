@@ -668,6 +668,12 @@ Please ensure your code follows the existing style and includes appropriate test
 
 See the [CHANGELOG.md](CHANGELOG.md) for version history and recent changes.
 
+## License
+
+cqfd is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+See the [LICENSE](LICENSE) file for details.
+
 ## Trivia
 
 CQFD stands for "ce qu'il fallait Dockeriser", French for "what needed
