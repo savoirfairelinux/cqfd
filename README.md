@@ -14,6 +14,22 @@ Linux system, e.g. building an old embedded firmware that only works
 in an older Linux distribution.
 
 # Using cqfd
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Getting started](#getting-started)
+- [Installation](#installingremoving-cqfd)
+- [Using cqfd](#using-cqfd-on-a-daily-basis)
+- [Configuration (.cqfdrc)](#the-cqfdrc-file)
+- [Features](#cqfd-features)
+- [Build Container Environment](#build-container-environment)
+- [Image Management](#remove-images)
+- [Using Podman](#using-podman)
+- [Building Packages](#building-cqfd-packages)
+- [Testing (for developers)](#testing-cqfd-for-developers)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
 
 ## Getting started
 
