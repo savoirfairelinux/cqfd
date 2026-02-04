@@ -1,5 +1,8 @@
 ![cqfd logo](./doc/cqfd_logo.png?raw=true)
 
+[![GitHub release](https://img.shields.io/github/v/release/savoirfairelinux/cqfd)](https://github.com/savoirfairelinux/cqfd/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 # What is cqfd?
 
 cqfd provides a quick and convenient way to run commands in the current
