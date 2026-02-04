@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/savoirfairelinux/cqfd)](https://github.com/savoirfairelinux/cqfd/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-# What is cqfd?
+## What is cqfd?
 
 cqfd provides a quick and convenient way to run commands in the current
 directory within a Docker container defined by a per-project configuration
@@ -13,7 +13,6 @@ This becomes useful when building an application designed for another
 Linux system, e.g. building an old embedded firmware that only works
 in an older Linux distribution.
 
-# Using cqfd
 ## Table of Contents
 
 - [Requirements](#requirements)
@@ -23,7 +22,7 @@ in an older Linux distribution.
 - [Configuration (.cqfdrc)](#the-cqfdrc-file)
 - [Features](#cqfd-features)
 - [Build Container Environment](#build-container-environment)
-- [Image Management](#remove-images)
+- [Remove images](#remove-images)
 - [Using Podman](#using-podman)
 - [Building Packages](#building-cqfd-packages)
 - [Testing (for developers)](#testing-cqfd-for-developers)
@@ -47,12 +46,30 @@ workstation:
 
 Follow these steps:
 
-* Ensure the [requirements](#requirements) are met
-* [**Install cqfd**](#installingremoving-cqfd)
-* Go to your project's directory
-* Create a `.cqfdrc` file
-* Create a Dockerfile and save it as `.cqfd/docker/Dockerfile`
-* Run `cqfd init`
+1. Ensure the [requirements](#requirements) are met
+2. [**Install cqfd**](#installingremoving-cqfd)
+3. Go to your project's directory
+4. Create a `.cqfdrc` file like:
+
+```ini
+[project]
+org='mycompany'
+name='myproject'
+
+[build]
+command='make'
+```
+
+5. Create a Dockerfile and save it as `.cqfd/docker/Dockerfile`
+
+```Dockerfile
+FROM debian:bookworm
+RUN apt-get update && apt-get install -y build-essential
+```
+
+6. Run `cqfd init`
+7. Run `cqfd`
+
 
 Examples are available in the `samples/` directory.
 
@@ -272,26 +289,30 @@ deduced from the flavors sections of `.cqfdrc`.
 
 `docker_build_args` (optional): arguments used to invoke `docker build`.
 For example, to attempt to pull newer version of the image, it can be set like:
-```
+
+```ini
 docker_build_args='--pull=true'
 ```
 
 `docker_run_args` (optional): arguments used to invoke `docker run`.
 For example, to share networking with the host, it can be set like:
-```
+
+```ini
 docker_run_args='--network=host'
 ```
 
 `docker_rmi_args` (optional): arguments used to invoke `docker rmi`.
 For example, to force removal of the image, it can be set like:
-```
+
+```ini
 docker_rmi_args='--force'
 ```
 
 `bind_docker_sock` (optional): set to `true` to enable forwarding the
 docker socket to the container. This equivalent to the environment variable
 `CQFD_BIND_DOCKER_SOCK`.
-```
+
+```ini
 bind_docker_sock='true'
 ```
 
@@ -367,7 +388,8 @@ tasks:
 
 `CQFD_DOCKER`: program used to invoke `docker` client.
 For example, to use docker if not in the docker group, it can be set like:
-```
+
+```sh
 CQFD_DOCKER='sudo docker'
 ```
 
@@ -536,7 +558,7 @@ an interactive shell), as `su` will prevent the command executed
 from having one.
 
 ```sh
-$ cqfd bash
+cqfd bash
 bash: cannot set terminal process group (-1): Inappropriate ioctl for device
 bash: no job control in this shell
 ```
@@ -630,13 +652,13 @@ Podman may be used instead of Docker. It first must be installed on your system,
 and then, to use it instead of docker, you can set in your environment,
 like your `.bashrc`, `.profile` or `.zshrc`:
 
-```bash
+```sh
 export CQFD_DOCKER="podman"
 ```
 
 You can also prefix your cqfd commands:
 
-```bash
+```sh
 CQFD_DOCKER="podman" cqfd init
 CQFD_DOCKER="podman" cqfd shell
 ```
