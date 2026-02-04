@@ -31,6 +31,18 @@ in an older Linux distribution.
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
 
+## Requirements
+
+To use cqfd, ensure the following requirements are satisfied on your
+workstation:
+
+- **Bash**
+- **Docker** (or [Podman](#using-podman) as an alternative):
+  - A `docker` group in your `/etc/group`
+  - Your username is a member of the `docker` group
+  - Restart your docker service if you needed to create the group
+
+
 ## Getting started
 
 Follow these steps:
@@ -562,17 +574,6 @@ To clean all cqfd images across all user projects on the system, use:
 ```sh
 cqfd prune
 ```
-
-## Requirements
-
-To use cqfd, ensure the following requirements are satisfied on your
-workstation:
-
-- Bash
-- Docker
-- A `docker` group in your `/etc/group`
-- Your username is a member of the `docker` group
-- Restart your docker service if you needed to create the group.
 
 ## Building cqfd packages
 
