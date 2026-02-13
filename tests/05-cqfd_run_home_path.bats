@@ -14,10 +14,10 @@ teardown_file() {
     mv -f .cqfd/docker/Dockerfile.old .cqfd/docker/Dockerfile
 }
 
-@test "cqfd run deletes the ubuntu user if it conflicts with $UID" {
+@test "cqfd run deletes the ubuntu user if it conflicts with $(id -u)" {
     run cqfd init
     assert_success
-    run cqfd exec grep "ubuntu:x:$UID:${GID:-$UID}" /etc/passwd
+    run cqfd exec grep "ubuntu:x:$(id -u):$(id -g)" /etc/passwd
     assert_failure
 }
 

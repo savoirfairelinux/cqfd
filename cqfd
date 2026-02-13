@@ -25,6 +25,10 @@ VERSION=5.9.1-dev
 cqfddir=".cqfd"
 cqfdrc=".cqfdrc"
 cqfd_user="${USER:-'builder'}"
+cqfd_user_uid="$(id -u)"
+cqfd_user_uid="${cqfd_user_uid:-1000}"
+cqfd_user_gid="$(id -g)"
+cqfd_user_gid="${cqfd_user_gid:-1000}"
 cqfd_user_home="${HOME:-'/home/builder'}"
 cqfd_user_cwd=${PWD:-"$cqfd_user_home/src"}
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
@@ -551,14 +555,14 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 	exit 127
 fi
 
-# Delete ${UID:-1000}:${GID:-${UID:-1000}} user if it exists
-sed -i "/:${UID:-1000}:${GID:-${UID:-1000}}:/d" /etc/passwd
+# Delete $cqfd_user_uid user if it exists
+sed -i "/:$cqfd_user_uid:[0-9]*:/d" /etc/passwd
 
 # Add the host's user and group to the container, and adjust ownership
-groupadd -og "${GROUPS[0]}" -f builders
-useradd -s "\$shell" -oN -u "$UID" -g "${GROUPS[0]}" -d "$cqfd_user_home" "$cqfd_user"
+groupadd -og "$cqfd_user_gid" -f builders
+useradd -s "\$shell" -oN -u "$cqfd_user_uid" -g "$cqfd_user_gid" -d "$cqfd_user_home" "$cqfd_user"
 mkdir -p "$cqfd_user_home"
-chown "$UID:${GROUPS[0]}" "$cqfd_user_home"
+chown "$cqfd_user_uid:$cqfd_user_gid" "$cqfd_user_home"
 
 # Add specified groups to cqfd_user
 for g in ${CQFD_GROUPS[*]}; do
