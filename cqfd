@@ -719,7 +719,7 @@ load_config() {
 	release_tar_opts="$tar_options"
 
 	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
-	if [ ! -f "$dockerfile" ]; then
+	if [ ! -e "$dockerfile" ]; then
 		die "$dockerfile not found"
 	fi
 
