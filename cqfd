@@ -154,13 +154,22 @@ prune_images() {
 	fi
 }
 
-## docker_build() - initialize build container
-docker_build() {
+## docker_pull_or_build() - initialize build container
+docker_pull_or_build() {
 	local args=()
 
 	# Suppress the build output
 	if [ "$quiet" ]; then
 		args+=(--quiet)
+	fi
+
+	# Pull the custom image
+	if [ "$project_docker_run_image" ]; then
+		args+=("$cqfd_image")
+
+		debug executing: "$cqfd_docker" pull "${args[@]}"
+		"$cqfd_docker" pull "${args[@]}"
+		return
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -180,7 +189,7 @@ docker_build() {
 	fi
 
 	# Name the resulting image
-	args+=(--tag "$docker_img_name")
+	args+=(--tag "$cqfd_image")
 
 	# Set the context
 	if [ -z "$project_build_context" ]; then
@@ -206,8 +215,8 @@ docker_rmi() {
 	args=()
 
 	# Check if image is running
-	if image_is_running "$docker_img_name"; then
-		die "$docker_img_name: Image busy"
+	if image_is_running "$cqfd_image"; then
+		die "$cqfd_image: Image busy"
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -227,7 +236,7 @@ docker_rmi() {
 	fi
 
 	# Set the image to remove
-	args+=("$docker_img_name")
+	args+=("$cqfd_image")
 
 	# Run command
 	debug executing: "$cqfd_docker" rmi "${args[@]}"
@@ -249,18 +258,16 @@ docker_rmi() {
 #
 # $1: the command string to execute as $cqfd_user
 docker_run() {
-	local args=(--privileged)
-
+	local args=(
+		--privileged
+		--rm
+		--init
+		--log-driver=none
+		--interactive
+	)
 	# The image does not exist
-	if ! image_exists_locally "$docker_img_name"; then
-		# If custom image name is used, try to pull it before dying
-		if [ "$project_custom_img_name" ]; then
-			if ! "$cqfd_docker" pull "$docker_img_name" &>/dev/null; then
-				die "Custom image couldn't be pulled, please build/upload it first"
-			fi
-		else
-			die "The docker image doesn't exist, launch 'cqfd init' to create it"
-		fi
+	if ! image_exists_locally "$cqfd_image"; then
+		die "The docker image doesn't exist, launch 'cqfd init' to create or pull it"
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
@@ -278,11 +285,6 @@ docker_run() {
 		read -a array <<<"$CQFD_EXTRA_RUN_ARGS"
 		args+=("${array[@]}")
 	fi
-
-	args+=(--rm --init --log-driver=none)
-
-	# always keep stdin open
-	args+=(--interactive)
 
 	# allocate a pty if stdin/err are connected to a tty
 	if [ -t 0 ] && [ -t 2 ]; then
@@ -320,6 +322,10 @@ docker_run() {
 	if [ -n "$CQFD_EXTRA_PORTS" ]; then
 		die "CQFD_EXTRA_PORTS is no more supported, use" \
 		    "CQFD_EXTRA_RUN_ARGS=\"-p <host_port>:<docker_port>\""
+	fi
+	if [ -n "$project_custom_img_name" ]; then
+		die "custom_img_name is no more supported, use" \
+		    "docker_run_image to pull an image from a registry."
 	fi
 
 	# The user may set the user_extra_groups in the .cqfdrc
@@ -410,7 +416,7 @@ docker_run() {
 	fi
 
 	# Set positional arguments
-	args+=("$docker_img_name" "$1")
+	args+=("$cqfd_image" "$1")
 
 	# Run command
 	debug executing: "$cqfd_docker" run "${args[@]}"
@@ -670,6 +676,8 @@ load_config() {
 	project_build_context="$build_context"
 	# shellcheck disable=SC2154
 	project_custom_img_name="$custom_img_name"
+	# shellcheck disable=SC2154
+	project_docker_run_image="$docker_run_image"
 
 	# check for [project] org and name properties are set and are not empty
 	if [ -z "$project_org" ] || [ -z "$project_name" ]; then
@@ -718,21 +726,37 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_tar_opts="$tar_options"
 
-	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
-	if [ ! -f "$dockerfile" ]; then
-		die "$dockerfile not found"
-	fi
+	cqfd_image="$project_docker_run_image"
+	if [ ! "$cqfd_image" ]; then
+		local Un
+		local Po
+		local Pn
+		local Dh
+		local DH
+		local Bd
 
-	if [ "$project_custom_img_name" ]; then
-		docker_img_name="$project_custom_img_name"
-	else
-		local format_user
-		local dockerfile_hash
+		dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
+		if [ ! -f "$dockerfile" ]; then
+			die "$dockerfile not found"
+		fi
 
-		# This will look like cqfd_USER_ORG_NAME_HASH
-		format_user=${USER//[^0-9a-zA-Z\-]/_}
-		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
-		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
+		Un=${USER//[^0-9a-zA-Z\-]/_}
+		Po="$project_org"
+		Pn="$project_name"
+		Dh=$(sha256sum "$dockerfile" | cut -b 1-7)
+		DH=$(sha256sum "$dockerfile" | cut -b 1-64)
+		Bd="${build_distro:-docker}"
+		project_tag="cqfd_%Un_%Po_%Pn_%Dh"
+		if [ "$build_distro" ]; then
+			project_tag+="_%Bd"
+		fi
+		# shellcheck disable=SC2001
+		cqfd_image=$(sed -e 's!%Un!'"$Un"'!g;
+			             s!%Po!'"$Po"'!g;
+			             s!%Pn!'"$Pn"'!g;
+			             s!%Dh!'"$Dh"'!g;
+			             s!%DH!'"$DH"'!g;
+			             s!%Bd!'"$Bd"'!g;' <<<"$project_tag")
 	fi
 }
 
@@ -794,7 +818,7 @@ while [ $# -gt 0 ]; do
 		;;
 	init)
 		load_config "$flavor"
-		docker_build
+		docker_pull_or_build
 		exit
 		;;
 	deinit)

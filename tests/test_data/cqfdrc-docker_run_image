@@ -1,0 +1,7 @@
+[project]
+org="cqfd"
+name="test"
+docker_run_image="ubuntu:16.04"
+
+[build]
+command="grep ^PRETTY_NAME /etc/os-release"
