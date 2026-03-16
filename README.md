@@ -98,6 +98,12 @@ git checkout v5.9.0
 sudo make install
 ```
 
+Be sure to reload your shell to have the completions available:
+
+```sh
+exec $SHELL
+```
+
 To uninstall the script and its resources, run:
 
 ```sh
@@ -110,6 +116,15 @@ variables:
 ```sh
 make install PREFIX=/opt
 make install PREFIX=/usr DESTDIR=package
+```
+
+#### Note for Fedora users
+
+For bash-completion to be installed when using `sudo make install`, be sure to
+install `bash-completion-devel` first:
+
+```sh
+sudo dnf install bash-completion-devel
 ```
 
 ## Using cqfd on a daily basis
