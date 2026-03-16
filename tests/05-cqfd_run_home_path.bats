@@ -17,13 +17,21 @@ teardown_file() {
 @test "cqfd run deletes the ubuntu user if it conflicts with $(id -u)" {
     run cqfd init
     assert_success
-    run cqfd exec grep "ubuntu:x:$(id -u):$(id -g)" /etc/passwd
+    run cqfd exec grep -E "ubuntu:x:$(id -u):[0-9]+" /etc/passwd
     assert_failure
 }
 
+@test "cqfd run deletes the ubuntu group if it conflicts with $(id -g)" {
+    run cqfd exec grep "ubuntu:x:$(id -g)" /etc/group
+    assert_failure
+}
+
+@test "cqfd run makes the primary group of $(id -u) be 'builders' if ubuntu group 1000 existed" {
+    run cqfd exec id -gn
+    assert_line "builders"
+}
+
 @test "cqfd user has access to ssh config in home directory when ubuntu user existed" {
-    run cqfd init
-    assert_success
     run cqfd run 'ssh -G random_host | grep userknownhostsfile'
     assert_line --partial "$HOME"
 }
@@ -34,4 +42,9 @@ teardown_file() {
     assert_success
     run cqfd run 'ssh -G random_host | grep userknownhostsfile'
     assert_line --partial "$HOME"
+}
+
+@test "cqfd run makes the primary group of $(id -u) be 'builders' if no ubuntu group 1000 existed" {
+    run cqfd exec id -gn
+    assert_line "builders"
 }

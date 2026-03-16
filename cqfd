@@ -556,7 +556,12 @@ if ! shell=\$(command -v "$cqfd_shell"); then
 fi
 
 # Delete $cqfd_user_uid user if it exists
-sed -i "/:$cqfd_user_uid:[0-9]*:/d" /etc/passwd
+conflicting_users="\$(awk -F: '\$3 == $cqfd_user_uid {printf ("%s ", \$1)}' /etc/passwd)"
+if [ -n "\$conflicting_users" ]; then
+	for u in \$conflicting_users; do
+		userdel "\$u"
+	done
+fi
 
 # Add the host's user and group to the container, and adjust ownership
 groupadd -og "$cqfd_user_gid" -f builders
