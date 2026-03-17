@@ -73,6 +73,21 @@ teardown_file() {
     rm -f cqfd-test.tar.xz
 }
 
+@test "archived files at root of tar archive if tar_transform=true" {
+    echo "tar_transform=true" >>.cqfdrc
+    cqfd release
+    result="pass"
+    for f in $rel_files; do
+        if ! tar tf cqfd-test.tar.xz | grep -q "^$(basename "$f")$"; then
+            result="fail"
+        fi
+    done
+    run [ "$result" = "pass" ]
+    assert_success
+    sed -i -e '$ s!^tar_transform=.*$!!' .cqfdrc
+    rm -f cqfd-test.tar.xz
+}
+
 @test "symlink files are copied in the tar archive" {
     cqfd run ln -s a/cqfd_a.txt link.txt
     rel_files_link="a/cqfd_a.txt link.txt"
