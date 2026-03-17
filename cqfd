@@ -470,8 +470,9 @@ make_archive() {
 	# also replace variable names - beware with eval
 	eval "release_archive=$release_archive"
 
-	# setting tar_transform=yes will move files to the root of a tar archive
-	if [ "$release_tar_transform" = "yes" ]; then
+	# setting tar_transform=yes or tar_transform=true will move files to the
+	# root of a tar archive
+	if [ "$release_tar_transform" = "yes" ] || [ "$release_tar_transform" = "true" ]; then
 		tar_opts+=('--transform' 's/.*\///g')
 	fi
 

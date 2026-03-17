@@ -304,11 +304,11 @@ supported.
 
 For tar archives:
 
-* Setting `tar_transform=yes` (optional) will cause all files specified for
-  the archive to be stored at the root of the archive, which is desired in some
-  scenarios.
+* (Optional) Setting `tar_transform=yes` or `tar_transform=true` will cause all
+  files specified for the archive to be stored at the root of the archive, which
+  is desired in some scenarios.
 
-* Setting `tar_options` (optional) will pass extra options to the tar
+* (Optional) Setting `tar_options` will pass extra options to the tar
   command. For example, setting `tar_options=-h` will copy all symlink files
   as hardlinks, which is desired in some scenarios.
 
