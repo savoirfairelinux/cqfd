@@ -471,15 +471,15 @@ make_archive() {
 	eval "release_archive=$release_archive"
 
 	# setting tar_transform=yes will move files to the root of a tar archive
-	if [ "$release_transform" = "yes" ]; then
+	if [ "$release_tar_transform" = "yes" ]; then
 		tar_opts+=('--transform' 's/.*\///g')
 	fi
 
 	# setting tar_options=x will pass the options to tar
-	if [ "$release_tar_opts" ]; then
+	if [ "$release_tar_options" ]; then
 		local array
 		# shellcheck disable=SC2162
-		read -a array <<<"$release_tar_opts"
+		read -a array <<<"$release_tar_options"
 		tar_opts+=("${array[@]}")
 	fi
 
@@ -723,9 +723,9 @@ load_config() {
 	# shellcheck disable=SC2154
 	release_archive="$archive"
 	# shellcheck disable=SC2154
-	release_transform="$tar_transform"
+	release_tar_transform="$tar_transform"
 	# shellcheck disable=SC2154
-	release_tar_opts="$tar_options"
+	release_tar_options="$tar_options"
 
 	dockerfile="$cqfddir/${build_distro:-docker}/Dockerfile"
 	if [ ! -f "$dockerfile" ]; then
