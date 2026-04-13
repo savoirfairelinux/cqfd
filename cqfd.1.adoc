@@ -196,8 +196,8 @@ another container or another build command.
 The _-c_ option set immediately after the command run allows appending the
 command of a cqfd run for temporary developments.
 
-	$ cqfd -b centos7 run -c "clean"
-	$ cqfd -b centos7 run -c "TRACING=1"
+	$ cqfd -b fedora run -c "clean"
+	$ cqfd -b fedora run -c "TRACING=1"
 
 === RUNNING A SHELL IN THE CONTAINER
 
