@@ -8,11 +8,11 @@ setup() {
 
 @test "'cqfd init' with different flavor makes a different container" {
     cp -f .cqfdrc .cqfdrc.old
-    sed -i -e "s/\[foo\]/[foo]\ndistro='centos'/" .cqfdrc
+    sed -i -e "s/\[foo\]/[foo]\ndistro='fedora'/" .cqfdrc
     run cqfd -b "$flavor" init
     assert_success
     run cqfd -b "$flavor" run "grep '^NAME=' /etc/*release"
-    assert_line --partial "NAME=\"CentOS Linux\""
+    assert_line --partial "NAME=\"Fedora Linux\""
 }
 
 @test "'cqfd init' with invalid flavor should fail" {

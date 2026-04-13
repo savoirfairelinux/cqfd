@@ -151,9 +151,9 @@ build and release methods (for example a debug build). This is made possible in
 In the _.cqfdrc_ file, one or more flavors may be listed in the _[build]_
 section, referencing other sections named following flavor's name.
 
-	[centos7]
-	command='make CENTOS=1'
-	distro='centos7'
+	[fedora]
+	command='make FEDORA=1'
+	distro='fedora'
 
 	[debug]
 	command='make DEBUG=1'

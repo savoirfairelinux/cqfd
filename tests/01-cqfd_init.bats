@@ -26,7 +26,7 @@ teardown() {
 }
 
 @test "'cqfd init' with a proper Dockerfile should pass" {
-    sed -i -e "s/\[build\]/[build]\ndistro='centos'/" .cqfdrc
+    sed -i -e "s/\[build\]/[build]\ndistro='fedora'/" .cqfdrc
     run cqfd init
     assert_success
 }

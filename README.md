@@ -323,9 +323,9 @@ In the `.cqfdrc` file, one or more flavors may be listed in the
 flavor's name.
 
 ```ini
-[centos7]
-command='make CENTOS=1'
-distro='centos7'
+[fedora]
+command='make FEDORA=1'
+distro='fedora'
 
 [debug]
 command='make DEBUG=1'
@@ -404,8 +404,8 @@ The `-c` option set immediately after the command run allows appending the
 command of a cqfd run for temporary developments:
 
 ```sh
-cqfd -b centos7 run -c "clean"
-cqfd -b centos7 run -c "TRACING=1"
+cqfd -b fedora run -c "clean"
+cqfd -b fedora run -c "TRACING=1"
 ```
 
 ### Running a shell in the container
@@ -547,7 +547,7 @@ cqfd deinit
 If a flavor redefines the distro key of the build section, use:
 
 ```sh
-cqfd -b centos7 deinit
+cqfd -b fedora deinit
 ```
 
 To list all cqfd images across all user projects on the system, use:

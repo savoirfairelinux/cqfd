@@ -18,7 +18,7 @@ setup() {
 }
 
 @test "'cqfd deinit' with a proper Dockerfile should fail" {
-    sed -i -e "s/thisshouldfail/centos/" .cqfdrc
+    sed -i -e "s/thisshouldfail/fedora/" .cqfdrc
     run cqfd init
     assert_success
     run cqfd deinit
