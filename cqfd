@@ -213,6 +213,28 @@ image_exists_locally() {
 	"$cqfd_docker" image inspect "$1" &>/dev/null
 }
 
+## is_image_outdated(): checks if there is a newer version of the image on
+## the remote hub
+# $1: the image name to check
+is_image_outdated() {
+	local current_digest remote_digest
+	if [ "$cqfd_docker" = "podman" ]; then
+		current_digest="$("$cqfd_docker" image inspect --format='{{.Digest}}' "$1" 2>/dev/null)"
+	else
+		current_digest="$("$cqfd_docker" inspect --format='{{index .RepoDigests 0}}' "$1" 2>/dev/null | cut -d"@" -f2)"
+	fi
+	remote_digest="$(docker buildx imagetools inspect "$1" 2>/dev/null | awk -F' ' '/Digest/ {print $2}')"
+	if [ -z "$current_digest" ] || [ -z "$remote_digest" ]; then
+		debug "Could not check for local or remote digest"
+		return 1
+	fi
+	if [ "$current_digest" != "$remote_digest" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 ## docker_rmi() - remove build container
 docker_rmi() {
 	local args
@@ -272,13 +294,15 @@ docker_run() {
 	# The image does not exist
 	if ! image_exists_locally "$cqfd_image"; then
 		# If custom image name is used, try to pull it before dying
-		if [ "$project_custom_img_name" ]; then
+		if [ -n "$project_custom_img_name" ]; then
 			if ! "$cqfd_docker" pull "$cqfd_image" &>/dev/null; then
 				die "Custom image couldn't be pulled, please build/upload it first"
 			fi
 		else
 			die "The docker image doesn't exist, launch 'cqfd init' to create or pull it"
 		fi
+	elif [ -n "$project_external_docker_image" ] && is_image_outdated "$cqfd_image"; then
+		warn "The docker image is outdated, launch 'cqfd init' to update it"
 	fi
 
 	# Append extra args from the .cqfdrc [build] section
