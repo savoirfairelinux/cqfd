@@ -164,6 +164,10 @@ another container or another build command.
 	Set to _true_ to disable forwarding the user's _~/.gitconfig_
 	configuration to the container.
 
+*CQFD_NO_SYSTEM_GIT_CONFIG*::
+	Set to _true_ to disable forwarding the system's _/etc/gitconfig_
+	configuration to the container.
+
 *CQFD_NO_SSH_AUTH_SOCK*::
 	Set to _true_ to disable forwarding the SSH authentication socket to
 	the container.

@@ -374,6 +374,10 @@ docker_run() {
 		args+=(--mount "type=bind,src=$HOME/.gitconfig,dst=$cqfd_user_home/.gitconfig")
 	fi
 
+	if [ "$CQFD_NO_SYSTEM_GIT_CONFIG" != true ] && [ -f "/etc/gitconfig" ]; then
+		args+=(--mount "type=bind,src=/etc/gitconfig,dst=/etc/gitconfig")
+	fi
+
 	if [ "$CQFD_BIND_DOCKER_SOCK" = true ] || [ "$build_bind_docker_sock" = true ]; then
 		args+=(--volume /var/run/docker.sock:/var/run/docker.sock)
 	fi
