@@ -1,5 +1,15 @@
 # Changelog for cqfd
 
+## Version 5.10.0 (2026-04-23)
+
+* Better handling of user deletion if conflicting in container. This affects
+  mostly Ubuntu 24.04 containers
+* Allow to use a symlinked Dockerfile in .cqfd
+* Add warning when using `cqfd run` with quoted arguments. Indeed this leads to
+  unexpected behavior since arguments get split in the end
+* Allow to set the HISTFILE to bind in `cqfd` using `CQFD_HISTFILE`
+* Allow to forward system gitconfig to container
+
 ## Version 5.9.0 (2026-02-02)
 
 * Add `cqfd images` to list all Docker images built by cqfd across all
