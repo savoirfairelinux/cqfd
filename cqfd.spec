@@ -1,5 +1,5 @@
 Name:           cqfd
-Version:        5.9.0
+Version:        5.10.0
 Release:        1
 Summary:        Wrap commands in controlled Docker containers using docker
 
@@ -51,6 +51,15 @@ make check
 %{_datadir}/man/man5/cqfdrc.5.gz
 
 %changelog
+
+* Thu Apr 23 2026 Florent Allard <florent.allard@savoirfairelinux.com> - 5.10.0-1
+- Better handling of user deletion if conflicting in container. This affects
+  mostly Ubuntu 24.04 containers
+- Allow to use a symlinked Dockerfile in .cqfd
+- Add warning when using `cqfd run` with quoted arguments. Indeed this leads to
+  unexpected behavior since arguments get split in the end
+- Allow to set the HISTFILE to bind in `cqfd` using `CQFD_HISTFILE`
+- Allow to forward system gitconfig to container
 
 * Mon Feb 02 2026 Jérôme Oufella <jerome.oufella@savoirfairelinux.com> - 5.9.0-1
 - Add `cqfd images` to list all Docker images built by cqfd across all

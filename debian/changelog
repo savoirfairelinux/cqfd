@@ -1,3 +1,15 @@
+cqfd (5.10.0) stable; urgency=low
+
+  * Better handling of user deletion if conflicting in container. This affects
+    mostly Ubuntu 24.04 containers
+  * Allow to use a symlinked Dockerfile in .cqfd
+  * Add warning when using `cqfd run` with quoted arguments. Indeed this leads to
+    unexpected behavior since arguments get split in the end
+  * Allow to set the HISTFILE to bind in `cqfd` using `CQFD_HISTFILE`
+  * Allow to forward system gitconfig to container
+
+ -- Florent Allard <florent.allard@savoirfairelinux.com>  Thu, 23 Apr 2026 20:00:00 +0200
+
 cqfd (5.9.0) stable; urgency=low
 
   * Add `cqfd images` to list all Docker images built by cqfd across all
@@ -5,7 +17,7 @@ cqfd (5.9.0) stable; urgency=low
   * Add `cqfd prune` to delete all the images listed by `cqfd images`
   * Add `bind_docker_sock` option to .cqfdrc
 
- -- Jérôme Oufella <jerome.oufella@savoirfairelinux.com>  Mon, 2 Feb 2026 20:00:00 +0200
+ -- Jérôme Oufella <jerome.oufella@savoirfairelinux.com>  Mon, 02 Feb 2026 20:00:00 +0200
 
 cqfd (5.8.0) stable; urgency=low
 
