@@ -1,6 +1,6 @@
 # Changelog for cqfd
 
-## Version 5.10.0 (2026-04-23)
+## Version 5.10.1 (2026-04-24)
 
 * Better handling of user deletion if conflicting in container. This affects
   mostly Ubuntu 24.04 containers
