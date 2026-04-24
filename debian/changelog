@@ -1,4 +1,4 @@
-cqfd (5.10.1) stable; urgency=low
+cqfd (5.10.2) stable; urgency=low
 
   * Better handling of user deletion if conflicting in container. This affects
     mostly Ubuntu 24.04 containers

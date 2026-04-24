@@ -1,7 +1,7 @@
 # Maintainer: Jérôme Oufella <jerome.oufella@savoirfairelinux.com>
 
 pkgname=cqfd
-pkgver=5.10.1
+pkgver=5.10.2
 pkgrel=1
 pkgdesc='Wrap commands in controlled Docker containers using docker.'
 arch=(any)
