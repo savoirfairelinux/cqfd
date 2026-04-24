@@ -1,4 +1,4 @@
-cqfd (5.10.0) stable; urgency=low
+cqfd (5.10.1) stable; urgency=low
 
   * Better handling of user deletion if conflicting in container. This affects
     mostly Ubuntu 24.04 containers
@@ -8,7 +8,7 @@ cqfd (5.10.0) stable; urgency=low
   * Allow to set the HISTFILE to bind in `cqfd` using `CQFD_HISTFILE`
   * Allow to forward system gitconfig to container
 
- -- Florent Allard <florent.allard@savoirfairelinux.com>  Thu, 23 Apr 2026 20:00:00 +0200
+ -- Florent Allard <florent.allard@savoirfairelinux.com>  Thu, 24 Apr 2026 20:00:00 +0200
 
 cqfd (5.9.0) stable; urgency=low
 

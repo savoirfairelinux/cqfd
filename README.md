@@ -37,8 +37,8 @@ build environment for your project.
 First download the package, then install it with the package manager:
 
 ```sh
-curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.0/cqfd_5.10.0_all.deb
-sudo apt install ./cqfd_5.10.0_all.deb
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.1/cqfd_5.10.1_all.deb
+sudo apt install ./cqfd_5.10.1_all.deb
 ```
 
 _Note_: Uninstall it using the package manager:
@@ -52,8 +52,8 @@ sudo apt remove cqfd
 First download the package, then install it with the package manager:
 
 ```sh
-curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.0/cqfd-5.10.0-1.noarch.rpm
-sudo dnf install ./cqfd-5.10.0-1.noarch.rpm
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.1/cqfd-5.10.1-1.noarch.rpm
+sudo dnf install ./cqfd-5.10.1-1.noarch.rpm
 ```
 
 _Note_: Uninstall it using the package manager:
@@ -67,8 +67,8 @@ sudo dnf remove cqfd
 First download the package, then install it with the package manager:
 
 ```sh
-curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.0/cqfd-5.10.0-1-any.pkg.tar.zst
-sudo pacman -U ./cqfd-5.10.0-1-any.pkg.tar.zst
+curl -LO https://github.com/savoirfairelinux/cqfd/releases/download/v5.10.1/cqfd-5.10.1-1-any.pkg.tar.zst
+sudo pacman -U ./cqfd-5.10.1-1-any.pkg.tar.zst
 ```
 
 _Note_: Uninstall it using the package manager:
@@ -94,7 +94,7 @@ and its resources:
 ```sh
 git clone --recurse-submodules https://github.com/savoirfairelinux/cqfd.git
 cd cqfd
-git checkout v5.10.0
+git checkout v5.10.1
 sudo make install
 ```
 

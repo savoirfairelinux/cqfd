@@ -1,5 +1,5 @@
 Name:           cqfd
-Version:        5.10.0
+Version:        5.10.1
 Release:        1
 Summary:        Wrap commands in controlled Docker containers using docker
 
@@ -52,7 +52,7 @@ make check
 
 %changelog
 
-* Thu Apr 23 2026 Florent Allard <florent.allard@savoirfairelinux.com> - 5.10.0-1
+* Thu Apr 24 2026 Florent Allard <florent.allard@savoirfairelinux.com> - 5.10.1-1
 - Better handling of user deletion if conflicting in container. This affects
   mostly Ubuntu 24.04 containers
 - Allow to use a symlinked Dockerfile in .cqfd
