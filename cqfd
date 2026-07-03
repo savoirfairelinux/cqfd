@@ -846,6 +846,7 @@ while [ $# -gt 0 ]; do
 	-C)
 		shift
 		cd "$1"
+		cqfd_user_cwd=$PWD
 		;;
 	-q)
 		quiet=true
