@@ -570,11 +570,40 @@ cqfd prune
 To use cqfd, ensure the following requirements are satisfied on your
 workstation:
 
-- Bash
+- Bash (3.2 or later, so the macOS system bash works as-is)
 - Docker
+
+On Linux, additionally:
+
 - A `docker` group in your `/etc/group`
 - Your username is a member of the `docker` group
 - Restart your docker service if you needed to create the group.
+
+### macOS
+
+cqfd runs on macOS with [Docker Desktop][docker-desktop] (or any other
+Docker daemon reachable through the `docker` CLI). No `docker` group is
+needed: Docker Desktop grants access to the socket to the calling user.
+
+A few behaviours differ from Linux, because the daemon runs inside a
+virtual machine:
+
+- The system ssh configuration (`/etc/ssh`) is **not** shared with the
+  container. macOS ships Darwin-only options such as `UseKeychain` which
+  the OpenSSH client of a Linux container rejects.
+- The ssh agent is forwarded through the `/run/host-services/ssh-auth.sock`
+  path provided by Docker Desktop, since a macOS unix socket cannot be
+  bind-mounted into the VM. Make sure your keys are loaded with
+  `ssh-add --apple-use-keychain` for agent forwarding to work.
+- Only the directories shared with Docker Desktop can be bind-mounted.
+  The defaults (`/Users`, `/Volumes`, `/private`, `/tmp`, `/var/folders`)
+  cover the usual cases; check *Settings > Resources > File sharing* if
+  your project lives elsewhere.
+- Building for a different architecture than your Mac (for example an
+  `amd64` image on Apple Silicon) requires the usual
+  `docker_build_args="--platform linux/amd64"` in your `.cqfdrc`.
+
+[docker-desktop]: https://docs.docker.com/desktop/setup/install/mac-install/
 
 ## Building cqfd packages
 

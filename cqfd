@@ -30,10 +30,66 @@ cqfd_user_uid="${cqfd_user_uid:-1000}"
 cqfd_user_gid="$(id -g)"
 cqfd_user_gid="${cqfd_user_gid:-1000}"
 cqfd_user_home="${HOME:-'/home/builder'}"
-cqfd_user_cwd=${PWD:-"$cqfd_user_home/src"}
+# Use the physical working directory: the project directory is bind mounted
+# with its symlinks resolved, and on macOS /tmp, /var and /etc are symlinks.
+cqfd_user_cwd=$(pwd -P 2>/dev/null) || cqfd_user_cwd=${PWD:-"$cqfd_user_home/src"}
 cqfd_shell="${CQFD_SHELL:-/bin/bash}"
 cqfd_docker_gid="${CQFD_DOCKER_GID:-0}"
 cqfd_docker="${CQFD_DOCKER:-docker}"
+cqfd_host_os="$(uname -s)"
+
+## read_lines() - read stdin lines into the array named $1
+# Replacement for 'mapfile -t', unavailable in bash 3.2 (macOS default shell).
+# $1: the name of the array to fill
+read_lines() {
+	local __array_name="$1"
+	local __line
+
+	eval "$__array_name=()"
+	while IFS= read -r __line || [ -n "$__line" ]; do
+		eval "$__array_name+=(\"\$__line\")"
+	done
+}
+
+## quote_args() - print arguments quoted for reuse as shell input
+# Replacement for "${*@Q}", unavailable in bash 3.2 (macOS default shell).
+# $*: the arguments to quote
+quote_args() {
+	local quoted=""
+	local arg
+
+	for arg in "$@"; do
+		quoted+=" $(printf '%q' "$arg")"
+	done
+
+	echo "${quoted# }"
+}
+
+## file_sha256() - print the sha256 digest of a file
+# macOS ships 'shasum' rather than the coreutils 'sha256sum'.
+# $1: the path to the file to hash
+file_sha256() {
+	if command -v sha256sum >/dev/null 2>&1; then
+		sha256sum "$1" | cut -d' ' -f1
+	elif command -v shasum >/dev/null 2>&1; then
+		shasum -a 256 "$1" | cut -d' ' -f1
+	else
+		die "No sha256sum or shasum command found"
+	fi
+}
+
+## host_group_id() - print the gid of a group of the host system
+# $1: the name of the group to look up
+host_group_id() {
+	local group="$1"
+
+	if [ "$cqfd_host_os" = "Darwin" ]; then
+		dscl . -read "/Groups/$group" PrimaryGroupID 2>/dev/null |
+			awk '{print $2}'
+	else
+		awk -F: -v group="$group" '$1 == group { print $3 }' /etc/group
+	fi
+}
 
 ## usage() - print usage on stdout
 usage() {
@@ -81,24 +137,30 @@ EOF
 # Will parse a ini-style config file, and evaluate it to a bash array.
 #   Ref: https://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #        by Andrés J. Díaz - License: MIT
+# Note: the patterns and replacements are kept in variables because bash 3.2
+# (the default shell on macOS) mis-parses $'...' literals containing braces
+# when they appear inline in a ${var/pattern/replacement} expansion.
 # $1: path to ini file
 cfg_parser() {
 	local ini
+	local tab=$'\t'
+	local section_head=$'\n}\nfunction cfg_section_'
+	local section_tail=' { :'
 
-	mapfile -t ini <"$1"                                 # convert to line-array
-	ini=("${ini[@]//[/\\[}")                             # escape [
-	ini=("${ini[@]//]/\\]}")                             # escape ]
-	ini=("${ini[@]//;*/}")                               # remove comments with ;
-	ini=("${ini[@]/$'\t'=/=}")                           # remove tabs before =
-	ini=("${ini[@]/=$'\t'/=}")                           # remove tabs after =
-	ini=("${ini[@]/\ =/=}")                              # remove space before =
-	ini=("${ini[@]/=\ /=}")                              # remove space after =
-	ini=("${ini[@]/#\\[/$'\n}\nfunction cfg_section_'}") # convert section to function (1)
-	ini=("${ini[@]/%\\]/ { :}")                          # convert section to function (2)
-	ini+=("}")                                           # add the last brace
-	ini[0]="${ini[0]/\}/}"                               # remove the first brace
-	ini=("$(printf "%s\n" "${ini[@]}")")                 # reconvert to line-array
-	eval "${ini[*]}"                                     # eval the result
+	read_lines ini <"$1"                          # convert to line-array
+	ini=("${ini[@]//[/\\[}")                      # escape [
+	ini=("${ini[@]//]/\\]}")                      # escape ]
+	ini=("${ini[@]//;*/}")                        # remove comments with ;
+	ini=("${ini[@]/$tab=/=}")                     # remove tabs before =
+	ini=("${ini[@]/=$tab/=}")                     # remove tabs after =
+	ini=("${ini[@]/\ =/=}")                       # remove space before =
+	ini=("${ini[@]/=\ /=}")                       # remove space after =
+	ini=("${ini[@]/#\\[/$section_head}")          # convert section to function (1)
+	ini=("${ini[@]/%\\]/$section_tail}")          # convert section to function (2)
+	ini+=("}")                                    # add the last brace
+	ini[0]="${ini[0]/\}/}"                        # remove the first brace
+	ini=("$(printf "%s\n" "${ini[@]}")")          # reconvert to line-array
+	eval "${ini[*]}"                              # eval the result
 }
 
 ## warn() - output warning
@@ -124,7 +186,7 @@ debug() {
 # $1: the image name to check if running
 image_is_running() {
 	local ids
-	mapfile -t ids < <("$cqfd_docker" ps --filter "ancestor=$1" --filter status=running --quiet)
+	read_lines ids < <("$cqfd_docker" ps --filter "ancestor=$1" --filter status=running --quiet)
 	test "${#ids[@]}" -gt 0
 }
 
@@ -136,7 +198,7 @@ list_images() {
 
 	user=${USER//[^0-9a-zA-Z\-]/_}
 
-	mapfile -t images < <("$cqfd_docker" images "cqfd_$user\_*" --format "{{.Repository}}")
+	read_lines images < <("$cqfd_docker" images "cqfd_$user\_*" --format "{{.Repository}}")
 
 	for image in "${images[@]}"; do
 		echo "$image"
@@ -147,7 +209,7 @@ list_images() {
 prune_images() {
 	local images
 
-	mapfile -t images < <(list_images)
+	read_lines images < <(list_images)
 
 	# Remove unused images if any
 	if [ "${#images[@]}" -gt 0 ]; then
@@ -293,8 +355,10 @@ docker_run() {
 		args+=(--tty)
 	fi
 
-	# Get the docker gid if the group exists
-	if [ "$cqfd_docker_gid" -eq 0 ]; then
+	# Get the docker gid if the group exists.
+	# Docker Desktop on macOS exposes the socket to the calling user, and
+	# macOS has no getent, so there is no docker group to look up there.
+	if [ "$cqfd_docker_gid" -eq 0 ] && command -v getent >/dev/null 2>&1; then
 		local docker_group
 		if IFS=: read -r -a docker_group < <(getent group docker); then
 			local docker_users
@@ -338,7 +402,7 @@ docker_run() {
 			if echo "$group" | grep -qE ":[0-9]+$"; then
 				CQFD_GROUPS+=("$group")
 			else
-				id=$(awk -F: "\$1 == \"$group\" { print \$3 }" /etc/group)
+				id=$(host_group_id "$group")
 				CQFD_GROUPS+=("$group:$id")
 			fi
 		done
@@ -361,12 +425,21 @@ docker_run() {
 		args+=(--volume "$HOME/.ssh:$cqfd_user_home/.ssh")
 	fi
 
-	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
+	# macOS ships a Darwin-specific /etc/ssh (UseKeychain, ...) that the
+	# OpenSSH client of a Linux container does not understand, so skip it.
+	if [ "$CQFD_NO_SSH_CONFIG" != true ] && [ "$cqfd_host_os" != "Darwin" ]; then
 		args+=(--volume /etc/ssh:/etc/ssh)
 	fi
 
 	if [ "$CQFD_NO_SSH_AUTH_SOCK" != true ] && [ "$SSH_AUTH_SOCK" ]; then
-		args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
+		if [ "$cqfd_host_os" = "Darwin" ]; then
+			# The host agent socket lives outside the Docker Desktop VM
+			# and cannot be bind mounted: use the magic socket path
+			# Docker Desktop forwards to the host ssh-agent instead.
+			args+=(--volume "/run/host-services/ssh-auth.sock:$cqfd_user_home/.sockets/ssh")
+		else
+			args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
+		fi
 		args+=(--env "SSH_AUTH_SOCK=$cqfd_user_home/.sockets/ssh")
 	fi
 
@@ -477,7 +550,12 @@ make_archive() {
 	# setting tar_transform=yes or tar_transform=true will move files to the
 	# root of a tar archive
 	if [ "$release_tar_transform" = "yes" ] || [ "$release_tar_transform" = "true" ]; then
-		tar_opts+=('--transform' 's/.*\///g')
+		if tar --version 2>/dev/null | grep -q "GNU tar"; then
+			tar_opts+=('--transform' 's/.*\///g')
+		else
+			# bsdtar (macOS) spells it -s, with a different syntax
+			tar_opts+=('-s' '|.*/||')
+		fi
 	fi
 
 	# setting tar_options=x will pass the options to tar
@@ -663,7 +741,7 @@ load_config() {
 	# functions reported by the builtin:
 	#  - the cfg_section_ prefix is stripped
 	#  - the build and project sections are stripped
-	mapfile -t flavors < <(compgen -A function -X '!cfg_section_*')
+	read_lines flavors < <(compgen -A function -X '!cfg_section_*')
 	flavors=("${flavors[@]/cfg_section_/}")
 	for i in "${!flavors[@]}"; do
 		if [[ "${flavors[$i]}" =~ ^(build|project)$ ]]; then
@@ -745,7 +823,7 @@ load_config() {
 
 		# This will look like cqfd_USER_ORG_NAME_HASH
 		format_user=${USER//[^0-9a-zA-Z\-]/_}
-		dockerfile_hash=$(sha256sum "$dockerfile" | cut -b 1-7)
+		dockerfile_hash=$(file_sha256 "$dockerfile" | cut -b 1-7)
 		docker_img_name="cqfd${format_user:+_$format_user}_${project_org}_${project_name}_${dockerfile_hash}${build_distro:+_$build_distro}"
 	fi
 }
@@ -861,7 +939,7 @@ while [ $# -gt 0 ]; do
 		fi
 		load_config "$flavor"
 		set_shell_histfile "$1"
-		command_string="${*@Q}"
+		command_string="$(quote_args "$@")"
 		docker_run "$command_string"
 		exit
 		;;
@@ -924,7 +1002,7 @@ while [ $# -gt 0 ]; do
 		set_shell_histfile "$cqfd_shell"
 		command_string="$cqfd_shell"
 		if [ "$#" -gt 0 ]; then
-			command_string+=" ${*@Q}"
+			command_string+=" $(quote_args "$@")"
 		fi
 		docker_run "$command_string"
 		exit

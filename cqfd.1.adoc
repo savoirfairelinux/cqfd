@@ -154,7 +154,8 @@ another container or another build command.
 	Set to _true_ to disable forwarding the global _/etc/ssh_
 	configurations to the container. This may be required if the host's
 	_ssh_ configuration is not compatible with the _ssh_ version within the
-	container.
+	container. On macOS, _/etc/ssh_ is never forwarded, as it holds
+	Darwin-only options that a Linux container rejects.
 
 *CQFD_NO_USER_SSH_CONFIG*::
 	Set to _true_ to disable forwarding the user's _~/.ssh_ configuration
@@ -170,7 +171,8 @@ another container or another build command.
 
 *CQFD_NO_SSH_AUTH_SOCK*::
 	Set to _true_ to disable forwarding the SSH authentication socket to
-	the container.
+	the container. On macOS, the socket is forwarded through the
+	_/run/host-services/ssh-auth.sock_ path provided by Docker Desktop.
 
 *CQFD_BIND_DOCKER_SOCK*::
 	Set to _true_ to enable forwarding the docker socket to the container.
