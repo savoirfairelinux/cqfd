@@ -1,5 +1,18 @@
 # Changelog for cqfd
 
+## Unreleased
+
+* Add macOS support:
+  * Run on the system bash 3.2 (replace `mapfile` and `${*@Q}`, and work
+    around a bash 3.2 parsing bug in the ini parser)
+  * Fall back to `shasum` when `sha256sum` is unavailable
+  * Resolve host group ids with `dscl` and skip the `getent`-based docker
+    group lookup, which Docker Desktop does not need
+  * Forward the ssh agent through Docker Desktop's
+    `/run/host-services/ssh-auth.sock`, and skip the Darwin-specific
+    `/etc/ssh` configuration
+  * Use the `bsdtar` spelling of `--transform` when releasing
+
 ## Version 5.10.2 (2026-04-24)
 
 * Better handling of user deletion if conflicting in container. This affects
