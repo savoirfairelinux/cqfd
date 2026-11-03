@@ -3,10 +3,7 @@
 setup_suite() {
     export cqfd_docker="${CQFD_DOCKER:-docker}"
     mkdir -p "$BATS_SUITE_TMPDIR/.cqfd/docker"
-    # get the containing directory of this file
-    # use $BATS_TEST_FILENAME instead of ${BASH_SOURCE[0]} or $0,
-    # as those will point to the bats executable's location or the preprocessed file respectively
-    PROJECT_ROOT="$( cd "$( dirname "$BATS_TEST_FILENAME" )/.." >/dev/null 2>&1 && pwd )"
+    PROJECT_ROOT="$( cd "$BATS_CWD/.." && pwd )"
     export PROJECT_ROOT
     export PATH="$BATS_SUITE_TMPDIR/.cqfd:$PATH"
     cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
