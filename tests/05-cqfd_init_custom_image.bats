@@ -3,7 +3,6 @@
 setup() {
     load 'test_helper/common-setup'
     _common_setup
-    cqfd_docker="${CQFD_DOCKER:-docker}"
 }
 
 @test "cqfd with custom image works" {
@@ -12,6 +11,7 @@ setup() {
     cd "$TEST_DIR" || exit 1
     custom_image_1="cqfd_test_custom_image_1_$RANDOM$RANDOM"
 
+    # shellcheck disable=SC2154
     run "$cqfd_docker" inspect "$custom_image_1"
     assert_failure
     # Test .cqfdrc
