@@ -35,7 +35,6 @@ EOF
     assert_success
 
     "$cqfd_docker" inspect "$custom_image_1"
-    assert_success
 
     # cleanup
     "$cqfd_docker" rmi "$custom_image_1"
