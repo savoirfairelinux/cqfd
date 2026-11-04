@@ -8,8 +8,7 @@ setup_suite() {
     # as those will point to the bats executable's location or the preprocessed file respectively
     PROJECT_ROOT="$( cd "$( dirname "$BATS_TEST_FILENAME" )/.." >/dev/null 2>&1 && pwd )"
     export PROJECT_ROOT
-    # make executables in src/ visible to PATH
-    export PATH="$PROJECT_ROOT:$PATH"
+    export PATH="$BATS_SUITE_TMPDIR/.cqfd:$PATH"
     cp -a "$PROJECT_ROOT"/cqfd "$BATS_SUITE_TMPDIR/.cqfd/"
     cp -a "$PROJECT_ROOT"/tests/test_data/. "$BATS_SUITE_TMPDIR/."
     cd "$BATS_SUITE_TMPDIR/" || exit 1

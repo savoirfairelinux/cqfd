@@ -28,6 +28,10 @@ _cqfd() {
 	_init_completion || return
 
 	case $prev in
+	--platform)
+		COMPREPLY=( $( compgen -W "linux/amd64 linux/arm/v6 linux/arm/v7 linux/arm64 linux/ppc64le linux/riscv64 linux/s390x" -- "$cur" ) )
+		return
+		;;
 	-C|-d)
 		_filedir -d
 		return
@@ -94,7 +98,7 @@ _cqfd() {
 		return
 	fi
 
-	local opts="-C -d -f -b -q --release -v --version -h --help"
+	local opts="-C -d -f -b -q --release --platform -v --version -h --help"
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
 		return
@@ -104,4 +108,4 @@ _cqfd() {
 	local cmds="init deinit images prune flavors exec run release shell version help"
 	COMPREPLY=( $(compgen -W "$shells $cmds $opts" -- "$cur") )
 } &&
-complete -F _cqfd cqfd
+complete -F _cqfd cqfd linux-amd64-cqfd linux-arm-cqfd linux-arm64-cqfd linux-ppc64le-cqfd linux-riscv64-cqfd linux-s390x-cqfd
