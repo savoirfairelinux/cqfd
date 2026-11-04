@@ -16,6 +16,9 @@ jobs:
     - name: Run linting
       run: make check
 
+    - name: Setup aarch64 binfmt
+      run: docker run --privileged --rm tonistiigi/binfmt --install arm64
+
     - name: Run tests for docker
       run: make tests
 
@@ -28,6 +31,9 @@ jobs:
 
     - name: Run linting
       run: make check
+
+    - name: Setup aarch64 binfmt
+      run: sudo podman run --privileged --rm docker.io/tonistiigi/binfmt --install arm64
 
     - name: Run tests for podman
       run: make CQFD_DOCKER=podman tests
