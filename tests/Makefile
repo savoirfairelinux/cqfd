@@ -13,7 +13,7 @@ tests: CQFD_BIND_DOCKER_SOCK =
 tests: CQFD_DOCKER_GID =
 tests: CQFD_SHELL =
 tests:
-	./bats/bin/bats ./
+	./bats/bin/bats $$PWD
 
 check:
 	shellcheck -x [0-9][0-9]*
