@@ -59,31 +59,31 @@ teardown_file() {
     assert_line "cqfd: warning: .cqfdrc: Missing or empty build.command property"
 }
 
-@test "cqfdrc with tabulation before should pass" {
+@test "cqfdrc with tabulation before should not pass" {
     cp -f .cqfdrc.old .cqfdrc
     echo "foo	=bar" >>.cqfdrc
     run cqfd run true
-    assert_success
+    assert_failure
 }
 
-@test "cqfdrc with tabulation after should pass" {
+@test "cqfdrc with tabulation after should not pass" {
     cp -f .cqfdrc.old .cqfdrc
     echo "foo=	bar" >>.cqfdrc
     run cqfd run true
-    assert_success
+    assert_failure
 }
 
-@test "cqfdrc with space before should pass" {
+@test "cqfdrc with space before should not pass" {
     cp -f .cqfdrc.old .cqfdrc
     echo "foo =bar" >>.cqfdrc
     run cqfd run true
-    assert_success
+    assert_failure
 }
 
-@test "cqfdrc with space after should pass" {
+@test "cqfdrc with space after should not pass" {
     cp -f .cqfdrc.old .cqfdrc
     echo "foo= bar" >>.cqfdrc
     run cqfd run true
-    assert_success
+    assert_failure
 }
 
