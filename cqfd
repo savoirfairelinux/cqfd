@@ -363,7 +363,14 @@ docker_run() {
 
 	if [ "$CQFD_NO_SSH_CONFIG" != true ]; then
 		args+=(--volume /etc/ssh:/etc/ssh)
-	fi
+
+		# Latest systemd version replaces certain older configuration files with
+		# symlinks to /usr/lib/systemd/ssh_config.d/.
+		# Docker does not follow symlinks resulting in broken SSH configuration.
+		if [ -d /usr/lib/systemd/ssh_config.d ]; then
+			args+=(--volume "/usr/lib/systemd/ssh_config.d:/usr/lib/systemd/ssh_config.d")
+		fi
+  fi
 
 	if [ "$CQFD_NO_SSH_AUTH_SOCK" != true ] && [ "$SSH_AUTH_SOCK" ]; then
 		args+=(--volume "$SSH_AUTH_SOCK:$cqfd_user_home/.sockets/ssh")
