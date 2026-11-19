@@ -32,7 +32,11 @@ teardown_file() {
 }
 
 @test "cqfd user has access to ssh config in home directory when ubuntu user existed" {
-    run cqfd run 'ssh -G random_host | grep userknownhostsfile'
+    if [ "${CQFD_DOCKER:-docker}" == "podman" ]; then
+      CQFD_NO_SSH_CONFIG=true run cqfd run 'ssh -G random_host | grep userknownhostsfile'
+    else
+      run cqfd run 'ssh -G random_host | grep userknownhostsfile' 
+    fi
     assert_line --partial "$HOME"
 }
 
@@ -40,7 +44,11 @@ teardown_file() {
     sed -i "s/ubuntu:24.04/debian:trixie/" .cqfd/docker/Dockerfile
     run cqfd init
     assert_success
-    run cqfd run 'ssh -G random_host | grep userknownhostsfile'
+    if [ "${CQFD_DOCKER:-docker}" == "podman" ]; then 
+      CQFD_NO_SSH_CONFIG=true run cqfd run 'ssh -G random_host | grep userknownhostsfile'
+    else
+      run cqfd run 'ssh -G random_host | grep userknownhostsfile' 
+    fi
     assert_line --partial "$HOME"
 }
 
