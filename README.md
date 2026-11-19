@@ -642,6 +642,11 @@ CQFD_DOCKER="podman" cqfd init
 CQFD_DOCKER="podman" cqfd shell
 ```
 
+### Podman and SSH configurations
+
+Since Podman is working in rootless mode, SSH configurations which belong to root in `/etc/ssh` will not be applied.
+As such, use the `CQFD_NO_SSH_CONFIG=true` option to avoid any permission problems and add your configs to your `.ssh` folder to have them applied.
+
 ## Testing cqfd (for developers)
 
 The codebase contains tests which can be invoked using the following
